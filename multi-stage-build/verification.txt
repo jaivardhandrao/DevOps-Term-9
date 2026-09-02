@@ -1,0 +1,10 @@
+$ docker build -t devops-homework-multi-stage ./multi-stage-build
+[build completed successfully]
+
+$ docker ps --filter name=devops-homework-multi-stage-run \
+    --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+NAMES                             STATUS         PORTS
+devops-homework-multi-stage-run   Up 3 minutes   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp
+
+$ curl -fsS http://localhost:8080 | grep -o 'Hello World from Docker multi-stage build'
+Hello World from Docker multi-stage build

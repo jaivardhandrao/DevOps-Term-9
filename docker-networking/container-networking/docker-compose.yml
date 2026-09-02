@@ -1,0 +1,55 @@
+services:
+  frontend:
+    image: nginx:1.27-alpine
+    ports:
+      - "8081:80"
+    volumes:
+      - ./frontend/index.html:/usr/share/nginx/html/index.html:ro
+    networks:
+      - frontend_net
+      - application_net
+    depends_on:
+      - backend
+
+  backend:
+    image: alpine:3.20
+    command:
+      - /bin/sh
+      - -c
+      - >-
+        while true; do
+          { printf 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n';
+          cat /www/index.html; } | nc -l -p 8080;
+        done
+    volumes:
+      - ./backend/index.html:/www/index.html:ro
+    networks:
+      - application_net
+      - database_net
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}"
+      MYSQL_DATABASE: homework
+    volumes:
+      - database_data:/var/lib/mysql
+    networks:
+      - database_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+networks:
+  frontend_net:
+  application_net:
+  database_net:
+
+volumes:
+  database_data:

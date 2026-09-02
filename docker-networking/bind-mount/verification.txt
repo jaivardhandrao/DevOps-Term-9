@@ -1,0 +1,11 @@
+Initial response:
+<h1>Hello students</h1>
+container id: 6ec853c18b7f
+
+Response after editing site/index.html:
+<h1>Hello students - the bind mount updated live</h1>
+container id: 6ec853c18b7f
+restart count: 0
+
+The matching ID and zero restart count show that the file changed through the bind mount without
+rebuilding or restarting the container.

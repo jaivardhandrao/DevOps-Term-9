@@ -1,0 +1,26 @@
+$ docker compose ps
+NAME                              IMAGE               SERVICE    STATUS
+container-networking-backend-1    alpine:3.20         backend    Up
+container-networking-database-1   mysql:8.4           database   Up (healthy)
+container-networking-frontend-1   nginx:1.27-alpine   frontend   Up
+
+$ docker compose exec frontend wget -qO- http://backend:8080
+<h1>Hello from the backend container</h1>
+
+$ docker compose exec backend nc -zvw 3 database 3306
+database (172.21.0.2:3306) open
+
+$ docker compose exec frontend sh -c 'getent hosts database || echo isolated'
+isolated
+
+$ docker network ls --filter name=container-networking --format '{{.Name}}'
+container-networking_application_net
+container-networking_database_net
+container-networking_frontend_net
+
+$ docker inspect container-networking-backend-1 \
+    --format '{{range $name, $config := .NetworkSettings.Networks}}{{$name}}{{"\n"}}{{end}}'
+container-networking_application_net
+container-networking_database_net
+
+Result: frontend can reach backend, backend can reach MySQL, and frontend is isolated from MySQL.

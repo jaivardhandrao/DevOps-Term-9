@@ -1,0 +1,6 @@
+services:
+  apache:
+    image: httpd:2.4-alpine
+    network_mode: host
+    volumes:
+      - ./index.html:/usr/local/apache2/htdocs/index.html:ro

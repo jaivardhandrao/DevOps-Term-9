@@ -1,0 +1,13 @@
+$ docker inspect host-network-apache-1 --format '{{.HostConfig.NetworkMode}}'
+host
+
+$ docker inspect host-network-apache-1 --format '{{json .NetworkSettings.Ports}}'
+{}
+
+$ docker run --rm --network host alpine:3.20 \
+    wget -qO- http://127.0.0.1:80 | grep -o '<h1>[^<]*</h1>'
+<h1>Hello from Apache on the host network</h1>
+
+The empty published-ports object confirms that there is no `-p` mapping. A second container in the
+same Docker host namespace reached Apache on port 80. Direct macOS access requires Docker Desktop's
+optional host-network forwarding setting, which is disabled on this machine.
