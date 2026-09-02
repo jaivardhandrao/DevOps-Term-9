@@ -1,0 +1,19 @@
+All six builds completed successfully on Docker 29.4.3.
+
+Image                         Host request            Observed heading
+devops-homework-node          localhost:8101         Hello World from Node.js!
+devops-homework-python        localhost:8102         Hello World from Python!
+devops-homework-java          localhost:8103         Hello World from Java!
+devops-homework-apache        localhost:8104         Hello World from Apache!
+devops-homework-react         localhost:8105         Hello World from React!
+devops-homework-nginx         localhost:8106         Hello World from Nginx!
+
+The React check returned HTTP 200, served `<div id="root"></div>`, and its production bundle
+contained `Hello World from React!`. The other five headings were read directly from their HTTP
+responses.
+
+The Node, Python, and Java application containers also ran without root privileges:
+
+devops-homework-node-run: node
+devops-homework-python-run: 10001
+devops-homework-java-run: app
