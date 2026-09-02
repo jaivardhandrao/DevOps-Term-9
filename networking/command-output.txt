@@ -1,0 +1,39 @@
+$ ./network-checks.sh
+== Hostname ==
+8f52c5a94db9
+
+== Interfaces ==
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+eth0@if3637      UP             172.17.0.5/16
+
+== Routes ==
+default via 172.17.0.1 dev eth0
+172.17.0.0/16 dev eth0 proto kernel scope link src 172.17.0.5
+
+== DNS lookup ==
+Server:         192.168.65.7
+Address:        192.168.65.7#53
+
+Non-authoritative answer:
+Name:   example.com
+Address: 104.20.23.154
+Name:   example.com
+Address: 172.66.147.243
+
+== Connectivity ==
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=63 time=13.8 ms
+64 bytes from 1.1.1.1: icmp_seq=2 ttl=63 time=27.4 ms
+
+--- 1.1.1.1 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss
+
+== HTTP headers ==
+HTTP/2 200
+content-type: text/html
+server: cloudflare
+
+== Listening sockets ==
+Netid State Recv-Q Send-Q Local Address:Port Peer Address:Port
+
+The interface identifiers, addresses, and timings are expected to vary between runs.

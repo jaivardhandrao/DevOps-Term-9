@@ -1,0 +1,24 @@
+$ docker exec devops-linux-lab bash -lc '<link, adduser, and journalctl checks>'
+
+== link exercise ==
+total 8
+2067952 -rw-r--r-- 2 root root 11 Sep  2 17:12 hard-link.txt
+2067952 -rw-r--r-- 2 root root 11 Sep  2 17:12 original.txt
+2067953 lrwxrwxrwx 1 root root 12 Sep  2 17:12 soft-link.txt -> original.txt
+same inode count: 1
+hard link after original removal: first file
+soft link state: broken
+
+== user exercise ==
+adduser: /usr/sbin/adduser
+useradd: /usr/sbin/useradd
+uid=1001(devopsdemo) gid=1001(devopsdemo) groups=1001(devopsdemo),100(users)
+devopsdemo:x:1001:1001:,,,:/home/devopsdemo:/bin/bash
+
+== journalctl availability ==
+systemd 255 (255.4-1ubuntu8.17)
+No journal files were found.
+-- No entries --
+
+The command was run in an Ubuntu 24.04 container. `journalctl` is installed, but the container
+does not boot systemd as PID 1, so it correctly has no service journal entries.

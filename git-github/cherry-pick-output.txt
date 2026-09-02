@@ -1,0 +1,28 @@
+status after commit -a:
+?? untracked.txt
+
+branch history before cherry-pick:
+* 2797872 (HEAD -> command-notes) Add journalctl note
+* 702a246 Add networking note
+* 0a34f04 (main) Test commit -a with tracked file
+* 4e238ef Add Docker note
+* 1b3a25a Add Linux note
+* b5845f2 Add base notes
+
+$ git switch main
+$ git cherry-pick 702a246
+[main ccfbc8e] Add networking note
+ 1 file changed, 1 insertion(+)
+
+main history after cherry-pick:
+ccfbc8e (HEAD -> main) Add networking note
+0a34f04 Test commit -a with tracked file
+4e238ef Add Docker note
+1b3a25a Add Linux note
+b5845f2 Add base notes
+
+selected change now on main:
+networking
+
+original branch commit: 702a246
+cherry-picked main commit: ccfbc8e

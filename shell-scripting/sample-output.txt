@@ -1,0 +1,26 @@
+$ printf "Jaivardhan D. Rao\n24BCS10117\n" | ./system-info.sh
+System information report
+Name: Jaivardhan D. Rao
+Enrollment number: 24BCS10117
+Date: 2026-09-02 17:13:02 UTC
+Hostname: 8f52c5a94db9
+Username: root
+
+Disk usage:
+Filesystem      Size  Used Avail Use% Mounted on
+overlay         251G  136G  103G  57% /
+tmpfs            64M     0   64M   0% /dev
+shm              64M     0   64M   0% /dev/shm
+/dev/vda1       251G  136G  103G  57% /etc/hosts
+
+Running processes were saved to system-report/processes.txt
+
+Running processes:
+  PID  PPID USER     COMMAND
+    1     0 root     sleep
+ 3147     0 root     bash
+ 3156  3147 root     bash
+ 3162  3156 root     ps
+
+This run was made inside the disposable Ubuntu homework container. The generated report directory
+was not committed.
