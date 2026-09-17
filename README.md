@@ -35,6 +35,10 @@ The Kubernetes work has separate [validation evidence](KUBERNETES-VALIDATION.md)
 lab instructions are prepared; live Kubernetes execution evidence is still pending. Examples of
 expected behavior in those READMEs are not captured cluster output.
 
+[Recorded local command-output images and raw logs](evidence/local-validation/README.md) show the
+schema, API, and Docker checks. The same page links the student-run script for capturing actual
+Kubernetes Terminal screenshots on a local cluster.
+
 No external application credentials are required by these exercises. The database used in the
 local networking lab gets its disposable password from an untracked `.env` file. The Kubernetes
 Secret exercise creates its own disposable demonstration value in an ignored local file.

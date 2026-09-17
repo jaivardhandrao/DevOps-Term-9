@@ -1,0 +1,34 @@
+Actual Docker run: backend
+Jaivardhan D. Rao | 24BCS10117
+Recorded: 2026-09-17T15:09:03+00:00
+
+$ docker run --rm -d --network none --name devops-evidence-backend-8b796a7c -v /var/folders/3g/t9h7yhrn30lbs8ywyk7b5lpc0000gn/T/devops-evidence-oh1mtrdw/app.py:/app/app.py:ro -e ENVIRONMENT=coursework -e LOG_LEVEL=INFO -e DEFAULT_CURRENCY=INR -e DEMO_TOKEN=public-test-fixture-not-a-credential python:3.13-alpine python3 /app/app.py
+
+f812d81eeb52e537ad2d5cf3e6ead48910f06094aa09c970abc1ea5499049a73
+
+[exit 0]
+
+$ docker ps --filter name=devops-evidence-backend-8b796a7c --format 'table {{.Names}}	{{.Image}}	{{.Status}}'
+
+NAMES                              IMAGE                STATUS
+devops-evidence-backend-8b796a7c   python:3.13-alpine   Up 5 seconds
+
+[exit 0]
+
+$ docker exec devops-evidence-backend-8b796a7c python3 -c 'import urllib.request; print(urllib.request.urlopen('"'"'http://127.0.0.1:5000/api/health'"'"').read().decode())'
+
+{"service": "DevOps session 12 API", "environment": "coursework", "log_level": "INFO", "currency": "INR", "secret_loaded": true}
+
+[exit 0]
+
+$ docker image inspect python:3.13-alpine --format '{{index .RepoDigests 0}}'
+
+python@sha256:7415fbc3c9e4979cc717d92377ab2bc7b2b4a2af1ac03cc52b5f3f88efedaf3a
+
+[exit 0]
+
+$ docker rm -f devops-evidence-backend-8b796a7c
+
+devops-evidence-backend-8b796a7c
+
+[exit 0]

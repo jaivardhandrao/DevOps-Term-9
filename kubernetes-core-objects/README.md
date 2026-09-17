@@ -126,6 +126,15 @@ and `ImagePullBackOff` are displayed waiting reasons, not additional Pod phases.
 
 ## Evidence to capture
 
+These images show local validation that actually ran. Pod replacement, rollout, and lifecycle
+screenshots from a running cluster remain pending.
+
+![Actual manifest schema validation output](../evidence/local-validation/01-schema-validation.png)
+
+![Actual API and manifest relationship checks](../evidence/local-validation/02-api-and-references.png)
+
+[Raw logs and the live screenshot capture script](../evidence/local-validation/README.md)
+
 Save actual Pod/ReplicaSet/Deployment output, replacement Pod names, rollout history, v1/v2
 HTTP responses, Service endpoints before/after blue-green, and describe/log output from the
 lifecycle drills. [Validation evidence](../KUBERNETES-VALIDATION.md) states what was checked here.

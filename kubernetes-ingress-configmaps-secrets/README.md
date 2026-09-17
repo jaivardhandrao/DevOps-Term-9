@@ -178,6 +178,15 @@ value, so check the bytes instead of guessing from a base64 suffix.
 
 ## Evidence, troubleshooting, and cleanup
 
+These recorded output images show the actual Docker containers and their HTTP responses.
+They do not prove Kubernetes configuration injection or Ingress routing.
+
+![Nginx frontend actual Docker execution](../evidence/local-validation/03-frontend.png)
+
+![Python backend actual Docker execution](../evidence/local-validation/04-backend.png)
+
+[Raw logs and live Kubernetes screenshot instructions](../evidence/local-validation/README.md)
+
 Capture resource listings, non-sensitive configuration, HTTP route responses, the ConfigMap
 before/after restart, and TLS responses. Do not capture the value of `DEMO_TOKEN`.
 For missing configuration, inspect Pod events and referenced object/key names. For routing
