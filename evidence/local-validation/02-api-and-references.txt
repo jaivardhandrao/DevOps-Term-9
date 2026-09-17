@@ -1,0 +1,21 @@
+API behavior and manifest relationship checks
+Jaivardhan D. Rao | 24BCS10117
+Recorded: 2026-09-17T15:09:03+00:00
+
+$ /private/tmp/devops-session-tools/venv/bin/python scripts/validate-kubernetes.py
+
+127.0.0.1 - - [17/Sep/2026 20:40:20] "GET /api HTTP/1.1" 200 -
+127.0.0.1 - - [17/Sep/2026 20:40:20] "GET /api/ HTTP/1.1" 200 -
+127.0.0.1 - - [17/Sep/2026 20:40:20] "GET /api/health HTTP/1.1" 200 -
+127.0.0.1 - - [17/Sep/2026 20:40:20] code 404, message Not Found
+127.0.0.1 - - [17/Sep/2026 20:40:20] "GET / HTTP/1.1" 404 -
+127.0.0.1 - - [17/Sep/2026 20:40:20] code 404, message Not Found
+127.0.0.1 - - [17/Sep/2026 20:40:20] "GET /apix HTTP/1.1" 404 -
+127.0.0.1 - - [17/Sep/2026 20:40:20] code 404, message Not Found
+127.0.0.1 - - [17/Sep/2026 20:40:20] "GET /api/missing HTTP/1.1" 404 -
+127.0.0.1 - - [17/Sep/2026 20:40:20] "GET /api/health HTTP/1.1" 200 -
+PASS: 43 Kubernetes objects; namespaces, workload selectors, Service target ports, Ingress backends, ConfigMap references, external Secret contract, StatefulSet service, rollout selectors
+PASS: API three success routes, three 404 routes, configuration values, secret presence/absence, and no secret-value disclosure
+PASS: 60 relative Markdown file links
+
+[exit 0]

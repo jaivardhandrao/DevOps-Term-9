@@ -101,6 +101,12 @@ An empty ready-endpoint list does not by itself prove a DNS failure.
 
 ## Evidence and cleanup
 
+The recorded image below shows static Service-port and reference checks, not live DNS or
+network traffic. [Raw logs and live screenshot instructions](../evidence/local-validation/README.md)
+are available alongside it.
+
+![Actual resource relationship checks](../evidence/local-validation/02-api-and-references.png)
+
 Capture DNS answers, HTTP responses, assigned Service ports, StatefulSet names, and endpoint
 changes from the broken-selector exercise. See [validation evidence](../KUBERNETES-VALIDATION.md)
 for completed local checks. After the lab, delete only these resources with their file paths;

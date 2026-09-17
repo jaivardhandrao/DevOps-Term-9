@@ -9,6 +9,11 @@
 There was no configured Kubernetes context on this machine, so no cluster was created or
 modified. No database, AWS, or Terraform operations were executed for these sessions.
 
+Four [recorded command-output images and their raw transcripts](evidence/local-validation/README.md)
+are now embedded in the session READMEs. These are images rendered from fresh, real command
+output; native Terminal screenshots were not captured. The separate student-run live-cluster
+capture script is prepared and syntax checked, but has not been executed.
+
 ## 1. Strict Kubernetes schemas
 
 Used kubeconform **v0.8.0**, with its release archive checked against the publisher's SHA-256

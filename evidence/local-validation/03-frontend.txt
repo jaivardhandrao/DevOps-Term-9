@@ -1,0 +1,36 @@
+Actual Docker run: frontend
+Jaivardhan D. Rao | 24BCS10117
+Recorded: 2026-09-17T15:09:03+00:00
+
+$ docker run --rm -d --network none --name devops-evidence-frontend-b5a80b77 -e 'APP_VERSION=DevOps session 12 frontend' nginx:1.28-alpine /bin/sh -c 'printf '"'"'Hello from %s\n'"'"' "$APP_VERSION" > /usr/share/nginx/html/index.html
+exec nginx -g '"'"'daemon off;'"'"'
+'
+
+8d5b206092f1e5e82cf9fdf0bb3b2ef4c687d3e39ae12107e8cd2e7ff4ddb33b
+
+[exit 0]
+
+$ docker ps --filter name=devops-evidence-frontend-b5a80b77 --format 'table {{.Names}}	{{.Image}}	{{.Status}}'
+
+NAMES                               IMAGE               STATUS
+devops-evidence-frontend-b5a80b77   nginx:1.28-alpine   Up Less than a second
+
+[exit 0]
+
+$ docker exec devops-evidence-frontend-b5a80b77 wget -qO- http://127.0.0.1/
+
+Hello from DevOps session 12 frontend
+
+[exit 0]
+
+$ docker image inspect nginx:1.28-alpine --format '{{index .RepoDigests 0}}'
+
+nginx@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236
+
+[exit 0]
+
+$ docker rm -f devops-evidence-frontend-b5a80b77
+
+devops-evidence-frontend-b5a80b77
+
+[exit 0]

@@ -69,6 +69,9 @@ Continue with [session 10](../kubernetes-core-objects/README.md),
 
 ## Evidence and cleanup
 
+[Recorded local validation images and the student-run screenshot script](../evidence/local-validation/README.md)
+are available. A screenshot of a live Kubernetes cluster remains pending.
+
 See [validation evidence](../KUBERNETES-VALIDATION.md) for checks actually performed. This setup
 is a runbook, not a claim that the cluster commands above have run. After finishing and saving
 the required output, the student can remove only this disposable lab:
