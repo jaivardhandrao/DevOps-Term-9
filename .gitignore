@@ -8,3 +8,5 @@ dist/
 __pycache__/
 *.class
 shell-scripting/system-report/
+/kubernetes-ingress-configmaps-secrets/tls.key
+/kubernetes-ingress-configmaps-secrets/tls.crt
