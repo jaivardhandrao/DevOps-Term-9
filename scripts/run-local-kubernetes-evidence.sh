@@ -4,6 +4,16 @@ set -euo pipefail
 
 repo_dir="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$repo_dir"
+resume=0
+if [[ $# == 0 ]]; then
+  profile="devops-evidence-$(date +%Y%m%d-%H%M%S)"
+elif [[ $# == 2 && "$1" == --resume && "$2" =~ ^devops-evidence-[0-9]{8}-[0-9]{6}$ ]]; then
+  profile="$2"
+  resume=1
+else
+  printf 'Usage: bash scripts/run-local-kubernetes-evidence.sh [--resume devops-evidence-YYYYMMDD-HHMMSS]\n' >&2
+  exit 2
+fi
 for tool in docker kubectl minikube python3 screencapture; do
   if ! command -v "$tool" >/dev/null 2>&1; then
     printf 'Missing prerequisite: %s\n' "$tool" >&2
@@ -16,8 +26,7 @@ if [[ -n "${DOCKER_HOST:-}" ]] || [[ "$(docker context inspect --format '{{.Endp
   exit 1
 fi
 
-profile="devops-evidence-$(date +%Y%m%d-%H%M%S)"
-output_dir="$repo_dir/evidence/live/$profile"
+output_dir="$repo_dir/evidence/live/$profile/attempt-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$output_dir"
 scratch_dir="$(mktemp -d -t devops-evidence)"
 forward_pid=""
@@ -39,11 +48,24 @@ capture() {
 }
 
 printf 'Student-run local Kubernetes lab. Profile: %s\n' "$profile"
-printf 'This creates Kubernetes control-plane state and deploys the coursework examples.\n'
-run minikube start -p "$profile" --driver=docker
+if [[ "$resume" == 1 ]]; then
+  printf 'Resuming the existing local cluster; coursework resources will be reapplied.\n'
+  run minikube -p "$profile" status
+  server="$(kubectl "--context=$profile" config view --minify -o jsonpath='{.clusters[0].cluster.server}')"
+  if [[ "$server" != https://127.0.0.1:* && "$server" != https://localhost:* ]]; then
+    printf 'Refusing to resume a context whose API server is not on localhost.\n' >&2
+    exit 1
+  fi
+else
+  printf 'This creates Kubernetes control-plane state and deploys the coursework examples.\n'
+  run minikube start -p "$profile" --driver=docker
+fi
+run kubectl "--context=$profile" wait --for=condition=Ready nodes --all --timeout=300s
+run kubectl "--context=$profile" -n kube-system rollout status deployment/coredns --timeout=180s
 run kubectl "--context=$profile" cluster-info
 run kubectl "--context=$profile" get nodes -o wide
 run kubectl "--context=$profile" apply -f kubernetes-fundamentals/namespace.yaml
+k wait --for=create serviceaccount/default --timeout=180s
 k apply -f kubernetes-services/client.yaml
 k wait --for=condition=Ready pod/dns-client --timeout=180s
 capture 01-fundamentals 'Kubernetes Fundamentals: actual local cluster'
@@ -78,7 +100,10 @@ k get services
 k get endpointslices -l kubernetes.io/service-name=web-clusterip -o wide
 capture 03-session-11 'Session 11: DNS, ClusterIP, NodePort and headless discovery'
 
-python3 - "$scratch_dir/secret.env" <<'PY'
+k apply -f kubernetes-ingress-configmaps-secrets/configmap.yaml -f kubernetes-ingress-configmaps-secrets/backend-code.yaml
+existing_secret="$(kubectl "--context=$profile" -n devops-homework get secret demo-credentials --ignore-not-found -o name)"
+if [[ -z "$existing_secret" ]]; then
+  python3 - "$scratch_dir/secret.env" <<'PY'
 import os
 import secrets
 import sys
@@ -86,10 +111,15 @@ with open(sys.argv[1], 'x') as secret_file:
     os.chmod(sys.argv[1], 0o600)
     secret_file.write('DEMO_TOKEN=' + secrets.token_hex(16) + '\n')
 PY
-k apply -f kubernetes-ingress-configmaps-secrets/configmap.yaml -f kubernetes-ingress-configmaps-secrets/backend-code.yaml
-k create secret generic demo-credentials "--from-env-file=$scratch_dir/secret.env"
+  k create secret generic demo-credentials "--from-env-file=$scratch_dir/secret.env"
+else
+  printf 'Reusing the existing demo-credentials Secret without printing its value.\n'
+fi
 k describe secret demo-credentials
 k apply -f kubernetes-ingress-configmaps-secrets/frontend.yaml -f kubernetes-ingress-configmaps-secrets/backend.yaml
+if [[ "$resume" == 1 ]]; then
+  k rollout restart deployment/demo-backend
+fi
 k rollout status deployment/demo-frontend --timeout=180s
 k rollout status deployment/demo-backend --timeout=180s
 run minikube -p "$profile" addons enable ingress

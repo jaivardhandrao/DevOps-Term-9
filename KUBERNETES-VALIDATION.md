@@ -5,14 +5,21 @@
 - **Validation date:** 17 September 2026
 - **Scope:** Kubernetes Fundamentals and sessions 10, 11, and 12.
 
-**The manifests and local application checks passed. Live Kubernetes execution is pending.**
-There was no configured Kubernetes context on this machine, so no cluster was created or
-modified. No database, AWS, or Terraform operations were executed for these sessions.
+**The manifests and local application checks passed. Full live Kubernetes execution is pending.**
+There was no configured Kubernetes context during the initial local validation. Those checks
+did not create or modify a cluster or perform database, AWS, or Terraform operations.
+
+The student's subsequent live run created a local Minikube cluster but failed before creating
+the first Pod. The [original screenshot, diagnosis, and resume command](evidence/startup-race/README.md)
+document the default ServiceAccount startup race. A later read-only check found the node Ready
+and the default ServiceAccount present. The runner has readiness waits and resume support;
+full runtime validation of the corrected runner is still pending.
 
 Four [recorded command-output images and their raw transcripts](evidence/local-validation/README.md)
 are now embedded in the session READMEs. These are images rendered from fresh, real command
-output; native Terminal screenshots were not captured. The separate student-run live-cluster
-capture script is prepared and syntax checked, but has not been executed.
+output; they are not native Terminal screenshots. The separate screenshot supplied by the
+student documents the failed startup attempt. The corrected live-cluster capture script has
+syntax and isolated regression checks.
 
 ## 1. Strict Kubernetes schemas
 

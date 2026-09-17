@@ -51,7 +51,9 @@ Menlo font. Output is saved alongside this README.
 The [student-run script](../../scripts/run-local-kubernetes-evidence.sh) creates a new local
 Minikube profile, runs the principal exercises, saves the complete command transcript, and
 opens the macOS screenshot picker at four checkpoints. Click the Terminal window at each
-checkpoint to capture it. This script **has been syntax checked but has not been executed**.
+checkpoint to capture it. The student ran the original script and hit a
+[startup race](../startup-race/README.md). The corrected version has regression checks;
+its full live rerun remains pending.
 
 Prerequisites: Docker Desktop running, kubectl, Minikube, Python 3, and macOS screen capture.
 For Minikube, the Homebrew install command is `brew install minikube`.
@@ -62,7 +64,15 @@ From the repository root:
 bash scripts/run-local-kubernetes-evidence.sh
 ```
 
-The script writes actual screenshots and logs under `evidence/live/<unique-profile>/`.
+For an interrupted run, reuse the existing local profile:
+
+```bash
+bash scripts/run-local-kubernetes-evidence.sh --resume devops-evidence-20260917-210128
+```
+
+The script writes screenshots and logs under `evidence/live/<profile>/attempt-<timestamp>/`.
+It waits for node, CoreDNS, and default ServiceAccount readiness before creating coursework
+Pods, and keeps earlier attempt logs and screenshots intact.
 It exercises fundamentals, core-object scaling/update/rollback, Service DNS/NodePort/headless
 discovery, and Ingress/configuration reload. Additional lifecycle, strategy, and TLS exercises
 remain documented in the session READMEs. It retains its uniquely named local cluster and
