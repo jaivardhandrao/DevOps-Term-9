@@ -2,7 +2,7 @@
 
 - **Name:** Jaivardhan D. Rao
 - **Enrollment number:** 24BCS10117
-- **Status:** Manifests and runbook prepared; live cluster evidence pending.
+- **Status:** Core workload, scaling, update, and rollback logs captured. Session screenshot and additional strategy/lifecycle evidence pending.
 
 Complete the [local lab setup](../kubernetes-fundamentals/README.md#local-lab-setup) first.
 Run the following commands from this folder. Each exercise uses distinct labels so a standalone
@@ -126,8 +126,16 @@ and `ImagePullBackOff` are displayed waiting reasons, not additional Pod phases.
 
 ## Evidence to capture
 
-These images show local validation that actually ran. Pod replacement, rollout, and lifecycle
-screenshots from a running cluster remain pending.
+The [actual student-run transcript](../evidence/live-checkpoints/02-session-10-partial.txt)
+records Pod creation, ReplicaSet scaling/replacement, and v1 → v2 rollout responses. The
+rollback completed, but its immediate HTTP check failed and stopped the capture script.
+A [read-only follow-up](../evidence/live-checkpoints/02-session-10-follow-up.txt) records
+ready workloads, rollout history, Service endpoints, and the restored `Hello from v1` response.
+The session screenshot and additional strategy/lifecycle evidence remain pending.
+
+The runner now retries failed HTTP reads for a bounded number of attempts after rollouts.
+The original failure remains in the transcript; a successful rollout alone is not proof of
+successful Service traffic. The images below show the earlier local validation checks.
 
 ![Actual manifest schema validation output](../evidence/local-validation/01-schema-validation.png)
 

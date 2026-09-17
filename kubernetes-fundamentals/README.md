@@ -2,7 +2,7 @@
 
 - **Name:** Jaivardhan D. Rao
 - **Enrollment number:** 24BCS10117
-- **Status:** Notes and lab setup prepared. No live cluster output has been captured.
+- **Status:** Live local evidence captured: node Ready, namespace/default ServiceAccount present, and client Pod Ready.
 
 Kubernetes reconciles the desired state declared in API objects with the containers actually
 running on worker nodes. For example, a Deployment requesting three replicas gives controllers
@@ -69,12 +69,19 @@ Continue with [session 10](../kubernetes-core-objects/README.md),
 
 ## Evidence and cleanup
 
-[Recorded local validation images and the student-run screenshot script](../evidence/local-validation/README.md)
-are available. A screenshot of a live Kubernetes cluster remains pending.
+![Actual Terminal screenshot: local Kubernetes node and client Pod ready](../evidence/live-checkpoints/01-fundamentals.png)
 
-See [validation evidence](../KUBERNETES-VALIDATION.md) for checks actually performed. This setup
-is a runbook, not a claim that the cluster commands above have run. After finishing and saving
-the required output, the student can remove only this disposable lab:
+[Original transcript and screenshot context](../evidence/live-checkpoints/README.md) document
+the student's successful fundamentals checks on `devops-evidence-20260917-210128`. The
+runner saved this Terminal screenshot successfully during attempt `20260917-213953`.
+
+[Recorded local validation images and the student-run screenshot script](../evidence/local-validation/README.md)
+are also available.
+
+See [validation evidence](../KUBERNETES-VALIDATION.md) for checks actually performed. The setup
+above uses a separate example profile; the actual evidence identifies the profile that ran.
+After finishing and saving the required output, remove only the disposable lab you created.
+For the example profile above:
 
 ```bash
 minikube delete -p devops-coursework

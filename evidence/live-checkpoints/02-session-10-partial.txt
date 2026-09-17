@@ -1,0 +1,109 @@
+Student-run local Kubernetes lab. Profile: devops-evidence-20260917-210128
+Resuming the existing local cluster; coursework resources will be reapplied.
+
+$ minikube -p devops-evidence-20260917-210128 status
+devops-evidence-20260917-210128
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+
+$ kubectl --context=devops-evidence-20260917-210128 wait --for=condition=Ready nodes --all --timeout=300s
+node/devops-evidence-20260917-210128 condition met
+
+$ kubectl --context=devops-evidence-20260917-210128 -n kube-system rollout status deployment/coredns --timeout=180s
+deployment "coredns" successfully rolled out
+
+$ kubectl --context=devops-evidence-20260917-210128 cluster-info
+Kubernetes control plane is running at https://127.0.0.1:59986
+CoreDNS is running at https://127.0.0.1:59986/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+$ kubectl --context=devops-evidence-20260917-210128 get nodes -o wide
+NAME                              STATUS   ROLES           AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION             CONTAINER-RUNTIME
+devops-evidence-20260917-210128   Ready    control-plane   36m   v1.37.0   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.12.76-linuxkit (arm64)   containerd://2.3.4
+
+$ kubectl --context=devops-evidence-20260917-210128 apply -f kubernetes-fundamentals/namespace.yaml
+namespace/devops-homework unchanged
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework wait --for=create serviceaccount/default --timeout=180s
+serviceaccount/default condition met
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework apply -f kubernetes-services/client.yaml
+pod/dns-client unchanged
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework wait --for=condition=Ready pod/dns-client --timeout=180s
+pod/dns-client condition met
+
+Jaivardhan D. Rao | 24BCS10117 | Kubernetes Fundamentals: actual local cluster
+Click this Terminal window in the screenshot picker.
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework apply -f kubernetes-core-objects/pod.yaml -f kubernetes-core-objects/replicaset.yaml -f kubernetes-core-objects/deployment-v1.yaml -f kubernetes-core-objects/service.yaml
+pod/standalone-web unchanged
+replicaset.apps/replica-web unchanged
+deployment.apps/core-web unchanged
+service/core-web unchanged
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework wait --for=condition=Ready pod/standalone-web --timeout=180s
+pod/standalone-web condition met
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework rollout status deployment/core-web --timeout=180s
+deployment "core-web" successfully rolled out
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework scale replicaset/replica-web --replicas=3
+replicaset.apps/replica-web scaled
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework delete pods -l app=replica-web
+pod "replica-web-2k8dh" deleted from devops-homework namespace
+pod "replica-web-7p5dc" deleted from devops-homework namespace
+pod "replica-web-q89ml" deleted from devops-homework namespace
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework wait --for=jsonpath=\{.status.readyReplicas\}=3 replicaset/replica-web --timeout=180s
+replicaset.apps/replica-web condition met
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework exec dns-client -- wget -qO- http://core-web
+Hello from v1
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework apply -f kubernetes-core-objects/deployment-v2.yaml
+deployment.apps/core-web configured
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework rollout status deployment/core-web --timeout=180s
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "core-web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "core-web" rollout to finish: 1 old replicas are pending termination...
+deployment "core-web" successfully rolled out
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework exec dns-client -- wget -qO- http://core-web
+Hello from v2
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework rollout undo deployment/core-web
+Warning: resource deployments/core-web was previously managed with 'kubectl apply'. Rolling back will not update the kubectl.kubernetes.io/last-applied-configuration annotation, which may cause unexpected behavior on future 'kubectl apply' operations. Consider using 'kubectl apply' with your previous configuration file instead.
+deployment.apps/core-web rolled back
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework rollout status deployment/core-web --timeout=180s
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "core-web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "core-web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "core-web" rollout to finish: 1 old replicas are pending termination...
+deployment "core-web" successfully rolled out
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework exec dns-client -- wget -qO- http://core-web
+wget: can't connect to remote host (10.96.136.40): Connection refused
+command terminated with exit code 1

@@ -1,0 +1,41 @@
+Read-only follow-up; Jaivardhan D. Rao | 24BCS10117 | 2026-09-17T16:12:31.107774+00:00
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework get pods,deployments,replicasets,services,ingress -o wide --request-timeout=15s
+NAME                           READY   STATUS    RESTARTS   AGE     IP            NODE                              NOMINATED NODE   READINESS GATES
+pod/core-web-7fbb68b9c-6cdc9   1/1     Running   0          2m28s   10.244.0.17   devops-evidence-20260917-210128   <none>           <none>
+pod/core-web-7fbb68b9c-6r575   1/1     Running   0          2m29s   10.244.0.16   devops-evidence-20260917-210128   <none>           <none>
+pod/core-web-7fbb68b9c-d5957   1/1     Running   0          2m27s   10.244.0.18   devops-evidence-20260917-210128   <none>           <none>
+pod/dns-client                 1/1     Running   0          23m     10.244.0.3    devops-evidence-20260917-210128   <none>           <none>
+pod/replica-web-67kl7          1/1     Running   0          2m36s   10.244.0.12   devops-evidence-20260917-210128   <none>           <none>
+pod/replica-web-b6kzq          1/1     Running   0          2m36s   10.244.0.10   devops-evidence-20260917-210128   <none>           <none>
+pod/replica-web-fjlt5          1/1     Running   0          2m36s   10.244.0.11   devops-evidence-20260917-210128   <none>           <none>
+pod/standalone-web             1/1     Running   0          3m11s   10.244.0.4    devops-evidence-20260917-210128   <none>           <none>
+
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS   IMAGES              SELECTOR
+deployment.apps/core-web   3/3     3            3           3m11s   web          nginx:1.28-alpine   app=core-web
+
+NAME                                 DESIRED   CURRENT   READY   AGE     CONTAINERS   IMAGES              SELECTOR
+replicaset.apps/core-web-776686ccf   0         0         0       2m34s   web          nginx:1.28-alpine   app=core-web,pod-template-hash=776686ccf
+replicaset.apps/core-web-7fbb68b9c   3         3         3       3m11s   web          nginx:1.28-alpine   app=core-web,pod-template-hash=7fbb68b9c
+replicaset.apps/replica-web          3         3         3       3m11s   web          nginx:1.28-alpine   app=replica-web
+
+NAME               TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE     SELECTOR
+service/core-web   ClusterIP   10.96.136.40   <none>        80/TCP    3m11s   app=core-web
+Exit code: 0
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework get endpointslices -l kubernetes.io/service-name=core-web -o wide --request-timeout=15s
+NAME             ADDRESSTYPE   PORTS   ENDPOINTS                             AGE
+core-web-csk7k   IPv4          80      10.244.0.16,10.244.0.17,10.244.0.18   3m11s
+Exit code: 0
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework rollout history deployment/core-web --request-timeout=15s
+deployment.apps/core-web
+REVISION  CHANGE-CAUSE
+2         <none>
+3         <none>
+
+Exit code: 0
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework exec dns-client -- wget -T 5 -qO- http://core-web
+Hello from v1
+Exit code: 0
