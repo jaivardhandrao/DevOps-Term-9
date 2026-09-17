@@ -173,5 +173,37 @@ class StartupTest(unittest.TestCase):
         self.assertFalse(any("kubernetes-core-objects/pod.yaml" in c for c in calls))
 
 
+class ReadRetryTest(unittest.TestCase):
+    def run_probe(self, succeeds_on):
+        # Load only the read-retry function; never execute the lab or a real CLI.
+        source = SCRIPT.read_text()
+        retry = "retry_read() {" + source.split("retry_read() {", 1)[1].split(
+            "\ncapture() {", 1
+        )[0]
+        shell = f"""set -euo pipefail
+{retry}
+sleep() {{ :; }}
+count=0
+probe() {{ count=$((count + 1)); printf 'probe=%s\\n' "$count"; [[ "$count" == {succeeds_on} ]]; }}
+retry_read probe
+printf 'next-checkpoint\\n'
+"""
+        return subprocess.run(
+            ["bash", "-c", shell], capture_output=True, text=True, check=False, timeout=5
+        )
+
+    def test_transient_read_failure_recovers(self):
+        result = self.run_probe(3)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.count("probe="), 3)
+        self.assertIn("next-checkpoint", result.stdout)
+
+    def test_persistent_read_failure_stops_at_limit(self):
+        result = self.run_probe(99)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout.count("probe="), 15)
+        self.assertNotIn("next-checkpoint", result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

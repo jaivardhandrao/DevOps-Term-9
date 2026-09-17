@@ -73,7 +73,7 @@ Continue with [session 10](../kubernetes-core-objects/README.md),
 
 [Original transcript and screenshot context](../evidence/live-checkpoints/README.md) document
 the student's successful fundamentals checks on `devops-evidence-20260917-210128`. The
-screenshot also shows a macOS capture conflict that stopped the runner before session 10.
+runner saved this Terminal screenshot successfully during attempt `20260917-213953`.
 
 [Recorded local validation images and the student-run screenshot script](../evidence/local-validation/README.md)
 are also available.

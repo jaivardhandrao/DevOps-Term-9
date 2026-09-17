@@ -24,7 +24,7 @@ To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 
 $ kubectl --context=devops-evidence-20260917-210128 get nodes -o wide
 NAME                              STATUS   ROLES           AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION             CONTAINER-RUNTIME
-devops-evidence-20260917-210128   Ready    control-plane   36m   v1.37.0   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.12.76-linuxkit (arm64)   containerd://2.3.4
+devops-evidence-20260917-210128   Ready    control-plane   14m   v1.37.0   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.12.76-linuxkit (arm64)   containerd://2.3.4
 
 $ kubectl --context=devops-evidence-20260917-210128 apply -f kubernetes-fundamentals/namespace.yaml
 namespace/devops-homework unchanged
@@ -33,10 +33,11 @@ $ kubectl --context=devops-evidence-20260917-210128 -n devops-homework wait --fo
 serviceaccount/default condition met
 
 $ kubectl --context=devops-evidence-20260917-210128 -n devops-homework apply -f kubernetes-services/client.yaml
-pod/dns-client unchanged
+pod/dns-client created
 
 $ kubectl --context=devops-evidence-20260917-210128 -n devops-homework wait --for=condition=Ready pod/dns-client --timeout=180s
 pod/dns-client condition met
 
 Jaivardhan D. Rao | 24BCS10117 | Kubernetes Fundamentals: actual local cluster
-Click this Terminal window in the screenshot picker.
+Click this Terminal window in the screenshot picker. Cancel stops the run.
+screencapture: cannot run two interactive screen captures at a time

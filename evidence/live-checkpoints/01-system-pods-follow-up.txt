@@ -1,0 +1,13 @@
+Read-only system Pod inventory; Jaivardhan D. Rao | 24BCS10117 | 17 September 2026
+
+$ kubectl --context=devops-evidence-20260917-210128 -n kube-system get pods -o wide --request-timeout=15s
+NAME                                                      READY   STATUS    RESTARTS   AGE   IP             NODE                              NOMINATED NODE   READINESS GATES
+coredns-559f6c778d-zk97m                                  1/1     Running   0          39m   10.244.0.2     devops-evidence-20260917-210128   <none>           <none>
+etcd-devops-evidence-20260917-210128                      1/1     Running   0          39m   192.168.49.2   devops-evidence-20260917-210128   <none>           <none>
+kindnet-dblxc                                             1/1     Running   0          39m   192.168.49.2   devops-evidence-20260917-210128   <none>           <none>
+kube-apiserver-devops-evidence-20260917-210128            1/1     Running   0          39m   192.168.49.2   devops-evidence-20260917-210128   <none>           <none>
+kube-controller-manager-devops-evidence-20260917-210128   1/1     Running   0          39m   192.168.49.2   devops-evidence-20260917-210128   <none>           <none>
+kube-proxy-6swcg                                          1/1     Running   0          39m   192.168.49.2   devops-evidence-20260917-210128   <none>           <none>
+kube-scheduler-devops-evidence-20260917-210128            1/1     Running   0          39m   192.168.49.2   devops-evidence-20260917-210128   <none>           <none>
+storage-provisioner                                       1/1     Running   0          39m   192.168.49.2   devops-evidence-20260917-210128   <none>           <none>
+Exit code: 0

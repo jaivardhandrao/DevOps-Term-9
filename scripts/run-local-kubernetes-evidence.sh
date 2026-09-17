@@ -40,6 +40,20 @@ run() {
   "$@"
 }
 k() { run kubectl "--context=$profile" -n devops-homework "$@"; }
+retry_read() {
+  local attempt
+  for attempt in {1..15}; do
+    if "$@"; then
+      return 0
+    fi
+    if [[ "$attempt" != 15 ]]; then
+      printf 'Read check failed (%s/15); retrying in 2 seconds.\n' "$attempt"
+      sleep 2
+    fi
+  done
+  printf 'Read check failed after 15 attempts; stopping before the next checkpoint.\n' >&2
+  return 1
+}
 capture() {
   local destination="$output_dir/$1.png" manual_source
   printf '\nJaivardhan D. Rao | 24BCS10117 | %s\n' "$2"
@@ -112,13 +126,13 @@ k rollout status deployment/core-web --timeout=180s
 k scale replicaset/replica-web --replicas=3
 k delete pods -l app=replica-web
 k wait --for=jsonpath='{.status.readyReplicas}'=3 replicaset/replica-web --timeout=180s
-k exec dns-client -- wget -qO- http://core-web
+retry_read k exec dns-client -- wget -T 5 -qO- http://core-web
 k apply -f kubernetes-core-objects/deployment-v2.yaml
 k rollout status deployment/core-web --timeout=180s
-k exec dns-client -- wget -qO- http://core-web
+retry_read k exec dns-client -- wget -T 5 -qO- http://core-web
 k rollout undo deployment/core-web
 k rollout status deployment/core-web --timeout=180s
-k exec dns-client -- wget -qO- http://core-web
+retry_read k exec dns-client -- wget -T 5 -qO- http://core-web
 k rollout history deployment/core-web
 k get pods,replicasets,deployments -o wide
 capture 02-session-10 'Session 10: replicas, rollout, rollback and HTTP'
@@ -126,12 +140,12 @@ capture 02-session-10 'Session 10: replicas, rollout, rollback and HTTP'
 k apply -f kubernetes-services/deployment.yaml -f kubernetes-services/clusterip.yaml -f kubernetes-services/nodeport.yaml -f kubernetes-services/externalname.yaml -f kubernetes-services/headless.yaml
 k rollout status deployment/service-web --timeout=180s
 k rollout status statefulset/stateful-web --timeout=180s
-k exec dns-client -- nslookup web-clusterip.devops-homework.svc.cluster.local
-k exec dns-client -- wget -qO- http://web-clusterip
-k exec dns-client -- nslookup external-docs
-k exec dns-client -- nslookup stateful-web-0.web-headless.devops-homework.svc.cluster.local
+retry_read k exec dns-client -- nslookup web-clusterip.devops-homework.svc.cluster.local
+retry_read k exec dns-client -- wget -T 5 -qO- http://web-clusterip
+retry_read k exec dns-client -- nslookup external-docs
+retry_read k exec dns-client -- nslookup stateful-web-0.web-headless.devops-homework.svc.cluster.local
 node_ip="$(kubectl "--context=$profile" get node -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')"
-k exec dns-client -- wget -qO- "http://$node_ip:30081"
+retry_read k exec dns-client -- wget -T 5 -qO- "http://$node_ip:30081"
 k get services
 k get endpointslices -l kubernetes.io/service-name=web-clusterip -o wide
 capture 03-session-11 'Session 11: DNS, ClusterIP, NodePort and headless discovery'
