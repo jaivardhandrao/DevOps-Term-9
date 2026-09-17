@@ -12,14 +12,17 @@ did not create or modify a cluster or perform database, AWS, or Terraform operat
 The student's subsequent live run created a local Minikube cluster but failed before creating
 the first Pod. The [original screenshot, diagnosis, and resume command](evidence/startup-race/README.md)
 document the default ServiceAccount startup race. A later read-only check found the node Ready
-and the default ServiceAccount present. The runner has readiness waits and resume support;
-full runtime validation of the corrected runner is still pending.
+and the default ServiceAccount present. A [resumed student run](evidence/live-checkpoints/README.md)
+then passed the node, CoreDNS, ServiceAccount, and client Pod waits. Its actual Terminal
+screenshot is embedded in the fundamentals README. A macOS screenshot-picker conflict
+stopped that attempt before session 10; session 10–12 live execution remains pending.
 
 Four [recorded command-output images and their raw transcripts](evidence/local-validation/README.md)
 are now embedded in the session READMEs. These are images rendered from fresh, real command
-output; they are not native Terminal screenshots. The separate screenshot supplied by the
-student documents the failed startup attempt. The corrected live-cluster capture script has
-syntax and isolated regression checks.
+output; they are not native Terminal screenshots. The student's two original Terminal
+screenshots document the startup failure and subsequent successful fundamentals checks.
+The runner now offers screenshot retry or a manually saved PNG when capture fails, with
+syntax and isolated regression checks for startup and capture recovery.
 
 ## 1. Strict Kubernetes schemas
 

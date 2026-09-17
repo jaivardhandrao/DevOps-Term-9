@@ -51,9 +51,15 @@ Menlo font. Output is saved alongside this README.
 The [student-run script](../../scripts/run-local-kubernetes-evidence.sh) creates a new local
 Minikube profile, runs the principal exercises, saves the complete command transcript, and
 opens the macOS screenshot picker at four checkpoints. Click the Terminal window at each
-checkpoint to capture it. The student ran the original script and hit a
-[startup race](../startup-race/README.md). The corrected version has regression checks;
-its full live rerun remains pending.
+checkpoint to capture it. After the initial [startup race](../startup-race/README.md), the
+student's resumed run reached a Ready node and client Pod. The [actual screenshot and
+transcript](../live-checkpoints/README.md) show these checks and the subsequent macOS capture
+conflict. Session 10–12 live execution remains pending.
+
+If the picker fails or is cancelled, the script pauses at that checkpoint. Press Escape to
+close another active picker, then Enter to retry. Alternatively, save a PNG manually and
+paste its full path without quotes when prompted. Missing or non-PNG files do not advance
+the lab. Ctrl-C stops the run; the transcript remains saved.
 
 Prerequisites: Docker Desktop running, kubectl, Minikube, Python 3, and macOS screen capture.
 For Minikube, the Homebrew install command is `brew install minikube`.

@@ -1,0 +1,43 @@
+Student-run local Kubernetes lab. Profile: devops-evidence-20260917-210128
+Resuming the existing local cluster; coursework resources will be reapplied.
+
+$ minikube -p devops-evidence-20260917-210128 status
+devops-evidence-20260917-210128
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+
+$ kubectl --context=devops-evidence-20260917-210128 wait --for=condition=Ready nodes --all --timeout=300s
+node/devops-evidence-20260917-210128 condition met
+
+$ kubectl --context=devops-evidence-20260917-210128 -n kube-system rollout status deployment/coredns --timeout=180s
+deployment "coredns" successfully rolled out
+
+$ kubectl --context=devops-evidence-20260917-210128 cluster-info
+Kubernetes control plane is running at https://127.0.0.1:59986
+CoreDNS is running at https://127.0.0.1:59986/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+$ kubectl --context=devops-evidence-20260917-210128 get nodes -o wide
+NAME                              STATUS   ROLES           AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION             CONTAINER-RUNTIME
+devops-evidence-20260917-210128   Ready    control-plane   14m   v1.37.0   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.12.76-linuxkit (arm64)   containerd://2.3.4
+
+$ kubectl --context=devops-evidence-20260917-210128 apply -f kubernetes-fundamentals/namespace.yaml
+namespace/devops-homework unchanged
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework wait --for=create serviceaccount/default --timeout=180s
+serviceaccount/default condition met
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework apply -f kubernetes-services/client.yaml
+pod/dns-client created
+
+$ kubectl --context=devops-evidence-20260917-210128 -n devops-homework wait --for=condition=Ready pod/dns-client --timeout=180s
+pod/dns-client condition met
+
+Jaivardhan D. Rao | 24BCS10117 | Kubernetes Fundamentals: actual local cluster
+Click this Terminal window in the screenshot picker. Cancel stops the run.
+screencapture: cannot run two interactive screen captures at a time

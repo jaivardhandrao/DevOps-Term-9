@@ -1,4 +1,4 @@
-"""Test startup with fake CLIs only; no cluster or screenshot tool is contacted."""
+"""Test startup/capture recovery with fake CLIs; no cluster or screen is contacted."""
 
 import json
 import os
@@ -34,13 +34,22 @@ elif name == 'kubectl':
         if not (folder / 'node-ready').exists() or not (folder / 'serviceaccount-created').exists():
             print('Forbidden: default serviceaccount not found')
             sys.exit(22)
+    elif 'kubernetes-core-objects/pod.yaml' in args:
+        sys.exit(74)  # Stop just after the first screenshot checkpoint.
 elif name == 'screencapture':
-    sys.exit(73)  # Stop at the first screenshot checkpoint, without creating fake evidence.
+    count_file = folder / 'capture-count'
+    count = int(count_file.read_text()) + 1 if count_file.exists() else 1
+    count_file.write_text(str(count))
+    if os.environ.get('CAPTURE_MODE') == 'busy-then-success' and count > 1:
+        Path(args[-1]).write_bytes(b'temporary test fixture, not a screenshot')
+    elif os.environ.get('CAPTURE_MODE') != 'empty-success':
+        print('screencapture: cannot run two interactive screen captures at a time')
+        sys.exit(73)
 """
 
 
 class StartupTest(unittest.TestCase):
-    def execute(self, arguments=(), overrides=None):
+    def execute(self, arguments=(), overrides=None, input_text=""):
         scratch = tempfile.TemporaryDirectory(prefix="devops-startup-test-")
         self.addCleanup(scratch.cleanup)
         root = Path(scratch.name)
@@ -68,6 +77,7 @@ class StartupTest(unittest.TestCase):
             env=environment,
             capture_output=True,
             text=True,
+            input=input_text,
             check=False,
             timeout=20,
         )
@@ -82,7 +92,8 @@ class StartupTest(unittest.TestCase):
 
     def test_fresh_start_waits_before_creating_client(self):
         result, calls = self.execute()
-        self.assertEqual(result.returncode, 73, result.stdout + result.stderr)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertTrue(any(c[0] == "screencapture" for c in calls))
         self.assertTrue(any(c[0] == "minikube" and "start" in c for c in calls))
         node_wait = next(i for i, c in enumerate(calls) if "nodes" in c and "wait" in c)
         sa_wait = next(
@@ -98,7 +109,8 @@ class StartupTest(unittest.TestCase):
 
     def test_resume_does_not_start_another_cluster(self):
         result, calls = self.execute(("--resume", PROFILE))
-        self.assertEqual(result.returncode, 73, result.stdout + result.stderr)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertTrue(any(c[0] == "screencapture" for c in calls))
         self.assertFalse(any(c[0] == "minikube" and "start" in c for c in calls))
         self.assertTrue(any("kubernetes-services/client.yaml" in c for c in calls))
 
@@ -125,6 +137,40 @@ class StartupTest(unittest.TestCase):
                 result, calls = self.execute(arguments)
                 self.assertEqual(result.returncode, 2)
                 self.assertEqual(calls, [])
+
+    def test_busy_picker_can_retry_without_restarting_cluster(self):
+        result, calls = self.execute(
+            overrides={"CAPTURE_MODE": "busy-then-success"}, input_text="\n"
+        )
+        self.assertEqual(result.returncode, 74, result.stdout + result.stderr)
+        self.assertEqual(sum(c[0] == "screencapture" for c in calls), 2)
+        self.assertEqual(sum(c[0] == "minikube" and "start" in c for c in calls), 1)
+
+    def test_saved_png_can_replace_busy_picker(self):
+        with tempfile.TemporaryDirectory(prefix="manual screenshot test ") as folder:
+            # Deliberately a signature-only fixture, never published as evidence.
+            manual = Path(folder) / "manual fixture.png"
+            fixture = b"\x89PNG\r\n\x1a\nunit-test-only"
+            manual.write_bytes(fixture)
+            result, calls = self.execute(input_text=f"{manual}\n")
+            self.assertEqual(result.returncode, 74, result.stdout + result.stderr)
+            capture_call = next(c for c in calls if c[0] == "screencapture")
+            self.assertEqual(Path(capture_call[-1]).read_bytes(), fixture)
+
+    def test_missing_or_non_png_file_does_not_advance_lab(self):
+        with tempfile.TemporaryDirectory() as folder:
+            invalid = Path(folder) / "invalid.png"
+            invalid.write_text("not an image")
+            result, calls = self.execute(input_text=f"{folder}/missing.png\n{invalid}\n")
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertIn("Could not use screenshot", result.stdout)
+            self.assertFalse(any("kubernetes-core-objects/pod.yaml" in c for c in calls))
+
+    def test_cancelled_picker_with_zero_exit_still_requires_a_file(self):
+        result, calls = self.execute(overrides={"CAPTURE_MODE": "empty-success"})
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("Screenshot still pending", result.stdout)
+        self.assertFalse(any("kubernetes-core-objects/pod.yaml" in c for c in calls))
 
 
 if __name__ == "__main__":

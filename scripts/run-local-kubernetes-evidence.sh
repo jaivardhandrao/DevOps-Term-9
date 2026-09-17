@@ -41,10 +41,46 @@ run() {
 }
 k() { run kubectl "--context=$profile" -n devops-homework "$@"; }
 capture() {
+  local destination="$output_dir/$1.png" manual_source
   printf '\nJaivardhan D. Rao | 24BCS10117 | %s\n' "$2"
-  printf 'Click this Terminal window in the screenshot picker. Cancel stops the run.\n'
-  screencapture -i -w -o "$output_dir/$1.png"
-  test -s "$output_dir/$1.png"
+  while true; do
+    printf 'Click this Terminal window in the screenshot picker.\n'
+    if screencapture -i -w -o "$destination" && [[ -s "$destination" ]]; then
+      return 0
+    fi
+    printf '\nScreenshot not saved; the lab is paused at this checkpoint.\n'
+    printf 'Press Escape to close any other screenshot picker.\n'
+    while true; do
+      printf 'Press Enter to retry, or paste the full path of a saved PNG (without quotes). Ctrl-C stops.\n> '
+      if ! IFS= read -r manual_source; then
+        printf '\nNo input available. Screenshot still pending; transcript saved in %s/run.txt\n' "$output_dir" >&2
+        return 1
+      fi
+      if [[ -z "$manual_source" ]]; then
+        break
+      fi
+      if python3 - "$manual_source" "$destination" <<'PY'
+from pathlib import Path
+import shutil
+import sys
+
+source, destination = map(Path, sys.argv[1:])
+try:
+    with source.open('rb') as image:
+        if image.read(8) != b'\x89PNG\r\n\x1a\n':
+            raise ValueError('Choose a PNG screenshot file.')
+    if source.resolve() != destination.resolve():
+        shutil.copyfile(source, destination)
+except (OSError, ValueError) as error:
+    print(f'Could not use screenshot: {error}', file=sys.stderr)
+    sys.exit(1)
+PY
+      then
+        printf 'Saved screenshot: %s\n' "$destination"
+        return 0
+      fi
+    done
+  done
 }
 
 printf 'Student-run local Kubernetes lab. Profile: %s\n' "$profile"

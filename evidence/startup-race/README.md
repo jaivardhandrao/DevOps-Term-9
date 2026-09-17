@@ -39,8 +39,10 @@ From the repository root, continue this exact local cluster with:
 bash scripts/run-local-kubernetes-evidence.sh --resume devops-evidence-20260917-210128
 ```
 
-The script opens the screenshot picker at each checkpoint; click the Terminal window to
-capture it. A full successful rerun remains pending. Regression checks use fake command-line
+The [resumed run](../live-checkpoints/README.md) passed these readiness waits and created a
+Ready client Pod. A separate macOS screenshot-picker conflict stopped it before session 10.
+The script now supports retry or a manually saved PNG at each screenshot checkpoint.
+A full successful rerun remains pending. Regression checks use fake command-line
 tools in temporary directories, without changing a Kubernetes cluster or creating submission
 screenshots:
 
