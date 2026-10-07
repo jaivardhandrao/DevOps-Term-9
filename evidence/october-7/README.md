@@ -46,3 +46,14 @@ The scripts create and alter only coursework resources in `devops-homework`. The
 The first session12 attempt exposed a label with spaces (`version: DevOps session 12 frontend`). The fixed label is `session-12-frontend`; the application page text is unchanged. A later attempt exposed asynchronous Ingress endpoint propagation after rollout. The driver now waits for the intended configuration content and for the deliberately broken route's503 response, preserving all observed retries.
 
 The first session11 attempt recorded BusyBox resolving the requested short name but returning nonzero on later search-list candidates. The corrected run retains that diagnostic and uses absolute DNS queries for unambiguous success checks.
+
+## Genuine GitHub Actions screenshots
+
+Captured from the live GitHub website on October 7 in a newly opened browser tab:
+
+- [Run summary](screenshots/github-actions-success-37609532257.jpg) shows **Success**, pull request **#4**, branch `homework/october-7-completion`, and the **Assignment tests and static checks** workflow. [Source run](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37609532257).
+- [Completed checks job](screenshots/github-actions-job-112753122569.jpg) shows the successful job and its actual steps: capture-recovery tests using fake CLIs, Kubernetes reference validation, SQLite backend tests, frontend tests/build, and offline Helm lint/render/probe checks. [Source job](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37609532257/job/112753122569).
+
+These unaltered browser screenshots prove this tests/static-checks run succeeded. They do **not** establish execution of the full security/CD workflow, registry publication, a Kubernetes deployment, or the session 9–12 live behaviors. They are **not native Terminal screenshots** and do not close that remaining coursework requirement. GitHub displayed one non-failing Node.js 20 action-runtime deprecation warning in the successful run.
+
+A fresh Codex Terminal was requested for native capture, but the app queued the request for this worker's hidden thread instead of exposing a new visible terminal surface. Existing private Terminal windows were not inspected, no accessibility settings were changed, and no terminal image was fabricated.

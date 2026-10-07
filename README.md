@@ -38,6 +38,7 @@ Coursework for the current **20 submission topics, sessions 1–21**. The Octobe
 - All three Terraform configurations pass real provider-schema validation and formatting; **10 mocked tests** pass. No AWS resources were created.
 - The Notes Helm chart renders with development and production values. The final application chart also passes lint and rendering.
 - The existing capture-runner tests and new invalid-label regression checks pass: **14 tests**. Earlier sandbox-only failures were caused by prohibited `/dev/fd` process substitution; the fake-CLI tests passed when run with that sandbox restriction lifted.
+- [GitHub Actions tests/static checks passed](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37609532257) on commit `93c26a1`, including all regression/application tests, the frontend build and chart checks. This is separate from the pending full security/deployment pipeline.
 - Local Bandit SAST and Gitleaks secret scans pass, and both reject their synthetic negative controls. Trivy dependency/image scans and the full CI/CD execution remain pending. The [workflow](.github/workflows/final-project.yml) retains its security gates; image publication and external deployment are not claimed.
 
 [SUBMISSION.md](SUBMISSION.md) maps all 20 current form fields to README URLs. This task did not merge a PR or submit the form.

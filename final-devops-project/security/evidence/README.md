@@ -14,7 +14,7 @@ Evidence is separated into observed checks and pending execution. No security sc
 | Trivy SCA | Specifically blocked before execution; no report exists |
 | Trivy container scans | Never attempted; no image vulnerability result is claimed |
 | Deliberate failing gate examples | SAST and secret negative controls both exit 1 as required; [observed output](local-negative-controls.txt). Trivy controls not attempted |
-| Automatic tests/static checks | Initial PR runs failed on GNU `mktemp` portability; fixed with an explicit X template. All 14 local fake-CLI/label tests now pass; updated GitHub run pending |
+| Automatic tests/static checks | Initial PR runs failed on GNU `mktemp` portability; fixed with an explicit X template. [GitHub run 37609532257](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37609532257) passed on commit `93c26a1`: 14 regression tests, backend/frontend tests, frontend build, Kubernetes references and Helm rendering/probe/order checks |
 | Full security/deployment pipeline | Manual dispatch only; scans/deployment remain pending execution approval |
 | GHCR publication | Not performed; intentionally requires explicit manual authorization |
 | Persistent/cloud Kubernetes deployment | Not performed by this workflow |
