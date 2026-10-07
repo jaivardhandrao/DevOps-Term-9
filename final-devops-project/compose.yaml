@@ -1,0 +1,108 @@
+name: devops-oct7-capstone
+
+x-backend-env: &backend-env
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: taskboard
+  DB_USER: taskboard
+  DB_PASSWORD_FILE: /run/secrets/postgres_password
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: taskboard
+      POSTGRES_USER: taskboard
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets: [postgres_password]
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U taskboard -d taskboard"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    networks: [internal]
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    image: taskboard-backend:local
+    command: [alembic, upgrade, head]
+    environment: *backend-env
+    secrets: [postgres_password]
+    depends_on:
+      postgres: {condition: service_healthy}
+    networks: [internal]
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+
+  backend:
+    image: taskboard-backend:local
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    environment: *backend-env
+    secrets: [postgres_password]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    networks: [internal]
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    restart: unless-stopped
+
+  frontend:
+    image: taskboard-frontend:local
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    environment:
+      BACKEND_UPSTREAM: backend:8000
+    ports: ["127.0.0.1:18080:8080"]
+    depends_on:
+      backend: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, wget, -q, --spider, http://127.0.0.1:8080/]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+    networks: [internal, web]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    restart: unless-stopped
+
+  test:
+    profiles: [test]
+    image: taskboard-backend-test:local
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+      target: test
+    environment:
+      DATABASE_URL: sqlite://
+    network_mode: none
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+
+secrets:
+  postgres_password:
+    file: .runtime/postgres-password
+
+volumes:
+  postgres_data:
+
+networks:
+  internal:
+    internal: true
+  web:

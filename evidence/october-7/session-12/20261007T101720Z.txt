@@ -1,0 +1,23 @@
+Agent-executed isolated coursework lab, not a student-run claim.
+UTC: 2026-10-07T10:17:20.832947+00:00
+Session: 12; context: devops-oct7
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-ingress-configmaps-secrets/configmap.yaml -f kubernetes-ingress-configmaps-secrets/backend-code.yaml
+configmap/demo-config created
+configmap/demo-backend-code created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get secret demo-credentials --ignore-not-found -o name
+
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework create secret generic demo-credentials --from-env-file=/var/folders/3g/t9h7yhrn30lbs8ywyk7b5lpc0000gn/T/devops-secret-soqbbh53/secret.env
+secret/demo-credentials created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-ingress-configmaps-secrets/frontend.yaml -f kubernetes-ingress-configmaps-secrets/backend.yaml
+service/demo-frontend created
+deployment.apps/demo-backend created
+service/demo-backend created
+The Deployment "demo-frontend" is invalid: spec.template.labels: Invalid value: "DevOps session 12 frontend": a valid label must be an empty string or consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character (e.g. 'MyValue',  or 'my_value',  or '12345', regex used for validation is '(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?')
+exit=1

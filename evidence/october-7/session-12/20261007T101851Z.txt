@@ -1,0 +1,77 @@
+Agent-executed isolated coursework lab, not a student-run claim.
+UTC: 2026-10-07T10:18:51.941757+00:00
+Session: 12; context: devops-oct7
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-ingress-configmaps-secrets/configmap.yaml -f kubernetes-ingress-configmaps-secrets/backend-code.yaml
+configmap/demo-config unchanged
+configmap/demo-backend-code unchanged
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get secret demo-credentials --ignore-not-found -o name
+secret/demo-credentials
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-ingress-configmaps-secrets/frontend.yaml -f kubernetes-ingress-configmaps-secrets/backend.yaml
+deployment.apps/demo-frontend created
+service/demo-frontend unchanged
+deployment.apps/demo-backend unchanged
+service/demo-backend unchanged
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/demo-frontend --timeout=240s
+Waiting for deployment "demo-frontend" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "demo-frontend" rollout to finish: 1 of 2 updated replicas are available...
+deployment "demo-frontend" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/demo-backend --timeout=240s
+deployment "demo-backend" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec deployment/demo-backend -- python3 -c 'import os; print("environment="+os.environ["ENVIRONMENT"]); print("secret_loaded="+str(bool(os.environ.get("DEMO_TOKEN"))))'
+environment=coursework
+secret_loaded=True
+exit=0
+
+$ python3 -c 'import base64; x=b'"'"'classroom-demo'"'"'; bad=base64.b64encode(x+b'"'"'\n'"'"'); good=base64.b64encode(x); print('"'"'before decoded match:'"'"',base64.b64decode(bad)==x); print('"'"'after decoded match:'"'"',base64.b64decode(good)==x); assert base64.b64decode(bad)!=x and base64.b64decode(good)==x'
+before decoded match: False
+after decoded match: True
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-ingress-configmaps-secrets/ingress.yaml
+ingress.networking.k8s.io/demo-ingress created
+exit=0
+
+$ curl --fail --silent --show-error --retry 15 --retry-all-errors --retry-delay 1 --max-time 5 -H 'Host: devops.test' http://127.0.0.1:18084/
+Hello from DevOps session 12 frontend
+exit=0
+
+$ curl --fail --silent --show-error --retry 15 --retry-all-errors --retry-delay 1 --max-time 5 -H 'Host: devops.test' http://127.0.0.1:18084/api/health
+{"service": "DevOps session 12 API", "environment": "coursework", "log_level": "INFO", "currency": "INR", "secret_loaded": true}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework patch configmap demo-config --type=merge -p '{"data":{"ENVIRONMENT":"staging"}}'
+configmap/demo-config patched
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec deployment/demo-backend -- python3 -c 'import os; print(os.environ["ENVIRONMENT"])'
+coursework
+exit=0
+Existing process keeps its original environment: coursework
+
+$ kubectl --context devops-oct7 -n devops-homework rollout restart deployment/demo-backend
+deployment.apps/demo-backend restarted
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/demo-backend --timeout=240s
+Waiting for deployment "demo-backend" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "demo-backend" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "demo-backend" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "demo-backend" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "demo-backend" rollout to finish: 1 old replicas are pending termination...
+deployment "demo-backend" successfully rolled out
+exit=0
+
+$ curl --fail --silent --show-error --retry 15 --retry-all-errors --retry-delay 1 --max-time 5 -H 'Host: devops.test' http://127.0.0.1:18084/api/health
+{"service": "DevOps session 12 API", "environment": "coursework", "log_level": "INFO", "currency": "INR", "secret_loaded": true}
+exit=0

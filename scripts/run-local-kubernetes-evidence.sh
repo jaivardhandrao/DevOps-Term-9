@@ -28,7 +28,8 @@ fi
 
 output_dir="$repo_dir/evidence/live/$profile/attempt-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$output_dir"
-scratch_dir="$(mktemp -d -t devops-evidence)"
+# An explicit X template works with both macOS/BSD and GNU mktemp.
+scratch_dir="$(mktemp -d "${TMPDIR:-/tmp}/devops-evidence.XXXXXX")"
 forward_pid=""
 trap 'if [[ -n "$forward_pid" ]]; then kill "$forward_pid" 2>/dev/null || true; fi; rm -rf "$scratch_dir"' EXIT
 exec > >(tee "$output_dir/run.txt") 2>&1

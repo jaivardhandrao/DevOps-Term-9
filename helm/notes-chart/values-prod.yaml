@@ -1,0 +1,4 @@
+replicaCount: 3
+app:
+  environment: production
+  message: Production notes are ready.

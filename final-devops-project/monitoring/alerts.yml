@@ -1,0 +1,23 @@
+groups:
+  - name: taskboard
+    rules:
+      - alert: TaskBoardUnavailable
+        expr: up{job="taskboard"} == 0
+        for: 15s
+        labels: {severity: critical}
+        annotations:
+          summary: TaskBoard metrics endpoint is unreachable
+          runbook: Check backend Service endpoints, Pod state and logs.
+      - alert: TaskBoardNotReady
+        expr: probe_success{job="taskboard-readiness"} == 0
+        for: 15s
+        labels: {severity: critical}
+        annotations:
+          summary: TaskBoard cannot serve requests
+          runbook: Check database readiness and migration Job; /health can pass while /ready fails.
+      - alert: TaskBoardHighErrorRate
+        expr: sum(rate(taskboard_http_requests_total{status=~"5.."}[1m])) / clamp_min(sum(rate(taskboard_http_requests_total[1m])), 0.001) > 0.05
+        for: 30s
+        labels: {severity: warning}
+        annotations:
+          summary: TaskBoard 5xx ratio exceeds 5 percent

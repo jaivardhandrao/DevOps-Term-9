@@ -1,0 +1,110 @@
+Recorded: 2026-10-07T10:10:24.636539+00:00
+Terraform local validation with a previously signed/checksum-verified AWS provider package. All AWS operations in tests are mocked, including the mock apply run. No AWS credentials, service roles or infrastructure were used/created.
+
+$ terraform version
+Terraform v1.15.8
+on darwin_arm64
++ provider registry.terraform.io/hashicorp/aws v6.58.0
+
+[exit 0]
+
+$ terraform fmt -recursive
+cluster.tf
+network.tf
+
+[exit 0]
+
+$ terraform init -backend=false -input=false -no-color -lockfile=readonly
+Initializing provider plugins...
+- Reusing previous version of hashicorp/aws from the dependency lock file
+- Installing hashicorp/aws v6.58.0...
+- Installed hashicorp/aws v6.58.0 (unauthenticated)
+
+
+Terraform has been successfully initialized!
+
+[exit 0]
+
+$ terraform validate -no-color
+
+Error: Failed to load plugin schemas
+
+Error while loading schemas for plugin components: Failed to obtain provider
+schema: Could not load the schema for provider
+registry.terraform.io/hashicorp/aws: failed to instantiate provider
+"registry.terraform.io/hashicorp/aws" to obtain schema: Unrecognized remote
+plugin message: 
+Failed to read any lines from plugin's stdout
+This usually means
+  the plugin was not compiled for this architecture,
+  the plugin is missing dynamic-link libraries necessary to run,
+  the plugin is not executable by this process due to file permissions, or
+  the plugin failed to negotiate the initial go-plugin protocol handshake
+
+Additional notes about plugin:
+  Path: /private/var/folders/3g/t9h7yhrn30lbs8ywyk7b5lpc0000gn/T/term9-terraform-6257ocza/final-eks/providers/registry.terraform.io/hashicorp/aws/6.58.0/darwin_arm64/terraform-provider-aws_v6.58.0_x5
+  Mode: -rwxr-xr-x
+  Owner: 501 [jaivardhandrao] (current: 501 [jaivardhandrao])
+  Group: 20 [staff] (current: 20 [staff])
+  MachO architecture: CpuArm64 (current architecture: arm64)
+..
+
+[exit 1]
+
+Retry allowing the local provider plugin to communicate with Terraform; all AWS operations remain mocked.
+
+$ terraform validate -no-color
+Success! The configuration is valid.
+
+
+[exit 0]
+
+$ terraform test -no-color
+tests/eks.tftest.hcl... in progress
+  run "private_cluster_with_scoped_roles"... fail
+
+Error: "launch_template.0.id" must begin with 'lt-' and only contain alphanumeric characters: a3bhkw9k
+
+  with aws_eks_node_group.coursework,
+  on cluster.tf line 73, in resource "aws_eks_node_group" "coursework":
+  73:     id      = aws_launch_template.nodes.id
+
+  run "real_deployment_guard"... skip
+  run "reject_incompatible_node_architecture"... skip
+  run "reject_wrong_network_size"... skip
+tests/eks.tftest.hcl... tearing down
+tests/eks.tftest.hcl... fail
+
+Failure! 0 passed, 1 failed, 3 skipped.
+
+[exit 1]
+
+Final source verification: 2026-10-07T10:14:22.990255+00:00
+Mock fixture IDs corrected; cluster/node/CNI role fixtures are distinct.
+$ terraform fmt -recursive
+
+[exit 0]
+
+$ terraform fmt -check -recursive
+
+[exit 0]
+
+$ terraform validate -no-color
+Success! The configuration is valid.
+
+
+[exit 0]
+
+$ terraform test -no-color
+tests/eks.tftest.hcl... in progress
+  run "private_cluster_with_scoped_roles"... pass
+  run "real_deployment_guard"... pass
+  run "reject_incompatible_node_architecture"... pass
+  run "reject_wrong_network_size"... pass
+tests/eks.tftest.hcl... tearing down
+tests/eks.tftest.hcl... pass
+
+Success! 4 passed, 0 failed.
+
+[exit 0]
+

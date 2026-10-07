@@ -1,0 +1,14 @@
+NAME                              READY   STATUS    RESTARTS   AGE
+pod/blackbox-6489ccf57b-czswp     1/1     Running   0          7m22s
+pod/grafana-6849fcd7fd-n5ggf      1/1     Running   0          7m21s
+pod/prometheus-5c559dcd5f-ftl9l   1/1     Running   0          7m22s
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/blackbox     1/1     1            1           7m22s
+deployment.apps/grafana      1/1     1            1           7m22s
+deployment.apps/prometheus   1/1     1            1           7m22s
+
+NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/blackbox     ClusterIP   10.98.162.16     <none>        9115/TCP   7m22s
+service/grafana      ClusterIP   10.99.253.219    <none>        3000/TCP   7m22s
+service/prometheus   ClusterIP   10.110.220.209   <none>        9090/TCP   7m22s

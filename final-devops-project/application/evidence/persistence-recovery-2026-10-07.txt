@@ -1,0 +1,15 @@
+ Container devops-oct7-capstone-postgres-1 Stopping 
+ Container devops-oct7-capstone-postgres-1 Stopped 
+ Container devops-oct7-capstone-postgres-1 Starting 
+ Container devops-oct7-capstone-postgres-1 Started 
+ Container devops-oct7-capstone-backend-1 Restarting 
+ Container devops-oct7-capstone-backend-1 Started 
+PASS POST /api/tasks: 201
+PASS GET /health: 200
+PASS GET /ready: 503
+PASS stopped database causes readiness 503 while liveness remains 200
+PASS GET /ready: 200
+PASS GET /api/tasks/3: 200
+PASS task survives PostgreSQL stop/start and backend restart
+PASS DELETE /api/tasks/3: 204
+PASS disposable persistence probe removed; other tasks retained

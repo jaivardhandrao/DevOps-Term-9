@@ -1,0 +1,87 @@
+{{- range $component := list "backend" "frontend" }}
+{{- $cfg := index $.Values $component }}
+{{- $port := ternary 8000 8080 (eq $component "backend") }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $component }}
+  labels:
+    {{- include "taskboard.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $component }}
+spec:
+  ports: [{name: http, port: {{ $port }}, targetPort: http}]
+  selector:
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ $component }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $component }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    {{- include "taskboard.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $component }}
+spec:
+  {{- if or (eq $component "frontend") (not $.Values.autoscaling.enabled) }}
+  replicas: {{ $cfg.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+      app.kubernetes.io/component: {{ $component }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") $ | sha256sum }}
+      labels:
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+        app.kubernetes.io/component: {{ $component }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: {{ ternary 10001 101 (eq $component "backend") }}
+        runAsGroup: {{ ternary 10001 101 (eq $component "backend") }}
+        fsGroup: {{ ternary 10001 101 (eq $component "backend") }}
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: {{ $component }}
+          image: "{{ $cfg.image.repository }}:{{ $cfg.image.tag }}"
+          imagePullPolicy: {{ $cfg.image.pullPolicy }}
+          ports: [{name: http, containerPort: {{ $port }}}]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+          envFrom:
+            - configMapRef: {name: taskboard-config}
+          {{- if eq $component "backend" }}
+          env:
+            {{- include "taskboard.databaseEnv" $ | nindent 12 }}
+          volumeMounts:
+            - {name: db-password, mountPath: /run/secrets/db, readOnly: true}
+          {{- end }}
+          startupProbe:
+            httpGet: {path: {{ ternary "/health" "/" (eq $component "backend") | quote }}, port: http}
+            periodSeconds: 2
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: {path: {{ ternary "/ready" "/" (eq $component "backend") | quote }}, port: http}
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: {{ ternary "/health" "/" (eq $component "backend") | quote }}, port: http}
+            periodSeconds: 10
+          resources:
+            {{- toYaml $cfg.resources | nindent 12 }}
+      {{- if eq $component "backend" }}
+      volumes:
+        - name: db-password
+          secret:
+            secretName: {{ $.Values.database.existingSecret }}
+            defaultMode: 0440
+            items:
+              - {key: {{ $.Values.database.secretKey }}, path: password}
+      {{- end }}
+{{- end }}

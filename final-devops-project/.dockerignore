@@ -1,0 +1,16 @@
+.git
+.runtime
+**/node_modules
+**/dist
+**/__pycache__
+**/.pytest_cache
+**/.venv
+**/*.log
+**/.env*
+application/evidence
+terraform
+monitoring
+gitops
+kubernetes
+helm
+security

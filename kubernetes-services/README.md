@@ -2,11 +2,14 @@
 
 - **Name:** Jaivardhan D. Rao
 - **Enrollment number:** 24BCS10117
-- **Status:** Manifests and runbook prepared; live DNS, routing, and endpoint evidence pending.
+- **Status:** October 7 live DNS, ClusterIP/NodePort HTTP, LoadBalancer internal HTTP and broken-selector recovery checks passed. LoadBalancer external-address/tunnel verification and new screenshots remain pending.
 
 Use the [disposable local lab](../kubernetes-fundamentals/README.md#local-lab-setup), then run the
 commands from this folder. A Service gives clients a stable discovery name while its selected
 Pods can change. EndpointSlices describe destinations; readiness affects eligible endpoints.
+
+Required research notes: [object comparisons](comparisons.md), [FQDN and Service naming](fqdn/README.md),
+and [CoreDNS discovery and troubleshooting](coredns/README.md).
 
 ## Service patterns
 
@@ -56,7 +59,8 @@ Keep the Minikube command running if it opens a tunnel, and curl the exact print
 second terminal. With Docker on macOS, the node's private IP may not be directly reachable.
 Capture both the assigned `30081` NodePort and the returned HTTP response.
 
-The LoadBalancer exercise is optional and must stay on the local Minikube profile. Applying it
+The current homework requires the LoadBalancer exercise, despite the retained
+`optional/loadbalancer.yaml` filename. Keep it on the local Minikube profile; applying it
 to a cloud-backed context can create infrastructure. In one terminal the student can run
 `minikube -p devops-coursework tunnel`; in another:
 
@@ -101,15 +105,24 @@ An empty ready-endpoint list does not by itself prove a DNS failure.
 
 ## Evidence and cleanup
 
-The recorded image below shows static Service-port and reference checks, not live DNS or
+The [completed October 7 transcript](../evidence/october-7/session-11/20261007T101841Z.txt)
+records ClusterIP and NodePort HTTP, ExternalName/headless/stable Pod DNS, LoadBalancer
+internal Service HTTP, and a selector fault that removed endpoints and broke HTTP before
+restoration recovered traffic. The LoadBalancer external address remained pending; internal
+HTTP does not establish external or tunnel connectivity. New Terminal screenshots also remain
+pending. The [October inventory](../evidence/october-7/README.md) retains the earlier failed
+DNS attempt and explains the successful absolute-name queries.
+
+The historical September image below shows static Service-port and reference checks, not live DNS or
 network traffic. [Raw logs and live screenshot instructions](../evidence/local-validation/README.md)
 are available alongside it.
 
 ![Actual resource relationship checks](../evidence/local-validation/02-api-and-references.png)
 
-Capture DNS answers, HTTP responses, assigned Service ports, StatefulSet names, and endpoint
-changes from the broken-selector exercise. See [validation evidence](../KUBERNETES-VALIDATION.md)
-for completed local checks. After the lab, delete only these resources with their file paths;
+The October transcript captures DNS answers, HTTP responses, Service ports, StatefulSet names
+and selector recovery. Capture the remaining LoadBalancer external-address/tunnel response
+and new screenshots. See [validation evidence](../KUBERNETES-VALIDATION.md). After the lab,
+delete only these resources with their file paths;
 stop any Minikube tunnel. Keep `dns-client` until the session 10 canary check is finished.
 
 References: [instructor session 11](https://github.com/Nency-Ravaliya/devops-heros/tree/1a24fe08c4956db0f8f22ffd6655581f7185699e/session-11-kubernetes-services),

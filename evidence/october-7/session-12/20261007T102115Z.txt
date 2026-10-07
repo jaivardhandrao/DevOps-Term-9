@@ -1,0 +1,151 @@
+Agent-executed isolated coursework lab, not a student-run claim.
+UTC: 2026-10-07T10:21:15.300254+00:00
+Session: 12; context: devops-oct7
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-ingress-configmaps-secrets/configmap.yaml -f kubernetes-ingress-configmaps-secrets/backend-code.yaml
+configmap/demo-config configured
+configmap/demo-backend-code unchanged
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get secret demo-credentials --ignore-not-found -o name
+secret/demo-credentials
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-ingress-configmaps-secrets/frontend.yaml -f kubernetes-ingress-configmaps-secrets/backend.yaml
+deployment.apps/demo-frontend unchanged
+service/demo-frontend unchanged
+deployment.apps/demo-backend unchanged
+service/demo-backend unchanged
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout restart deployment/demo-backend
+deployment.apps/demo-backend restarted
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/demo-frontend --timeout=240s
+deployment "demo-frontend" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/demo-backend --timeout=240s
+Waiting for deployment "demo-backend" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "demo-backend" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "demo-backend" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "demo-backend" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "demo-backend" rollout to finish: 1 old replicas are pending termination...
+deployment "demo-backend" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec deployment/demo-backend -- python3 -c 'import os; print("environment="+os.environ["ENVIRONMENT"]); print("secret_loaded="+str(bool(os.environ.get("DEMO_TOKEN"))))'
+environment=coursework
+secret_loaded=True
+exit=0
+
+$ python3 -c 'import base64; x=b'"'"'classroom-demo'"'"'; bad=base64.b64encode(x+b'"'"'\n'"'"'); good=base64.b64encode(x); print('"'"'before decoded match:'"'"',base64.b64decode(bad)==x); print('"'"'after decoded match:'"'"',base64.b64decode(good)==x); assert base64.b64decode(bad)!=x and base64.b64decode(good)==x'
+before decoded match: False
+after decoded match: True
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-ingress-configmaps-secrets/ingress.yaml
+ingress.networking.k8s.io/demo-ingress unchanged
+exit=0
+
+$ curl --fail --silent --show-error --retry 15 --retry-all-errors --retry-delay 1 --max-time 5 -H 'Host: devops.test' http://127.0.0.1:18084/
+Hello from DevOps session 12 frontend
+exit=0
+
+$ curl --fail --silent --show-error --retry 15 --retry-all-errors --retry-delay 1 --max-time 5 -H 'Host: devops.test' http://127.0.0.1:18084/api/health
+{"service": "DevOps session 12 API", "environment": "coursework", "log_level": "INFO", "currency": "INR", "secret_loaded": true}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework patch configmap demo-config --type=merge -p '{"data":{"ENVIRONMENT":"staging"}}'
+configmap/demo-config patched
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec deployment/demo-backend -- python3 -c 'import os; print(os.environ["ENVIRONMENT"])'
+coursework
+exit=0
+Existing process keeps its original environment: coursework
+
+$ kubectl --context devops-oct7 -n devops-homework rollout restart deployment/demo-backend
+deployment.apps/demo-backend restarted
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/demo-backend --timeout=240s
+Waiting for deployment "demo-backend" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "demo-backend" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "demo-backend" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "demo-backend" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "demo-backend" rollout to finish: 1 old replicas are pending termination...
+deployment "demo-backend" successfully rolled out
+exit=0
+
+$ curl --fail --silent --show-error --retry 15 --retry-all-errors --retry-delay 1 --max-time 5 -H 'Host: devops.test' http://127.0.0.1:18084/api/health
+{"service": "DevOps session 12 API", "environment": "staging", "log_level": "INFO", "currency": "INR", "secret_loaded": true}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework patch ingress demo-ingress --type=json -p '[{"op":"replace","path":"/spec/rules/0/http/paths/0/backend/service/name","value":"deliberately-missing"}]'
+ingress.networking.k8s.io/demo-ingress patched
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe ingress demo-ingress
+Name:             demo-ingress
+Labels:           <none>
+Namespace:        devops-homework
+Address:          192.168.49.2
+Ingress Class:    nginx
+Default backend:  <default>
+Rules:
+  Host         Path  Backends
+  ----         ----  --------
+  devops.test  
+               /api   deliberately-missing:80 (<error: services "deliberately-missing" not found>)
+               /      demo-frontend:80 (10.244.0.58:80,10.244.0.57:80)
+Annotations:   <none>
+Events:
+  Type    Reason  Age                 From                      Message
+  ----    ------  ----                ----                      -------
+  Normal  Sync    0s (x3 over 2m48s)  nginx-ingress-controller  Scheduled for sync
+exit=0
+
+$ curl --silent --show-error --max-time 5 -o /dev/null -w '%{http_code}\n' -H 'Host: devops.test' http://127.0.0.1:18084/api/health
+200
+exit=0
+
+$ curl --silent --show-error --max-time 5 -o /dev/null -w '%{http_code}\n' -H 'Host: devops.test' http://127.0.0.1:18084/api/health
+503
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-ingress-configmaps-secrets/ingress.yaml
+ingress.networking.k8s.io/demo-ingress configured
+exit=0
+
+$ curl --fail --silent --show-error --retry 15 --retry-all-errors --retry-delay 1 --max-time 5 -H 'Host: devops.test' http://127.0.0.1:18084/api/health
+{"service": "DevOps session 12 API", "environment": "staging", "log_level": "INFO", "currency": "INR", "secret_loaded": true}
+curl: (22) The requested URL returned error: 503
+curl: (22) The requested URL returned error: 503
+curl: (22) The requested URL returned error: 503
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get configmaps,ingress,services
+NAME                          DATA   AGE
+configmap/demo-backend-code   1      4m25s
+configmap/demo-config         3      4m25s
+configmap/kube-root-ca.crt    1      10m
+
+NAME                                     CLASS   HOSTS         ADDRESS        PORTS   AGE
+ingress.networking.k8s.io/demo-ingress   nginx   devops.test   192.168.49.2   80      2m52s
+
+NAME                       TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)        AGE
+service/blue-green         ClusterIP      10.96.37.46      <none>          80/TCP         5m45s
+service/canary-web         ClusterIP      10.105.231.233   <none>          80/TCP         5m40s
+service/core-web           ClusterIP      10.110.67.15     <none>          80/TCP         7m7s
+service/demo-backend       ClusterIP      10.102.189.53    <none>          80/TCP         4m24s
+service/demo-frontend      ClusterIP      10.106.218.44    <none>          80/TCP         4m24s
+service/external-docs      ExternalName   <none>           kubernetes.io   <none>         4m35s
+service/web-clusterip      ClusterIP      10.99.3.154      <none>          80/TCP         4m35s
+service/web-headless       ClusterIP      None             <none>          80/TCP         4m35s
+service/web-loadbalancer   LoadBalancer   10.98.10.17      <pending>       80:30732/TCP   4m35s
+service/web-nodeport       NodePort       10.103.25.81     <none>          80:30081/TCP   4m35s
+exit=0
+
+SESSION CHECKS PASSED at 2026-10-07T10:21:45.663124+00:00

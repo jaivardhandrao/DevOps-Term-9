@@ -1,0 +1,14 @@
+replicaCount: 1
+image:
+  repository: nginx
+  tag: 1.27-alpine
+app:
+  name: Notes
+  environment: development
+  message: Capture a thought, then improve it.
+service:
+  type: ClusterIP
+  port: 80
+resources:
+  requests: {cpu: 5m, memory: 16Mi}
+  limits: {cpu: 50m, memory: 48Mi}

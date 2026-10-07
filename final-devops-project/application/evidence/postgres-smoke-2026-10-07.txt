@@ -1,0 +1,15 @@
+PASS GET /: 200
+PASS GET /health: 200
+PASS GET /ready: 200
+PASS GET /api/tasks/stats: 200
+PASS POST /api/tasks: 201
+PASS GET /api/tasks/1: 200
+PASS GET /api/tasks?status=todo: 200
+PASS PUT /api/tasks/1: 200
+PASS GET /api/tasks/stats: 200
+PASS POST /api/tasks: 422
+PASS GET /metrics: 200
+PASS DELETE /api/tasks/1: 204
+PASS GET /api/tasks/1: 404
+PASS GET /api/tasks/stats: 200
+PASS full CRUD, validation, aggregate counts, health, readiness and Prometheus metrics through Nginx/PostgreSQL

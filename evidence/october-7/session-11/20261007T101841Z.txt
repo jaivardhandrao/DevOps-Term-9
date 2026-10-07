@@ -1,0 +1,172 @@
+Agent-executed isolated coursework lab, not a student-run claim.
+UTC: 2026-10-07T10:18:41.382153+00:00
+Session: 11; context: devops-oct7
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-services/deployment.yaml -f kubernetes-services/clusterip.yaml -f kubernetes-services/nodeport.yaml -f kubernetes-services/externalname.yaml -f kubernetes-services/headless.yaml -f kubernetes-services/optional/loadbalancer.yaml
+deployment.apps/service-web unchanged
+service/web-clusterip unchanged
+service/web-nodeport unchanged
+service/external-docs unchanged
+service/web-headless unchanged
+statefulset.apps/stateful-web unchanged
+service/web-loadbalancer unchanged
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/service-web --timeout=240s
+deployment "service-web" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status statefulset/stateful-web --timeout=240s
+partitioned roll out complete: 2 new pods have been updated...
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get services -o wide
+NAME               TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)        AGE     SELECTOR
+blue-green         ClusterIP      10.96.37.46      <none>          80/TCP         2m41s   app=blue-green,slot=green
+canary-web         ClusterIP      10.105.231.233   <none>          80/TCP         2m36s   app=canary-web
+core-web           ClusterIP      10.110.67.15     <none>          80/TCP         4m3s    app=core-web
+demo-backend       ClusterIP      10.102.189.53    <none>          80/TCP         80s     app=demo-backend
+demo-frontend      ClusterIP      10.106.218.44    <none>          80/TCP         80s     app=demo-frontend
+external-docs      ExternalName   <none>           kubernetes.io   <none>         91s     <none>
+web-clusterip      ClusterIP      10.99.3.154      <none>          80/TCP         91s     app=service-web
+web-headless       ClusterIP      None             <none>          80/TCP         91s     app=stateful-web
+web-loadbalancer   LoadBalancer   10.98.10.17      <pending>       80:30732/TCP   91s     app=service-web
+web-nodeport       NodePort       10.103.25.81     <none>          80:30081/TCP   91s     app=service-web
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- nslookup web-clusterip
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+** server can't find web-clusterip.cluster.local: NXDOMAIN
+
+
+** server can't find web-clusterip.cluster.local: NXDOMAIN
+
+** server can't find web-clusterip.svc.cluster.local: NXDOMAIN
+
+Name:	web-clusterip.devops-homework.svc.cluster.local
+Address: 10.99.3.154
+
+** server can't find web-clusterip.svc.cluster.local: NXDOMAIN
+command terminated with exit code 1
+exit=1
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- nslookup web-clusterip.devops-homework.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+Name:	web-clusterip.devops-homework.svc.cluster.local
+Address: 10.99.3.154
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- nslookup external-docs.devops-homework.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+external-docs.devops-homework.svc.cluster.local	canonical name = kubernetes.io
+
+external-docs.devops-homework.svc.cluster.local	canonical name = kubernetes.io
+Name:	kubernetes.io
+Address: 3.33.186.135
+Name:	kubernetes.io
+Address: 15.197.167.90
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- nslookup web-headless.devops-homework.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+Name:	web-headless.devops-homework.svc.cluster.local
+Address: 10.244.0.53
+Name:	web-headless.devops-homework.svc.cluster.local
+Address: 10.244.0.54
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- nslookup stateful-web-0.web-headless.devops-homework.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+Name:	stateful-web-0.web-headless.devops-homework.svc.cluster.local
+Address: 10.244.0.53
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 4 -qO- http://web-clusterip
+Hello from v1
+exit=0
+
+$ kubectl --context devops-oct7 get node -o 'jsonpath={.items[0].status.addresses[?(@.type=="InternalIP")].address}'
+192.168.49.2
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 4 -qO- http://192.168.49.2:30081
+Hello from v1
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 4 -qO- http://web-loadbalancer
+Hello from v1
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- cat /etc/resolv.conf
+search devops-homework.svc.cluster.local svc.cluster.local cluster.local
+nameserver 10.96.0.10
+options ndots:5
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework patch service web-clusterip --type=merge -p '{"spec":{"selector":{"app":"deliberately-missing"}}}'
+service/web-clusterip patched
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get endpointslices -l kubernetes.io/service-name=web-clusterip -o yaml
+apiVersion: v1
+items:
+- addressType: IPv4
+  apiVersion: discovery.k8s.io/v1
+  endpoints: null
+  kind: EndpointSlice
+  metadata:
+    creationTimestamp: "2026-10-07T10:17:10Z"
+    generateName: web-clusterip-
+    generation: 6
+    labels:
+      endpointslice.kubernetes.io/managed-by: endpointslice-controller.k8s.io
+      kubernetes.io/service-name: web-clusterip
+    name: web-clusterip-pnn77
+    namespace: devops-homework
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Service
+      name: web-clusterip
+      uid: 82803e2a-a0bc-4d97-998d-cbd9b8a41fda
+    resourceVersion: "2210"
+    uid: 257332be-007e-4598-93be-70739389226d
+  ports: null
+kind: List
+metadata:
+  resourceVersion: ""
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 3 -qO- http://web-clusterip
+
+wget: can't connect to remote host (10.99.3.154): Connection refused
+command terminated with exit code 1
+exit=1
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-services/clusterip.yaml
+service/web-clusterip configured
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 4 -qO- http://web-clusterip
+Hello from v1
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get endpointslices -l kubernetes.io/service-name=web-clusterip -o wide
+NAME                  ADDRESSTYPE   PORTS   ENDPOINTS                             AGE
+web-clusterip-pnn77   IPv4          80      10.244.0.52,10.244.0.51,10.244.0.50   96s
+exit=0
+LoadBalancer Service internal traffic checked above; an assigned external address/tunnel needs separate evidence.
+
+SESSION CHECKS PASSED at 2026-10-07T10:18:46.679848+00:00

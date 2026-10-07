@@ -1,0 +1,63 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "trouble-missing-volume",
+        "namespace": "devops-advanced"
+      },
+      "data": {
+        "MODE": "repaired"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "namespace": "devops-advanced",
+        "name": "trouble-mount"
+      },
+      "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "name": "demo",
+            "image": "busybox:1.36.1",
+            "command": [
+              "sh",
+              "-c",
+              "echo healthy; sleep 3600"
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "5m",
+                "memory": "8Mi"
+              },
+              "limits": {
+                "cpu": "50m",
+                "memory": "32Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "missing",
+                "mountPath": "/config"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "missing",
+            "configMap": {
+              "name": "trouble-missing-volume"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

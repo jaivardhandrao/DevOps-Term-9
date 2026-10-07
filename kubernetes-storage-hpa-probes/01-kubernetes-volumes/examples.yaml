@@ -1,0 +1,23 @@
+# Only the disposable Minikube node is used; no Mac directories are mounted.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: volume-examples
+  namespace: devops-advanced
+spec:
+  automountServiceAccountToken: false
+  containers:
+    - name: reader
+      image: busybox:1.36.1
+      command: [sh, -c, 'echo ephemeral > /scratch/example; echo node-local > /node/example; sleep 3600']
+      resources:
+        requests: {cpu: 5m, memory: 8Mi}
+        limits: {cpu: 50m, memory: 32Mi}
+      volumeMounts:
+        - {name: scratch, mountPath: /scratch}
+        - {name: node, mountPath: /node}
+  volumes:
+    - name: scratch
+      emptyDir: {sizeLimit: 8Mi}
+    - name: node
+      hostPath: {path: /tmp/devops-advanced-volume-example, type: DirectoryOrCreate}

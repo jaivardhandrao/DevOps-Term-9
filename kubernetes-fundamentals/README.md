@@ -2,7 +2,7 @@
 
 - **Name:** Jaivardhan D. Rao
 - **Enrollment number:** 24BCS10117
-- **Status:** Live local evidence captured: node Ready, namespace/default ServiceAccount present, and client Pod Ready.
+- **Status:** October 7 live checks passed: Ready node, CoreDNS, default ServiceAccount, ready client and healthy system Pods. New Terminal screenshot pending; September screenshot retained as history.
 
 Kubernetes reconciles the desired state declared in API objects with the containers actually
 running on worker nodes. For example, a Deployment requesting three replicas gives controllers
@@ -68,6 +68,14 @@ Continue with [session 10](../kubernetes-core-objects/README.md),
 [session 12](../kubernetes-ingress-configmaps-secrets/README.md).
 
 ## Evidence and cleanup
+
+The [October 7 transcript](../evidence/october-7/session-9/20261007T101114Z.txt) records the
+completed checks on the isolated `devops-oct7` cluster. This was an agent-executed run with
+Kubernetes and kubectl v1.34.0. See the [October evidence inventory](../evidence/october-7/README.md)
+for scope and remaining screenshots. The example commands above use a separate `devops-coursework`
+profile; the transcript identifies the profile actually used.
+
+### September historical evidence
 
 ![Actual Terminal screenshot: local Kubernetes node and client Pod ready](../evidence/live-checkpoints/01-fundamentals.png)
 

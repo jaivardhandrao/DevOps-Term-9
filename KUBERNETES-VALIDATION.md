@@ -2,11 +2,18 @@
 
 - **Name:** Jaivardhan D. Rao
 - **Enrollment number:** 24BCS10117
-- **Validation date:** 17 September 2026
+- **Latest live evidence:** 7 October 2026; September validation retained below as history.
 - **Scope:** Kubernetes Fundamentals and sessions 10, 11, and 12.
 
-**Local validation passed; fundamentals and partial session 10 live evidence are captured.
-Sessions 11–12 live evidence remains pending.**
+**October 7 live checks passed for fundamentals, session 10 strategies/lifecycle, session 11
+internal Service traffic/DNS, and session 12 HTTP Ingress/configuration/Secret presence.**
+The [dated evidence inventory and exact transcripts](evidence/october-7/README.md) record
+agent-executed checks on the isolated `devops-oct7` Minikube cluster, with Kubernetes and
+kubectl v1.34.0. These are real command transcripts, not new native Terminal screenshots.
+LoadBalancer external-address/tunnel verification and optional TLS remain pending.
+
+## September 17 history
+
 There was no configured Kubernetes context during the initial local validation. Those checks
 did not create or modify a cluster or perform database, AWS, or Terraform operations.
 
@@ -21,13 +28,14 @@ stopping the runner before its session 10 screenshot and sessions 11–12. A sep
 read-only follow-up found ready workloads and fetched the restored `Hello from v1` response.
 
 Four [recorded command-output images and their raw transcripts](evidence/local-validation/README.md)
-are now embedded in the session READMEs. These are images rendered from fresh, real command
+remain embedded in the session READMEs. These are images rendered from the September command
 output; they are not native Terminal screenshots. Original Terminal screenshots and raw live
 logs are separately linked in [live evidence](evidence/live-checkpoints/README.md).
 The runner has readiness waits, screenshot retry/manual PNG recovery, and bounded HTTP/DNS
-read retries. Syntax and 12 isolated regression checks passed; a full rerun remains pending.
+read retries. Syntax and 12 isolated regression checks passed at that time. The October
+transcripts above now supply the later live checks; the original failures remain preserved.
 
-## 1. Strict Kubernetes schemas
+## 1. September strict Kubernetes schemas
 
 Used kubeconform **v0.8.0**, with its release archive checked against the publisher's SHA-256
 checksum, and Kubernetes **1.34.0** schemas. The client available locally was kubectl **v1.34.1**.
@@ -48,7 +56,7 @@ Summary: 43 resources found in 36 files - Valid: 43, Invalid: 0, Errors: 0, Skip
 No resource schema was skipped. Deliberately broken lifecycle scenarios can be schema-valid:
 their failure behavior must still be observed on a cluster.
 
-## 2. Relationships and API behavior
+## 2. September relationships and API behavior
 
 The [validation script](scripts/validate-kubernetes.py) checks namespace consistency, workload
 selectors, named Service target ports, Ingress references, ConfigMap names, the locally created
@@ -80,7 +88,7 @@ The script also verifies relative Markdown file links. It does not provision a c
 the Kubernetes API. kubeconform can retrieve public schemas during validation; see its
 [installation instructions](https://github.com/yannh/kubeconform#installation).
 
-## 3. Actual container checks
+## 3. September actual container checks
 
 Both session 12 images were pulled and their actual container commands were run in temporary
 Docker containers with `--network none`. HTTP requests were issued inside each container over
@@ -104,17 +112,18 @@ python@sha256:7415fbc3c9e4979cc717d92377ab2bc7b2b4a2af1ac03cc52b5f3f88efedaf3a
 ```
 
 The manifests use readable image tags for coursework. These digests identify the artifacts
-tested on this date; the tags can move later. BusyBox lifecycle drills were not executed.
+tested on September 17; the tags can move later. BusyBox lifecycle drills were not executed
+during these historical container checks; the October session 10 transcript records the later drills.
 
-## 4. Required live evidence before claiming the Kubernetes homework is complete
+## 4. Current live evidence and remaining deliverables
 
 | Topic | Captured | Still to capture on the disposable lab |
 | --- | --- | --- |
-| Fundamentals | Actual Terminal screenshot: cluster info, Ready node, namespace and ready client; CoreDNS wait and healthy system-Pod inventory in the transcripts. | None for the basic setup checks. |
-| Session 10 | Real scaling/replacement and update/rollback logs; follow-up workload/endpoint/history output and v1 HTTP response. | Session screenshot, strategy endpoint changes, lifecycle/probe observations. |
-| Session 11 | Local schema/reference validation only. | Cluster DNS, Service HTTP traffic, NodePort, headless discovery, broken-selector recovery; LoadBalancer if exercised. |
-| Session 12 | Local schema/reference and isolated container/API validation. | ConfigMap/Secret injection in Pods, both Ingress routes, configuration restart, optional TLS. |
+| Fundamentals | October Ready node, CoreDNS, default ServiceAccount, ready client and healthy system Pods; historical September Terminal screenshot retained. | New October Terminal screenshot. |
+| Session 10 | October ReplicaSet replacement; rolling v1→v2→rollback; blue/green endpoint switch; stable+canary HTTP; recreate replacement; all 12 lifecycle/probe/init/sidecar/termination drills. | New Terminal screenshots. |
+| Session 11 | October ClusterIP/NodePort HTTP; ExternalName/headless and stable Pod DNS; LoadBalancer internal Service HTTP; broken-selector failure and restored traffic. | Required LoadBalancer external address/tunnel connectivity and new screenshots. |
+| Session 12 | October ConfigMap/Secret presence, frontend/API HTTP Ingress, configuration reload after restart, broken Ingress 503→recovery, and public newline fixture. | New Terminal screenshots; optional TLS exercise. |
 
-Each session README contains student-run commands and explains the expected observations.
+Each session README links the October transcripts and retains reproducible commands and expected observations.
 Those expectations must not be submitted as actual command output. Save real output or
 screenshots from the lab, review the [form answer sheet](SUBMISSION.md), and then submit the form.

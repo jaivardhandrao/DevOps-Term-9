@@ -6,6 +6,14 @@
 node_modules/
 dist/
 __pycache__/
+.pytest_cache/
+.venv/
+final-devops-project/.runtime/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
 *.class
 shell-scripting/system-report/
 /kubernetes-ingress-configmaps-secrets/tls.key

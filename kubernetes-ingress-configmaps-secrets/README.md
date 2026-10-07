@@ -2,7 +2,7 @@
 
 - **Name:** Jaivardhan D. Rao
 - **Enrollment number:** 24BCS10117
-- **Status:** Manifests and application checks prepared; live Ingress, TLS, and configuration-reload evidence pending.
+- **Status:** October 7 live HTTP Ingress, ConfigMap reload, Secret presence and broken-route recovery checks passed. New Terminal screenshots and optional TLS remain pending.
 
 Use the [local lab setup](../kubernetes-fundamentals/README.md#local-lab-setup). Run commands from
 this folder. The demo has an Nginx frontend and a small Python API. It does not connect to or
@@ -32,6 +32,7 @@ demo-backend-code ConfigMap -> read-only /app/app.py
 | [frontend.yaml](frontend.yaml) | Two Nginx replicas and ClusterIP Service. |
 | [ingress.yaml](ingress.yaml) | Host and Prefix routes for `/` and `/api`. |
 | [optional/ingress-tls.yaml](optional/ingress-tls.yaml) | TLS and separate frontend/API hostnames. |
+| [troubleshooting.md](troubleshooting.md) | Root-cause investigation, routing/configuration fixes and the public newline exercise. |
 
 A ConfigMap stores configuration. A Secret is a resource for sensitive values; base64 encoding
 alone does not encrypt them. Access control and encryption at rest must be configured by the
@@ -178,7 +179,15 @@ value, so check the bytes instead of guessing from a base64 suffix.
 
 ## Evidence, troubleshooting, and cleanup
 
-These recorded output images show the actual Docker containers and their HTTP responses.
+The [completed October 7 transcript](../evidence/october-7/session-12/20261007T102115Z.txt)
+records ConfigMap and Secret presence, frontend and API HTTP Ingress, configuration changing
+after a backend restart, a deliberately broken Ingress returning 503 followed by restored API
+traffic, and the public newline fixture. No Secret value is printed. The
+[October inventory](../evidence/october-7/README.md) preserves the failed attempts and explains
+the invalid-label correction and asynchronous endpoint propagation. New Terminal screenshots
+and optional TLS remain pending. See the [troubleshooting notes](troubleshooting.md).
+
+These historical September output images show the actual Docker containers and their HTTP responses.
 They do not prove Kubernetes configuration injection or Ingress routing.
 
 ![Nginx frontend actual Docker execution](../evidence/local-validation/03-frontend.png)
@@ -187,8 +196,9 @@ They do not prove Kubernetes configuration injection or Ingress routing.
 
 [Raw logs and live Kubernetes screenshot instructions](../evidence/local-validation/README.md)
 
-Capture resource listings, non-sensitive configuration, HTTP route responses, the ConfigMap
-before/after restart, and TLS responses. Do not capture the value of `DEMO_TOKEN`.
+The October transcript contains resource listings, non-sensitive configuration, HTTP routes
+and ConfigMap reload observations. Capture new screenshots and optional TLS responses separately.
+Do not capture the value of `DEMO_TOKEN`.
 For missing configuration, inspect Pod events and referenced object/key names. For routing
 failures, inspect the Ingress class, host/path, backend Service port, and ready EndpointSlices.
 

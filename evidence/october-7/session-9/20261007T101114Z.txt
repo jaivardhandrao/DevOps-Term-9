@@ -1,0 +1,54 @@
+Agent-executed isolated coursework lab, not a student-run claim.
+UTC: 2026-10-07T10:11:14.823317+00:00
+Session: 9; context: devops-oct7
+
+$ kubectl --context devops-oct7 wait --for=condition=Ready nodes --all --timeout=300s
+node/devops-oct7 condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n kube-system rollout status deployment/coredns --timeout=180s
+deployment "coredns" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 cluster-info
+Kubernetes control plane is running at https://127.0.0.1:55923
+CoreDNS is running at https://127.0.0.1:55923/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+exit=0
+
+$ kubectl --context devops-oct7 get nodes -o wide
+NAME          STATUS   ROLES           AGE    VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION     CONTAINER-RUNTIME
+devops-oct7   Ready    control-plane   108s   v1.34.0   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.12.76-linuxkit   containerd://2.3.4
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-fundamentals/namespace.yaml
+namespace/devops-homework created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework wait --for=create serviceaccount/default --timeout=180s
+serviceaccount/default condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-services/client.yaml
+pod/dns-client created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework wait --for=condition=Ready pod/dns-client --timeout=240s
+pod/dns-client condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n kube-system get pods -o wide
+NAME                                  READY   STATUS    RESTARTS   AGE    IP             NODE          NOMINATED NODE   READINESS GATES
+coredns-66bc5c9577-4tkrj              1/1     Running   0          111s   10.244.0.2     devops-oct7   <none>           <none>
+etcd-devops-oct7                      1/1     Running   0          117s   192.168.49.2   devops-oct7   <none>           <none>
+kindnet-wpdbm                         1/1     Running   0          112s   192.168.49.2   devops-oct7   <none>           <none>
+kube-apiserver-devops-oct7            1/1     Running   0          117s   192.168.49.2   devops-oct7   <none>           <none>
+kube-controller-manager-devops-oct7   1/1     Running   0          117s   192.168.49.2   devops-oct7   <none>           <none>
+kube-proxy-6b9j5                      1/1     Running   0          112s   192.168.49.2   devops-oct7   <none>           <none>
+kube-scheduler-devops-oct7            1/1     Running   0          118s   192.168.49.2   devops-oct7   <none>           <none>
+metrics-server-b85d78fd7-dp6tl        1/1     Running   0          70s    10.244.0.3     devops-oct7   <none>           <none>
+storage-provisioner                   1/1     Running   0          116s   192.168.49.2   devops-oct7   <none>           <none>
+exit=0
+
+SESSION CHECKS PASSED at 2026-10-07T10:11:27.311828+00:00

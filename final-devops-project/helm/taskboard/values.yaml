@@ -1,0 +1,39 @@
+backend:
+  replicas: 1
+  image:
+    repository: taskboard-backend
+    tag: local
+    pullPolicy: IfNotPresent
+  resources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {cpu: 300m, memory: 256Mi}
+frontend:
+  replicas: 1
+  image:
+    repository: taskboard-frontend
+    tag: local
+    pullPolicy: IfNotPresent
+  resources:
+    requests: {cpu: 10m, memory: 32Mi}
+    limits: {cpu: 100m, memory: 96Mi}
+database:
+  image: postgres:17-alpine
+  name: taskboard
+  user: taskboard
+  existingSecret: taskboard-db
+  secretKey: password
+  storage: 1Gi
+  # Empty uses the cluster's default provisioner.
+  storageClass: ""
+  resources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {cpu: 300m, memory: 256Mi}
+ingress:
+  enabled: false
+  className: nginx
+  host: taskboard.local
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 70

@@ -8,19 +8,26 @@ from urllib.error import HTTPError
 from urllib.request import urlopen
 
 import yaml
+from kubernetes_labels import validate_label_values
 
 root = Path(__file__).resolve().parents[1]
 entries = []
-for p in sorted(root.glob("kubernetes-*/*.yaml")) + sorted(
-    root.glob("kubernetes-*/*/*.yaml")
-):
+# This checks the original sessions 9–12 as one connected set. Later sessions have
+# deliberately broken fixtures and independent namespaces validated by their own runners.
+folders = ["kubernetes-fundamentals", "kubernetes-core-objects", "kubernetes-services",
+           "kubernetes-ingress-configmaps-secrets"]
+for p in sorted(p for folder in folders for p in (root / folder).rglob("*.yaml")):
     for doc in yaml.safe_load_all(p.read_text()):
+        if doc is None:
+            continue
         entries.append((p.relative_to(root), doc))
 for path, d in entries:
+    validate_label_values(d["metadata"].get("labels", {}))
     if d["kind"] != "Namespace":
         assert d["metadata"]["namespace"] == "devops-homework", path
     if d["kind"] in ("Deployment", "ReplicaSet", "StatefulSet", "DaemonSet"):
         labels = d["spec"]["template"]["metadata"]["labels"]
+        validate_label_values(labels)
         assert all(
             labels.get(k) == v for k, v in d["spec"]["selector"]["matchLabels"].items()
         ), path

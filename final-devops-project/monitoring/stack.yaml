@@ -1,0 +1,178 @@
+# Namespace is supplied with kubectl -n monitoring-oct7; all services remain ClusterIP.
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+spec:
+  selector: {app: prometheus}
+  ports: [{name: http, port: 9090, targetPort: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: prometheus}
+  template:
+    metadata:
+      labels: {app: prometheus}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v3.6.0
+          ports: [{name: http, containerPort: 9090}]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 20m, memory: 64Mi}
+            limits: {cpu: 200m, memory: 192Mi}
+          readinessProbe:
+            httpGet: {path: /-/healthy, port: http}
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /-/healthy, port: http}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+            - --storage.tsdb.retention.time=2h
+          volumeMounts:
+            - {name: config, mountPath: /etc/prometheus/prometheus.yml, subPath: prometheus.yml, readOnly: true}
+            - {name: config, mountPath: /etc/prometheus/alerts.yml, subPath: alerts.yml, readOnly: true}
+            - {name: data, mountPath: /prometheus}
+      volumes:
+        - name: config
+          configMap: {name: monitoring-config}
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blackbox
+spec:
+  selector: {app: blackbox}
+  ports: [{name: http, port: 9115, targetPort: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blackbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: blackbox}
+  template:
+    metadata:
+      labels: {app: blackbox}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: blackbox
+          image: prom/blackbox-exporter:v0.27.0
+          ports: [{name: http, containerPort: 9115}]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 20m, memory: 16Mi}
+            limits: {cpu: 200m, memory: 64Mi}
+          readinessProbe:
+            httpGet: {path: /, port: http}
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /, port: http}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          args:
+            - --config.file=/etc/blackbox_exporter/config.yml
+          volumeMounts:
+            - {name: config, mountPath: /etc/blackbox_exporter/config.yml, subPath: blackbox.yml, readOnly: true}
+      volumes:
+        - name: config
+          configMap: {name: monitoring-config}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  selector: {app: grafana}
+  ports: [{name: http, port: 3000, targetPort: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: grafana}
+  template:
+    metadata:
+      labels: {app: grafana}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 472
+        runAsGroup: 472
+        fsGroup: 472
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: grafana
+          image: grafana/grafana:12.2.0
+          ports: [{name: http, containerPort: 3000}]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 20m, memory: 96Mi}
+            limits: {cpu: 200m, memory: 192Mi}
+          readinessProbe:
+            httpGet: {path: /api/health, port: http}
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /api/health, port: http}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          env:
+            - {name: GF_AUTH_ANONYMOUS_ENABLED, value: "true"}
+            - {name: GF_AUTH_ANONYMOUS_ORG_ROLE, value: Viewer}
+            - {name: GF_AUTH_DISABLE_LOGIN_FORM, value: "true"}
+            - {name: GF_USERS_ALLOW_SIGN_UP, value: "false"}
+            - {name: GF_ANALYTICS_REPORTING_ENABLED, value: "false"}
+            - {name: GF_ANALYTICS_CHECK_FOR_UPDATES, value: "false"}
+            - {name: GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES, value: "false"}
+            - {name: GF_PLUGINS_PREINSTALL_DISABLED, value: "true"}
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: grafana-admin, key: password}
+          volumeMounts:
+            - {name: config, mountPath: /etc/grafana/provisioning/datasources/prometheus.yml, subPath: grafana-datasource.yml, readOnly: true}
+            - {name: config, mountPath: /etc/grafana/provisioning/dashboards/taskboard.yml, subPath: grafana-dashboard-provider.yml, readOnly: true}
+            - {name: config, mountPath: /var/lib/grafana/dashboards/taskboard.json, subPath: taskboard-dashboard.json, readOnly: true}
+            - {name: data, mountPath: /var/lib/grafana}
+      volumes:
+        - name: config
+          configMap: {name: monitoring-config}
+        - name: data
+          emptyDir: {}

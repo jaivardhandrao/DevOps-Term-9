@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: taskboard
+  namespace: monitoring-oct7
+spec:
+  description: Coursework TaskBoard restricted to its disposable namespace
+  sourceRepos:
+    - https://github.com/jaivardhandrao/DevOps-Term-9.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: capstone-oct7
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - {group: "", kind: Service}
+    - {group: "", kind: ConfigMap}
+    - {group: "", kind: PersistentVolumeClaim}
+    - {group: apps, kind: Deployment}
+    - {group: apps, kind: StatefulSet}
+    - {group: batch, kind: Job}
+    - {group: autoscaling, kind: HorizontalPodAutoscaler}
+    - {group: networking.k8s.io, kind: Ingress}

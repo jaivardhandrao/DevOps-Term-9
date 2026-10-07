@@ -1,0 +1,6 @@
+aws_region        = "ap-south-1"
+project_name      = "jvrao-term9"
+vpc_cidr          = "10.20.0.0/16"
+instance_type     = "t3.micro"
+# Documentation-only address. Replace with YOUR public IPv4 address /32 before applying.
+allowed_http_cidr = "203.0.113.10/32"

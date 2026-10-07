@@ -1,0 +1,2874 @@
+Agent-executed isolated coursework lab, not a student-run claim.
+UTC: 2026-10-07T10:14:38.028042+00:00
+Session: 10; context: devops-oct7
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/pod.yaml -f kubernetes-core-objects/replicaset.yaml -f kubernetes-core-objects/deployment-v1.yaml -f kubernetes-core-objects/service.yaml -f kubernetes-core-objects/daemonset.yaml
+pod/standalone-web created
+replicaset.apps/replica-web created
+deployment.apps/core-web created
+service/core-web created
+daemonset.apps/node-agent created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/core-web --timeout=240s
+Waiting for deployment "core-web" rollout to finish: 0 of 3 updated replicas are available...
+Waiting for deployment "core-web" rollout to finish: 1 of 3 updated replicas are available...
+Waiting for deployment "core-web" rollout to finish: 2 of 3 updated replicas are available...
+deployment "core-web" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework wait --for=condition=Ready pod/standalone-web --timeout=180s
+pod/standalone-web condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pods -l app=replica-web -o wide
+NAME                READY   STATUS    RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+replica-web-cmwsh   1/1     Running   0          68s   10.244.0.13   devops-oct7   <none>           <none>
+replica-web-qgzkl   1/1     Running   0          68s   10.244.0.12   devops-oct7   <none>           <none>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework scale replicaset/replica-web --replicas=3
+replicaset.apps/replica-web scaled
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework delete pods -l app=replica-web
+pod "replica-web-cmwsh" deleted from devops-homework namespace
+pod "replica-web-qgzkl" deleted from devops-homework namespace
+pod "replica-web-rvx29" deleted from devops-homework namespace
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework wait '--for=jsonpath={.status.readyReplicas}=3' replicaset/replica-web --timeout=180s
+replicaset.apps/replica-web condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pods -l app=replica-web -o wide
+NAME                READY   STATUS    RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+replica-web-4pqpq   1/1     Running   0          2s    10.244.0.18   devops-oct7   <none>           <none>
+replica-web-cft8g   1/1     Running   0          2s    10.244.0.20   devops-oct7   <none>           <none>
+replica-web-zxhwj   1/1     Running   0          2s    10.244.0.19   devops-oct7   <none>           <none>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 4 -qO- http://core-web
+Hello from v1
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/deployment-v2.yaml
+deployment.apps/core-web configured
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pods -l app=core-web --show-labels
+NAME                        READY   STATUS              RESTARTS   AGE   LABELS
+core-web-77f8db7f78-lqn49   1/1     Running             0          70s   app=core-web,pod-template-hash=77f8db7f78,version=v1
+core-web-77f8db7f78-m9psn   1/1     Running             0          70s   app=core-web,pod-template-hash=77f8db7f78,version=v1
+core-web-77f8db7f78-mdw55   1/1     Running             0          70s   app=core-web,pod-template-hash=77f8db7f78,version=v1
+core-web-8b56fc948-dqvvz    0/1     ContainerCreating   0          0s    app=core-web,pod-template-hash=8b56fc948,version=v2
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/core-web --timeout=240s
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "core-web" rollout to finish: 1 old replicas are pending termination...
+deployment "core-web" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 4 -qO- http://core-web
+Hello from v2
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout undo deployment/core-web
+deployment.apps/core-web rolled back
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/core-web --timeout=240s
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "core-web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "core-web" rollout to finish: 1 old replicas are pending termination...
+deployment "core-web" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 4 -qO- http://core-web
+Hello from v2
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 4 -qO- http://core-web
+Hello from v1
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout history deployment/core-web
+deployment.apps/core-web 
+REVISION  CHANGE-CAUSE
+2         <none>
+3         <none>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/strategies/blue-green.yaml
+deployment.apps/web-blue created
+deployment.apps/web-green created
+service/blue-green created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/web-blue --timeout=240s
+Waiting for deployment "web-blue" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "web-blue" rollout to finish: 1 of 2 updated replicas are available...
+deployment "web-blue" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/web-green --timeout=240s
+deployment "web-green" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 4 -qO- http://blue-green
+Hello from blue
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get endpointslices -l kubernetes.io/service-name=blue-green -o wide
+NAME               ADDRESSTYPE   PORTS   ENDPOINTS                 AGE
+blue-green-t7q9p   IPv4          80      10.244.0.27,10.244.0.28   3s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework patch service blue-green --type=merge -p '{"spec":{"selector":{"app":"blue-green","slot":"green"}}}'
+service/blue-green patched
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 4 -qO- http://blue-green
+Hello from blue
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- wget -T 4 -qO- http://blue-green
+Hello from green
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get endpointslices -l kubernetes.io/service-name=blue-green -o wide
+NAME               ADDRESSTYPE   PORTS   ENDPOINTS                 AGE
+blue-green-t7q9p   IPv4          80      10.244.0.30,10.244.0.29   5s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/strategies/canary.yaml
+deployment.apps/web-stable created
+deployment.apps/web-canary created
+service/canary-web created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/web-stable --timeout=240s
+Waiting for deployment "web-stable" rollout to finish: 0 of 3 updated replicas are available...
+Waiting for deployment "web-stable" rollout to finish: 1 of 3 updated replicas are available...
+Waiting for deployment "web-stable" rollout to finish: 2 of 3 updated replicas are available...
+deployment "web-stable" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/web-canary --timeout=240s
+deployment "web-canary" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get endpointslices -l kubernetes.io/service-name=canary-web -o wide
+NAME               ADDRESSTYPE   PORTS   ENDPOINTS                                         AGE
+canary-web-848sh   IPv4          80      10.244.0.34,10.244.0.31,10.244.0.32 + 1 more...   2s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec dns-client -- sh -c 'for i in $(seq 1 40); do wget -T 3 -qO- http://canary-web; done'
+Hello from stable
+Hello from canary
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from canary
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from canary
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from canary
+Hello from stable
+Hello from stable
+Hello from canary
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+Hello from stable
+exit=0
+Observed stable/canary responses: 35/5; random connection distribution, not a guaranteed traffic weight.
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/strategies/recreate-v1.yaml
+deployment.apps/recreate-web created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/recreate-web --timeout=240s
+Waiting for deployment "recreate-web" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "recreate-web" rollout to finish: 1 of 2 updated replicas are available...
+deployment "recreate-web" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pods -l app=recreate-web -o json
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "creationTimestamp": "2026-10-07T10:16:08Z",
+                "generateName": "recreate-web-888477f7b-",
+                "generation": 1,
+                "labels": {
+                    "app": "recreate-web",
+                    "pod-template-hash": "888477f7b",
+                    "version": "v1"
+                },
+                "name": "recreate-web-888477f7b-2gsnd",
+                "namespace": "devops-homework",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "recreate-web-888477f7b",
+                        "uid": "2074f1a4-7b6c-4c36-b741-e509d094fb52"
+                    }
+                ],
+                "resourceVersion": "1637",
+                "uid": "59c6a206-916a-4fbe-a67a-23cc712a7eb8"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "/bin/sh",
+                            "-c",
+                            "printf 'Hello from %s\\n' \"$APP_VERSION\" \u003e /usr/share/nginx/html/index.html\nexec nginx -g 'daemon off;'\n"
+                        ],
+                        "env": [
+                            {
+                                "name": "APP_VERSION",
+                                "value": "v1"
+                            }
+                        ],
+                        "image": "nginx:1.28-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "web",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 3,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "100m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "10m",
+                                "memory": "32Mi"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-ndrxl",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-ndrxl",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:09Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:08Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:09Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:09Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:08Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "10m",
+                            "memory": "32Mi"
+                        },
+                        "containerID": "containerd://e64b005ac5c0c75c12f0ea8209d01d76e73edb80404e84c9720d93295a79da4d",
+                        "image": "docker.io/library/nginx:1.28-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+                        "lastState": {},
+                        "name": "web",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "100m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "10m",
+                                "memory": "32Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T10:16:09Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-ndrxl",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.36",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.36"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T10:16:08Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "creationTimestamp": "2026-10-07T10:16:08Z",
+                "generateName": "recreate-web-888477f7b-",
+                "generation": 1,
+                "labels": {
+                    "app": "recreate-web",
+                    "pod-template-hash": "888477f7b",
+                    "version": "v1"
+                },
+                "name": "recreate-web-888477f7b-cl4q9",
+                "namespace": "devops-homework",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "recreate-web-888477f7b",
+                        "uid": "2074f1a4-7b6c-4c36-b741-e509d094fb52"
+                    }
+                ],
+                "resourceVersion": "1635",
+                "uid": "361af825-a577-49ef-8461-8ae42df72a7f"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "/bin/sh",
+                            "-c",
+                            "printf 'Hello from %s\\n' \"$APP_VERSION\" \u003e /usr/share/nginx/html/index.html\nexec nginx -g 'daemon off;'\n"
+                        ],
+                        "env": [
+                            {
+                                "name": "APP_VERSION",
+                                "value": "v1"
+                            }
+                        ],
+                        "image": "nginx:1.28-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "web",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 3,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "100m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "10m",
+                                "memory": "32Mi"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-l4rwg",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-l4rwg",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:09Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:08Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:09Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:09Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:08Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "10m",
+                            "memory": "32Mi"
+                        },
+                        "containerID": "containerd://305a1bc77f8ce5b89bf4556160cc55b72acb266fae3686a13acfb883fbb8672d",
+                        "image": "docker.io/library/nginx:1.28-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+                        "lastState": {},
+                        "name": "web",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "100m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "10m",
+                                "memory": "32Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T10:16:09Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-l4rwg",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.35",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.35"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T10:16:08Z"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/strategies/recreate-v2.yaml
+deployment.apps/recreate-web configured
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pods -l app=recreate-web --show-labels
+NAME                           READY   STATUS        RESTARTS   AGE   LABELS
+recreate-web-888477f7b-2gsnd   1/1     Terminating   0          1s    app=recreate-web,pod-template-hash=888477f7b,version=v1
+recreate-web-888477f7b-cl4q9   1/1     Terminating   0          1s    app=recreate-web,pod-template-hash=888477f7b,version=v1
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework rollout status deployment/recreate-web --timeout=240s
+Waiting for deployment "recreate-web" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "recreate-web" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "recreate-web" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "recreate-web" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "recreate-web" rollout to finish: 1 of 2 updated replicas are available...
+deployment "recreate-web" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get events --field-selector involvedObject.name=recreate-web --sort-by=.metadata.creationTimestamp
+LAST SEEN   TYPE     REASON              OBJECT                    MESSAGE
+5s          Normal   ScalingReplicaSet   deployment/recreate-web   Scaled up replica set recreate-web-888477f7b from 0 to 2
+4s          Normal   ScalingReplicaSet   deployment/recreate-web   Scaled down replica set recreate-web-888477f7b from 2 to 0
+1s          Normal   ScalingReplicaSet   deployment/recreate-web   Scaled up replica set recreate-web-8464f6b57d from 0 to 2
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pods -l app=recreate-web -o json
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "creationTimestamp": "2026-10-07T10:16:12Z",
+                "generateName": "recreate-web-8464f6b57d-",
+                "generation": 1,
+                "labels": {
+                    "app": "recreate-web",
+                    "pod-template-hash": "8464f6b57d",
+                    "version": "v2"
+                },
+                "name": "recreate-web-8464f6b57d-s7gxd",
+                "namespace": "devops-homework",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "recreate-web-8464f6b57d",
+                        "uid": "dd526b1c-fa95-4a16-8f0a-a42f73a4bba2"
+                    }
+                ],
+                "resourceVersion": "1690",
+                "uid": "30e00355-f0b8-4377-8ad5-c24fffc7ba03"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "/bin/sh",
+                            "-c",
+                            "printf 'Hello from %s\\n' \"$APP_VERSION\" \u003e /usr/share/nginx/html/index.html\nexec nginx -g 'daemon off;'\n"
+                        ],
+                        "env": [
+                            {
+                                "name": "APP_VERSION",
+                                "value": "v2"
+                            }
+                        ],
+                        "image": "nginx:1.28-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "web",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 3,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "100m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "10m",
+                                "memory": "32Mi"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-hg6c7",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-hg6c7",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:13Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:12Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:13Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:13Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:12Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "10m",
+                            "memory": "32Mi"
+                        },
+                        "containerID": "containerd://b5f59df5fece8856f7c179a17e06c6416e363ad4eb44a0a10441556706f140d2",
+                        "image": "docker.io/library/nginx:1.28-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+                        "lastState": {},
+                        "name": "web",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "100m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "10m",
+                                "memory": "32Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T10:16:13Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-hg6c7",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.38",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.38"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T10:16:12Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "creationTimestamp": "2026-10-07T10:16:12Z",
+                "generateName": "recreate-web-8464f6b57d-",
+                "generation": 1,
+                "labels": {
+                    "app": "recreate-web",
+                    "pod-template-hash": "8464f6b57d",
+                    "version": "v2"
+                },
+                "name": "recreate-web-8464f6b57d-vs2ql",
+                "namespace": "devops-homework",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "recreate-web-8464f6b57d",
+                        "uid": "dd526b1c-fa95-4a16-8f0a-a42f73a4bba2"
+                    }
+                ],
+                "resourceVersion": "1688",
+                "uid": "16af758f-a0c3-41dc-9396-d23c5ca73f93"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "/bin/sh",
+                            "-c",
+                            "printf 'Hello from %s\\n' \"$APP_VERSION\" \u003e /usr/share/nginx/html/index.html\nexec nginx -g 'daemon off;'\n"
+                        ],
+                        "env": [
+                            {
+                                "name": "APP_VERSION",
+                                "value": "v2"
+                            }
+                        ],
+                        "image": "nginx:1.28-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "web",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 3,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "100m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "10m",
+                                "memory": "32Mi"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-ql4c2",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-ql4c2",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:13Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:12Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:13Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:13Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T10:16:12Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "10m",
+                            "memory": "32Mi"
+                        },
+                        "containerID": "containerd://e57ac6bde5b9b43dfe5506c6f3831ab49c8b763e317ed7bfca3078ff76272ee5",
+                        "image": "docker.io/library/nginx:1.28-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+                        "lastState": {},
+                        "name": "web",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "100m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "10m",
+                                "memory": "32Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T10:16:13Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-ql4c2",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.37",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.37"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T10:16:12Z"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/01-running.yaml
+pod/lifecycle-running created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/02-pending.yaml
+pod/lifecycle-pending created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/03-succeeded.yaml
+pod/lifecycle-succeeded created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/04-failed.yaml
+pod/lifecycle-failed created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/05-crashloop.yaml
+pod/lifecycle-crashloop created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/06-image-pull.yaml
+pod/lifecycle-image-error created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/07-readiness.yaml
+pod/lifecycle-readiness created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/08-liveness.yaml
+pod/lifecycle-liveness created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/09-startup.yaml
+pod/lifecycle-startup created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/10-init-container.yaml
+pod/lifecycle-init created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/11-multi-container.yaml
+pod/lifecycle-multi created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework apply -f kubernetes-core-objects/lifecycle/12-termination.yaml
+pod/lifecycle-termination created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework wait '--for=jsonpath={.status.phase}=Succeeded' pod/lifecycle-succeeded --timeout=120s
+pod/lifecycle-succeeded condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework wait '--for=jsonpath={.status.phase}=Failed' pod/lifecycle-failed --timeout=120s
+pod/lifecycle-failed condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework wait --for=condition=Ready pod/lifecycle-running pod/lifecycle-init pod/lifecycle-multi pod/lifecycle-termination --timeout=180s
+pod/lifecycle-running condition met
+pod/lifecycle-init condition met
+pod/lifecycle-multi condition met
+pod/lifecycle-termination condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-crashloop -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"lifecycle-crashloop\",\"namespace\":\"devops-homework\"},\"spec\":{\"containers\":[{\"command\":[\"sh\",\"-c\",\"echo intentional-crash; exit 1\"],\"image\":\"busybox:1.37\",\"name\":\"app\"}],\"restartPolicy\":\"Always\"}}\n"
+        },
+        "creationTimestamp": "2026-10-07T10:16:13Z",
+        "generation": 1,
+        "name": "lifecycle-crashloop",
+        "namespace": "devops-homework",
+        "resourceVersion": "1805",
+        "uid": "dcd6a855-d402-4f69-9328-6857c76d0718"
+    },
+    "spec": {
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo intentional-crash; exit 1"
+                ],
+                "image": "busybox:1.37",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "app",
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-62x4f",
+                        "readOnly": true
+                    }
+                ]
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ],
+        "volumes": [
+            {
+                "name": "kube-api-access-62x4f",
+                "projected": {
+                    "defaultMode": 420,
+                    "sources": [
+                        {
+                            "serviceAccountToken": {
+                                "expirationSeconds": 3607,
+                                "path": "token"
+                            }
+                        },
+                        {
+                            "configMap": {
+                                "items": [
+                                    {
+                                        "key": "ca.crt",
+                                        "path": "ca.crt"
+                                    }
+                                ],
+                                "name": "kube-root-ca.crt"
+                            }
+                        },
+                        {
+                            "downwardAPI": {
+                                "items": [
+                                    {
+                                        "fieldRef": {
+                                            "apiVersion": "v1",
+                                            "fieldPath": "metadata.namespace"
+                                        },
+                                        "path": "namespace"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:15Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "message": "containers with unready status: [app]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "message": "containers with unready status: [app]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "containerID": "containerd://1cbe7e416625851dcbd4ae8c11fb89499ba3febba54f29460ed48610eae04330",
+                "image": "docker.io/library/busybox:1.37",
+                "imageID": "docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e",
+                "lastState": {
+                    "terminated": {
+                        "containerID": "containerd://a1c1405d84592cc5cacf667f7ab59ff32e0d6929ec11cd8e6975d3fc14e8c377",
+                        "exitCode": 1,
+                        "finishedAt": "2026-10-07T10:16:14Z",
+                        "reason": "Error",
+                        "startedAt": "2026-10-07T10:16:14Z"
+                    }
+                },
+                "name": "app",
+                "ready": false,
+                "resources": {},
+                "restartCount": 1,
+                "started": false,
+                "state": {
+                    "terminated": {
+                        "containerID": "containerd://1cbe7e416625851dcbd4ae8c11fb89499ba3febba54f29460ed48610eae04330",
+                        "exitCode": 1,
+                        "finishedAt": "2026-10-07T10:16:15Z",
+                        "reason": "Error",
+                        "startedAt": "2026-10-07T10:16:15Z"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 0,
+                        "supplementalGroups": [
+                            0,
+                            10
+                        ],
+                        "uid": 0
+                    }
+                },
+                "volumeMounts": [
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-62x4f",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    }
+                ]
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.0.42",
+        "podIPs": [
+            {
+                "ip": "10.244.0.42"
+            }
+        ],
+        "qosClass": "BestEffort",
+        "startTime": "2026-10-07T10:16:13Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-crashloop -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"lifecycle-crashloop\",\"namespace\":\"devops-homework\"},\"spec\":{\"containers\":[{\"command\":[\"sh\",\"-c\",\"echo intentional-crash; exit 1\"],\"image\":\"busybox:1.37\",\"name\":\"app\"}],\"restartPolicy\":\"Always\"}}\n"
+        },
+        "creationTimestamp": "2026-10-07T10:16:13Z",
+        "generation": 1,
+        "name": "lifecycle-crashloop",
+        "namespace": "devops-homework",
+        "resourceVersion": "1811",
+        "uid": "dcd6a855-d402-4f69-9328-6857c76d0718"
+    },
+    "spec": {
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo intentional-crash; exit 1"
+                ],
+                "image": "busybox:1.37",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "app",
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-62x4f",
+                        "readOnly": true
+                    }
+                ]
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ],
+        "volumes": [
+            {
+                "name": "kube-api-access-62x4f",
+                "projected": {
+                    "defaultMode": 420,
+                    "sources": [
+                        {
+                            "serviceAccountToken": {
+                                "expirationSeconds": 3607,
+                                "path": "token"
+                            }
+                        },
+                        {
+                            "configMap": {
+                                "items": [
+                                    {
+                                        "key": "ca.crt",
+                                        "path": "ca.crt"
+                                    }
+                                ],
+                                "name": "kube-root-ca.crt"
+                            }
+                        },
+                        {
+                            "downwardAPI": {
+                                "items": [
+                                    {
+                                        "fieldRef": {
+                                            "apiVersion": "v1",
+                                            "fieldPath": "metadata.namespace"
+                                        },
+                                        "path": "namespace"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:15Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "message": "containers with unready status: [app]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "message": "containers with unready status: [app]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "containerID": "containerd://1cbe7e416625851dcbd4ae8c11fb89499ba3febba54f29460ed48610eae04330",
+                "image": "docker.io/library/busybox:1.37",
+                "imageID": "docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e",
+                "lastState": {
+                    "terminated": {
+                        "containerID": "containerd://1cbe7e416625851dcbd4ae8c11fb89499ba3febba54f29460ed48610eae04330",
+                        "exitCode": 1,
+                        "finishedAt": "2026-10-07T10:16:15Z",
+                        "reason": "Error",
+                        "startedAt": "2026-10-07T10:16:15Z"
+                    }
+                },
+                "name": "app",
+                "ready": false,
+                "resources": {},
+                "restartCount": 1,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "message": "back-off 10s restarting failed container=app pod=lifecycle-crashloop_devops-homework(dcd6a855-d402-4f69-9328-6857c76d0718)",
+                        "reason": "CrashLoopBackOff"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 0,
+                        "supplementalGroups": [
+                            0,
+                            10
+                        ],
+                        "uid": 0
+                    }
+                },
+                "volumeMounts": [
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-62x4f",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    }
+                ]
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.0.42",
+        "podIPs": [
+            {
+                "ip": "10.244.0.42"
+            }
+        ],
+        "qosClass": "BestEffort",
+        "startTime": "2026-10-07T10:16:13Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-image-error -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"lifecycle-image-error\",\"namespace\":\"devops-homework\"},\"spec\":{\"containers\":[{\"command\":[\"sh\",\"-c\",\"sleep 3600\"],\"image\":\"example.invalid/coursework/no-image:missing\",\"name\":\"app\"}],\"restartPolicy\":\"Always\"}}\n"
+        },
+        "creationTimestamp": "2026-10-07T10:16:13Z",
+        "generation": 1,
+        "name": "lifecycle-image-error",
+        "namespace": "devops-homework",
+        "resourceVersion": "1796",
+        "uid": "63904300-9b8a-4589-b2fb-8bfd50cae34e"
+    },
+    "spec": {
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "sleep 3600"
+                ],
+                "image": "example.invalid/coursework/no-image:missing",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "app",
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-4p6fd",
+                        "readOnly": true
+                    }
+                ]
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ],
+        "volumes": [
+            {
+                "name": "kube-api-access-4p6fd",
+                "projected": {
+                    "defaultMode": 420,
+                    "sources": [
+                        {
+                            "serviceAccountToken": {
+                                "expirationSeconds": 3607,
+                                "path": "token"
+                            }
+                        },
+                        {
+                            "configMap": {
+                                "items": [
+                                    {
+                                        "key": "ca.crt",
+                                        "path": "ca.crt"
+                                    }
+                                ],
+                                "name": "kube-root-ca.crt"
+                            }
+                        },
+                        {
+                            "downwardAPI": {
+                                "items": [
+                                    {
+                                        "fieldRef": {
+                                            "apiVersion": "v1",
+                                            "fieldPath": "metadata.namespace"
+                                        },
+                                        "path": "namespace"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:15Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "message": "containers with unready status: [app]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "message": "containers with unready status: [app]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T10:16:13Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "image": "example.invalid/coursework/no-image:missing",
+                "imageID": "",
+                "lastState": {},
+                "name": "app",
+                "ready": false,
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "message": "failed to pull and unpack image \"example.invalid/coursework/no-image:missing\": failed to resolve reference \"example.invalid/coursework/no-image:missing\": failed to do request: Head \"https://example.invalid/v2/coursework/no-image/manifests/missing\": dial tcp: lookup example.invalid on 192.168.65.254:53: no such host",
+                        "reason": "ErrImagePull"
+                    }
+                },
+                "volumeMounts": [
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-4p6fd",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    }
+                ]
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Pending",
+        "podIP": "10.244.0.43",
+        "podIPs": [
+            {
+                "ip": "10.244.0.43"
+            }
+        ],
+        "qosClass": "BestEffort",
+        "startTime": "2026-10-07T10:16:13Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-readiness -o wide
+NAME                  READY   STATUS    RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+lifecycle-readiness   0/1     Running   0          6s    10.244.0.44   devops-oct7   <none>           <none>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework exec lifecycle-readiness -- touch /tmp/ready
+
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework wait --for=condition=Ready pod/lifecycle-readiness --timeout=60s
+pod/lifecycle-readiness condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+0
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework get pod lifecycle-liveness -o 'jsonpath={.status.containerStatuses[0].restartCount}'
+1
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework wait --for=condition=Ready pod/lifecycle-startup --timeout=100s
+pod/lifecycle-startup condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-running
+Name:             lifecycle-running
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 15:46:13 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.39
+IPs:
+  IP:  10.244.0.39
+Containers:
+  app:
+    Container ID:  containerd://7b43382ed42a9b3642e943f4424700d0407bff4aa58d4905e5ca3ab5188513ab
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo running; sleep 3600
+    State:          Running
+      Started:      Wed, 07 Oct 2026 15:46:14 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-jh6ft (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-jh6ft:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  58s   default-scheduler  Successfully assigned devops-homework/lifecycle-running to devops-oct7
+  Normal  Pulled     57s   kubelet            Container image "busybox:1.37" already present on machine
+  Normal  Created    57s   kubelet            Created container: app
+  Normal  Started    57s   kubelet            Started container app
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-pending
+Name:             lifecycle-pending
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Containers:
+  app:
+    Image:      busybox:1.37
+    Port:       <none>
+    Host Port:  <none>
+    Command:
+      sh
+      -c
+      sleep 3600
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-64mtx (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  kube-api-access-64mtx:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              devops-homework/unavailable-node=true
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  58s   default-scheduler  0/1 nodes are available: 1 node(s) didn't match Pod's node affinity/selector. no new claims to deallocate, preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-succeeded
+Name:             lifecycle-succeeded
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 15:46:13 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Succeeded
+IP:               10.244.0.40
+IPs:
+  IP:  10.244.0.40
+Containers:
+  app:
+    Container ID:  containerd://87c36cf127f9fcfe727487e646cbe724c071f9c6fee3df2a9cf41fde8f2f4106
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo finished; exit 0
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Wed, 07 Oct 2026 15:46:14 +0530
+      Finished:     Wed, 07 Oct 2026 15:46:14 +0530
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-q2g4l (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-q2g4l:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  58s   default-scheduler  Successfully assigned devops-homework/lifecycle-succeeded to devops-oct7
+  Normal  Pulled     57s   kubelet            Container image "busybox:1.37" already present on machine
+  Normal  Created    57s   kubelet            Created container: app
+  Normal  Started    57s   kubelet            Started container app
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-failed
+Name:             lifecycle-failed
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 15:46:13 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Failed
+IP:               10.244.0.41
+IPs:
+  IP:  10.244.0.41
+Containers:
+  app:
+    Container ID:  containerd://e3612b3d968d0d11a3ca81dd0be0553abdf67fcfda187cf58e17c215f0b0a92a
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo intentional-failure; exit 1
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Wed, 07 Oct 2026 15:46:14 +0530
+      Finished:     Wed, 07 Oct 2026 15:46:14 +0530
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-xkppd (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-xkppd:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  58s   default-scheduler  Successfully assigned devops-homework/lifecycle-failed to devops-oct7
+  Normal  Pulled     57s   kubelet            Container image "busybox:1.37" already present on machine
+  Normal  Created    57s   kubelet            Created container: app
+  Normal  Started    57s   kubelet            Started container app
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-crashloop
+Name:             lifecycle-crashloop
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 15:46:13 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.42
+IPs:
+  IP:  10.244.0.42
+Containers:
+  app:
+    Container ID:  containerd://2b671af51f9c88c9b3efaa19a588c8978631973b3aca94dca5b2d488abab3f20
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo intentional-crash; exit 1
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Wed, 07 Oct 2026 15:46:53 +0530
+      Finished:     Wed, 07 Oct 2026 15:46:53 +0530
+    Ready:          False
+    Restart Count:  3
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-62x4f (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-62x4f:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  58s                default-scheduler  Successfully assigned devops-homework/lifecycle-crashloop to devops-oct7
+  Normal   Pulled     18s (x4 over 57s)  kubelet            Container image "busybox:1.37" already present on machine
+  Normal   Created    18s (x4 over 57s)  kubelet            Created container: app
+  Normal   Started    18s (x4 over 57s)  kubelet            Started container app
+  Warning  BackOff    5s (x6 over 55s)   kubelet            Back-off restarting failed container app in pod lifecycle-crashloop_devops-homework(dcd6a855-d402-4f69-9328-6857c76d0718)
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-image-error
+Name:             lifecycle-image-error
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 15:46:13 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.43
+IPs:
+  IP:  10.244.0.43
+Containers:
+  app:
+    Container ID:  
+    Image:         example.invalid/coursework/no-image:missing
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      sleep 3600
+    State:          Waiting
+      Reason:       ErrImagePull
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4p6fd (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-4p6fd:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  58s                default-scheduler  Successfully assigned devops-homework/lifecycle-image-error to devops-oct7
+  Normal   Pulling    19s (x3 over 57s)  kubelet            Pulling image "example.invalid/coursework/no-image:missing"
+  Warning  Failed     19s (x3 over 57s)  kubelet            Failed to pull image "example.invalid/coursework/no-image:missing": failed to pull and unpack image "example.invalid/coursework/no-image:missing": failed to resolve reference "example.invalid/coursework/no-image:missing": failed to do request: Head "https://example.invalid/v2/coursework/no-image/manifests/missing": dial tcp: lookup example.invalid on 192.168.65.254:53: no such host
+  Warning  Failed     19s (x3 over 57s)  kubelet            Error: ErrImagePull
+  Normal   BackOff    4s (x3 over 56s)   kubelet            Back-off pulling image "example.invalid/coursework/no-image:missing"
+  Warning  Failed     4s (x3 over 56s)   kubelet            Error: ImagePullBackOff
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-readiness
+Name:             lifecycle-readiness
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 15:46:14 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.44
+IPs:
+  IP:  10.244.0.44
+Containers:
+  app:
+    Container ID:  containerd://2c85666888d84fe2035502052702d064a5c7f010698ddff9a4bab9331ce209ab
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      sleep 3600
+    State:          Running
+      Started:      Wed, 07 Oct 2026 15:46:14 +0530
+    Ready:          True
+    Restart Count:  0
+    Readiness:      exec [test -f /tmp/ready] delay=0s timeout=1s period=3s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-lw4gx (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-lw4gx:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  58s                default-scheduler  Successfully assigned devops-homework/lifecycle-readiness to devops-oct7
+  Normal   Pulled     57s                kubelet            Container image "busybox:1.37" already present on machine
+  Normal   Created    57s                kubelet            Created container: app
+  Normal   Started    57s                kubelet            Started container app
+  Warning  Unhealthy  52s (x3 over 56s)  kubelet            Readiness probe failed:
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-liveness
+Name:             lifecycle-liveness
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 15:46:14 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.45
+IPs:
+  IP:  10.244.0.45
+Containers:
+  app:
+    Container ID:  containerd://ef97ea334c640659a2a8500178cf02702ca910fb63d83f07f37c374dbe53f153
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      touch /tmp/healthy; sleep 20; rm /tmp/healthy; sleep 3600
+    State:          Running
+      Started:      Wed, 07 Oct 2026 15:47:08 +0530
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    137
+      Started:      Wed, 07 Oct 2026 15:46:14 +0530
+      Finished:     Wed, 07 Oct 2026 15:47:08 +0530
+    Ready:          True
+    Restart Count:  1
+    Liveness:       exec [test -f /tmp/healthy] delay=2s timeout=1s period=3s #success=1 #failure=2
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-rzfz7 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-rzfz7:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  57s                default-scheduler  Successfully assigned devops-homework/lifecycle-liveness to devops-oct7
+  Warning  Unhealthy  33s (x2 over 36s)  kubelet            Liveness probe failed:
+  Normal   Killing    33s                kubelet            Container app failed liveness probe, will be restarted
+  Normal   Pulled     3s (x2 over 57s)   kubelet            Container image "busybox:1.37" already present on machine
+  Normal   Created    3s (x2 over 57s)   kubelet            Created container: app
+  Normal   Started    3s (x2 over 57s)   kubelet            Started container app
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-startup
+Name:             lifecycle-startup
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 15:46:14 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.46
+IPs:
+  IP:  10.244.0.46
+Containers:
+  app:
+    Container ID:  containerd://eab8ae8cd4632078a0d8a48ae05233ab61ef0d380007497399bad2361b091d40
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      sleep 20; touch /tmp/started; sleep 3600
+    State:          Running
+      Started:      Wed, 07 Oct 2026 15:46:14 +0530
+    Ready:          True
+    Restart Count:  0
+    Liveness:       exec [test -f /tmp/started] delay=0s timeout=1s period=3s #success=1 #failure=3
+    Startup:        exec [test -f /tmp/started] delay=0s timeout=1s period=3s #success=1 #failure=15
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-tbk9c (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-tbk9c:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  57s                default-scheduler  Successfully assigned devops-homework/lifecycle-startup to devops-oct7
+  Normal   Pulled     57s                kubelet            Container image "busybox:1.37" already present on machine
+  Normal   Created    57s                kubelet            Created container: app
+  Normal   Started    57s                kubelet            Started container app
+  Warning  Unhealthy  39s (x6 over 54s)  kubelet            Startup probe failed:
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-init
+Name:             lifecycle-init
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 15:46:14 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.47
+IPs:
+  IP:  10.244.0.47
+Init Containers:
+  setup:
+    Container ID:  containerd://a85c6242a79071a33b8266183d75808ba280fcdc4b724ae1dd46cadcd896bad9
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo init-complete > /shared/message
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Wed, 07 Oct 2026 15:46:14 +0530
+      Finished:     Wed, 07 Oct 2026 15:46:14 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /shared from shared (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-svd5k (ro)
+Containers:
+  app:
+    Container ID:  containerd://6fa742938c46d69324ba2cdf2639b3dc89f563e21172b929ebeff46ed57d19c2
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      cat /shared/message; sleep 3600
+    State:          Running
+      Started:      Wed, 07 Oct 2026 15:46:15 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /shared from shared (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-svd5k (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  shared:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kube-api-access-svd5k:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  57s   default-scheduler  Successfully assigned devops-homework/lifecycle-init to devops-oct7
+  Normal  Pulled     57s   kubelet            Container image "busybox:1.37" already present on machine
+  Normal  Created    57s   kubelet            Created container: setup
+  Normal  Started    57s   kubelet            Started container setup
+  Normal  Pulled     56s   kubelet            Container image "busybox:1.37" already present on machine
+  Normal  Created    56s   kubelet            Created container: app
+  Normal  Started    56s   kubelet            Started container app
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-multi
+Name:             lifecycle-multi
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 15:46:14 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.48
+IPs:
+  IP:  10.244.0.48
+Containers:
+  app:
+    Container ID:  containerd://d94a08cca4d3f7c5ec01d41e0d5b89ab0a7c8a19836ed9f062b5f7a13c1a97f3
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo app-started; sleep 3600
+    State:          Running
+      Started:      Wed, 07 Oct 2026 15:46:14 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-57hb4 (ro)
+  sidecar:
+    Container ID:  containerd://571bfaed3ad7b75f1a970b5c81750239339ae1b5e597c197231340a01872b915
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo sidecar-started; sleep 3600
+    State:          Running
+      Started:      Wed, 07 Oct 2026 15:46:14 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-57hb4 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-57hb4:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  57s   default-scheduler  Successfully assigned devops-homework/lifecycle-multi to devops-oct7
+  Normal  Pulled     57s   kubelet            Container image "busybox:1.37" already present on machine
+  Normal  Created    57s   kubelet            Created container: app
+  Normal  Started    57s   kubelet            Started container app
+  Normal  Pulled     57s   kubelet            Container image "busybox:1.37" already present on machine
+  Normal  Created    57s   kubelet            Created container: sidecar
+  Normal  Started    57s   kubelet            Started container sidecar
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework describe pod lifecycle-termination
+Name:             lifecycle-termination
+Namespace:        devops-homework
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 15:46:14 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.49
+IPs:
+  IP:  10.244.0.49
+Containers:
+  app:
+    Container ID:  containerd://8b28a5ae9d0acb2f14a47bb999dde241b47fa5796697ae1e4279d614c59b39af
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      trap 'echo received-SIGTERM; sleep 3; echo cleanup-complete; exit 0' TERM
+      while true; do sleep 1 & wait $!; done
+      
+    State:          Running
+      Started:      Wed, 07 Oct 2026 15:46:14 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kchxq (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-kchxq:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  58s   default-scheduler  Successfully assigned devops-homework/lifecycle-termination to devops-oct7
+  Normal  Pulled     58s   kubelet            Container image "busybox:1.37" already present on machine
+  Normal  Created    58s   kubelet            Created container: app
+  Normal  Started    58s   kubelet            Started container app
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework logs lifecycle-init -c app
+init-complete
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework logs lifecycle-multi -c sidecar
+sidecar-started
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-homework delete pod lifecycle-termination --wait=true
+pod "lifecycle-termination" deleted from devops-homework namespace
+exit=0
+$ kubectl logs -f lifecycle-termination (during deletion)
+received-SIGTERM
+cleanup-complete
+
+
+SESSION CHECKS PASSED at 2026-10-07T10:17:16.813047+00:00

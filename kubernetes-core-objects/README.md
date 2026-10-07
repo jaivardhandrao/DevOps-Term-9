@@ -2,7 +2,7 @@
 
 - **Name:** Jaivardhan D. Rao
 - **Enrollment number:** 24BCS10117
-- **Status:** Core workload, scaling, update, and rollback logs captured. Session screenshot and additional strategy/lifecycle evidence pending.
+- **Status:** October 7 live checks passed for ReplicaSet replacement, all four deployment strategies, rollback and all 12 lifecycle/probe/init/sidecar/termination drills. New Terminal screenshots pending.
 
 Complete the [local lab setup](../kubernetes-fundamentals/README.md#local-lab-setup) first.
 Run the following commands from this folder. Each exercise uses distinct labels so a standalone
@@ -124,14 +124,25 @@ Use `kubectl describe pod` for events, `kubectl logs POD -c CONTAINER` for logs,
 instance. Pod phases are Pending, Running, Succeeded, Failed, and Unknown. `CrashLoopBackOff`
 and `ImagePullBackOff` are displayed waiting reasons, not additional Pod phases.
 
-## Evidence to capture
+## Actual evidence and remaining screenshots
+
+The [completed October 7 transcript](../evidence/october-7/session-10/20261007T101438Z.txt)
+records ReplicaSet replacement; rolling v1→v2→rollback; the blue/green endpoint switch;
+HTTP responses from stable and canary Pods; recreate replacement; and all 12 lifecycle,
+probe, init, sidecar and termination drills, including the `cleanup-complete` log.
+These are agent-executed observations on `devops-oct7`, not expected output or native
+Terminal screenshots. See the [October inventory](../evidence/october-7/README.md).
+
+### September historical evidence
 
 The [actual student-run transcript](../evidence/live-checkpoints/02-session-10-partial.txt)
 records Pod creation, ReplicaSet scaling/replacement, and v1 → v2 rollout responses. The
 rollback completed, but its immediate HTTP check failed and stopped the capture script.
 A [read-only follow-up](../evidence/live-checkpoints/02-session-10-follow-up.txt) records
 ready workloads, rollout history, Service endpoints, and the restored `Hello from v1` response.
-The session screenshot and additional strategy/lifecycle evidence remain pending.
+That September run did not capture the session screenshot or the additional strategy/lifecycle
+drills. The October transcript above supplies those later runtime observations; new Terminal
+screenshots remain pending.
 
 The runner now retries failed HTTP reads for a bounded number of attempts after rollouts.
 The original failure remains in the transcript; a successful rollout alone is not proof of
@@ -143,9 +154,10 @@ successful Service traffic. The images below show the earlier local validation c
 
 [Raw logs and the live screenshot capture script](../evidence/local-validation/README.md)
 
-Save actual Pod/ReplicaSet/Deployment output, replacement Pod names, rollout history, v1/v2
-HTTP responses, Service endpoints before/after blue-green, and describe/log output from the
-lifecycle drills. [Validation evidence](../KUBERNETES-VALIDATION.md) states what was checked here.
+The October transcript contains Pod/ReplicaSet/Deployment output, replacement Pod names,
+rollout history, v1/v2 HTTP responses, strategy endpoints and lifecycle describe/log output.
+Capture new Terminal screenshots as the remaining presentation deliverable.
+[Validation evidence](../KUBERNETES-VALIDATION.md) distinguishes current checks from September history.
 Delete individual resources using the same file paths, or remove the dedicated lab profile
 after completing all sessions.
 
