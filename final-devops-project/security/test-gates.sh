@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # Negative controls stay in a disposable directory, outside tracked source.
 set -euo pipefail
+mode=${1:-all}
+if [[ "$mode" != all && "$mode" != local ]]; then
+  printf 'Usage: test-gates.sh [all|local]\n' >&2
+  exit 2
+fi
 temporary=$(mktemp -d)
 trap 'rm -rf "$temporary"' EXIT
 mkdir -p "$temporary/sast" "$temporary/secret" "$temporary/sca"
@@ -11,7 +16,9 @@ import sys
 root = pathlib.Path(sys.argv[1])
 (root / 'sast' / 'insecure.py').write_text('import hashlib\nhashlib.md5(b"negative control")\n')
 # Deliberately nonfunctional synthetic credential; never a real account/key.
-(root / 'secret' / 'fixture.env').write_text('aws_access_key_id=' + 'AK' + 'IA' + 'B' * 16 + '\n')
+# Distinct characters exceed the detector's entropy floor; repeated filler would
+# be correctly filtered as a placeholder and would not exercise the gate.
+(root / 'secret' / 'fixture.env').write_text('aws_access_key_id=' + 'AK' + 'IA' + ''.join(chr(i) for i in range(66, 82)) + '\n')
 (root / 'sca' / 'package-lock.json').write_text(json.dumps({
     'name': 'negative-control', 'version': '1.0.0', 'lockfileVersion': 3,
     'packages': {'': {'dependencies': {'lodash': '4.17.20'}},
@@ -32,6 +39,10 @@ expect_blocked() {
 }
 expect_blocked SAST bandit -q -r "$temporary/sast" --severity-level medium
 expect_blocked 'Secret scan' gitleaks dir "$temporary/secret" --redact=100 --no-banner
+if [[ "$mode" == local ]]; then
+  printf 'LOCAL ONLY: dependency and Trivy report controls were not executed\n'
+  exit 0
+fi
 expect_blocked SCA trivy fs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --output "$temporary/sca.json" "$temporary/sca"
 # Trivy uses the same severity/exit gate for filesystem and image reports.
 # Re-evaluate the real vulnerable dependency report to verify that report conversion

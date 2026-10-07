@@ -1,0 +1,18 @@
+Actual public chart repository practice at 2026-10-07T10:44:39.771958+00:00
+Workspace-only Helm cache/config/data; no chart installation or cluster connection.
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm repo update
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "ingress-nginx" chart repository
+Update Complete. ⎈Happy Helming!⎈
+
+exit=0
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm repo list
+NAME         	URL                                       
+ingress-nginx	https://kubernetes.github.io/ingress-nginx
+
+exit=0
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm search repo ingress-nginx
+NAME                       	CHART VERSION	APP VERSION	DESCRIPTION                                       
+ingress-nginx/ingress-nginx	4.15.1       	1.15.1     	Ingress controller for Kubernetes using NGINX a...
+
+exit=0

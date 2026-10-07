@@ -9,14 +9,23 @@ Evidence is separated into observed checks and pending execution. No security sc
 | `python3 -m py_compile final-devops-project/security/smoke-deployment.py` | Exit 0 |
 | Trivy release archive | Version 0.75.0; macOS ARM64 archive SHA256 matched publisher checksum before extraction |
 | Bandit installation | Version 1.9.4 installed in an isolated temporary environment |
-| SAST, SCA, secret and image scans | Pending an actual successful execution and recorded reports |
-| Deliberate failing gate examples | Implemented in `../test-gates.sh`; execution pending |
-| Automatic tests/static checks | Configured in `assignment-checks.yml`; pending actual PR run |
+| Bandit SAST | Exit 0; 155 application lines scanned, zero findings, zero errors; [JSON report](sast.json) |
+| Gitleaks current-tree scan | Exit 0; no leaks found; [redacted JSON report](secrets.json) |
+| Trivy SCA | Specifically blocked before execution; no report exists |
+| Trivy container scans | Never attempted; no image vulnerability result is claimed |
+| Deliberate failing gate examples | SAST and secret negative controls both exit 1 as required; [observed output](local-negative-controls.txt). Trivy controls not attempted |
+| Automatic tests/static checks | Initial PR runs failed on GNU `mktemp` portability; fixed with an explicit X template. All 14 local fake-CLI/label tests now pass; updated GitHub run pending |
 | Full security/deployment pipeline | Manual dispatch only; scans/deployment remain pending execution approval |
 | GHCR publication | Not performed; intentionally requires explicit manual authorization |
 | Persistent/cloud Kubernetes deployment | Not performed by this workflow |
 
 The Trivy dependency scan was not executed during this validation attempt because execution approval was unavailable; the last retry was cancelled without starting a scanner process. No empty or fabricated report has been substituted. The workflow still fails closed: scanner errors or blocked findings prevent images from reaching the deployment job.
+
+## Scan execution boundaries
+
+Only the Trivy **filesystem dependency scan** was explicitly rejected by execution review. It would download public vulnerability metadata into `/tmp/devops-ci-tools/trivy-cache`, read `final-devops-project/application`, and write `evidence/sca.json`. The minimum outstanding approval for that check is those three actions; it requires no cloud credentials, deployment or registry publication.
+
+Container scans and the Trivy negative controls were not attempted after that rejection. They are pending, not separately reported as rejected. Independent offline Bandit and Gitleaks scans subsequently completed, and the `local` negative-control mode exercised only those two scanners. The full CI workflow remains manual; the PR workflow contains no scanners or deployment action.
 
 ## Verified dependency pins
 

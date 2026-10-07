@@ -34,7 +34,7 @@ trivy image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 taskboard-fro
 bash final-devops-project/security/test-gates.sh
 ```
 
-`test-gates.sh` generates disposable weak-crypto, synthetic-secret and vulnerable dependency fixtures outside the repository. It requires each real scanner to reject its fixture with exit 1. It also re-evaluates the actual vulnerable Trivy report. The latter checks report severity handling and is explicitly **not** an image scan; both real images are scanned by the workflow.
+`test-gates.sh` generates disposable weak-crypto, synthetic-secret and vulnerable dependency fixtures outside the repository. It requires each real scanner to reject its fixture with exit 1. It also re-evaluates the actual vulnerable Trivy report. The latter checks report severity handling and is explicitly **not** an image scan; both real images are configured for scanning in the full workflow. `bash final-devops-project/security/test-gates.sh local` runs only the offline SAST/secret controls and explicitly reports that Trivy controls were not executed.
 
 ## Secrets and publication
 

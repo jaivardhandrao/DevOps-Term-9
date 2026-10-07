@@ -25,7 +25,7 @@ kubectl --context devops-oct7 -n monitoring-oct7 get application taskboard \
 
 The status must actually report Synced/Healthy and a resolved Git commit before claiming success. Downloading the manifest, installing a controller, or creating an Application is insufficient evidence. A missing branch/chart yields a comparison error until the source is available.
 
-The migration Job is an Argo Sync hook in wave 1; PostgreSQL is wave 0 and application Deployments are wave 2. The migration runs before application rollout. HPA controls backend replicas; the chart omits backend `spec.replicas` while HPA is enabled. Avoid concurrent manual Helm upgrades after Argo adoption; commit desired changes instead.
+The migration Job is an Argo Sync hook in wave 1; PostgreSQL is wave 0, application Deployments are wave 2, and HPA plus optional Ingress are wave 3. The migration runs before application rollout. HPA must follow its target Deployment: placing it in wave 0 would report `FailedGetScale` while the target does not exist and stop Argo from reaching the Deployment's wave. A working metrics-server is also required for HPA health. HPA controls backend replicas; the chart omits backend `spec.replicas` while HPA is enabled. Avoid concurrent manual Helm upgrades after Argo adoption; commit desired changes instead.
 
 ## Demonstrate drift correction
 

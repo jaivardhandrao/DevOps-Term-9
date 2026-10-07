@@ -58,6 +58,7 @@ The full CI workflow is manually dispatched while runtime approval is unresolved
 - [Application evidence](application/evidence/README.md): 16 tests, successful builds, real PostgreSQL HTTP checks, database outage/recovery, restart persistence, desktop and 390px mobile screenshots.
 - [Terraform evidence](terraform/evidence/local-validation.txt): real provider-schema validation plus four mocked EKS tests. No AWS resources were created.
 - Helm lint and default/CI/Ingress rendering passed. The frontend probe regression is checked by [the chart contract script](../scripts/check-chart-probes.py).
+- Local Bandit SAST and Gitleaks secret scans pass; both reject their synthetic negative controls. Dependency/image vulnerability scans and the complete pipeline remain pending.
 - Monitoring has three ready Pods and a healthy seven-panel Grafana dashboard. Because the Kubernetes application is absent, its target is down and availability alerts fire; this does not prove application monitoring recovery.
 - Complete sessions 13–15 live exercises, security scans/full CI, Kubernetes application deployment and persistence, registry publication, alert recovery, GitOps reconciliation and explicitly authorized AWS deployment/cleanup before claiming full coursework completion. Capture actual screenshots where required.
 

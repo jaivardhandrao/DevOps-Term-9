@@ -33,6 +33,7 @@ assert endpoint.startswith(("https://127.0.0.1:","https://localhost:"))
 h("version","--short")
 # Practice create in scratch; the submitted hand-authored chart is intentionally smaller.
 scratch=RUNTIME/"helm"/"created-chart"
+scratch.parent.mkdir(parents=True, exist_ok=True)
 if scratch.exists():raise RuntimeError("Scratch chart already exists; choose a fresh path")
 h("create",scratch)
 h("lint",ROOT/"notes-chart")

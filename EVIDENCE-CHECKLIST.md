@@ -21,9 +21,9 @@ The current homework and Section A form have **20 topics covering sessions 1–2
 | 12 | HTTP Ingress frontend/API routes, ConfigMap restart, mounted Secret presence without disclosure, broken-route failure and recovery observed; invalid frontend label fixed | TLS demonstration and required screenshots remain pending |
 | 13 | Storage documentation, original HTTP mini-project, PVC/probes/HPA and bounded load driver; four real local HTTP routes verified | Live PVC retention, CPU/load, HPA scale-out/recovery, probes and screenshots blocked before workloads were created |
 | 14 | Nine issue categories, fourteen broken/fixed fixture files, diagnosis commands and Nginx mini-project | Live failure/root-cause/fix observations and screenshots pending |
-| 15 | Notes chart, production values, command reference and install/upgrade/rollback driver; lint/render pass | Actual install, two upgrades, rollback/history, repository/search and uninstall evidence pending |
+| 15 | Notes chart, production values, command reference and install/upgrade/rollback driver; lint/render, local `helm create`, port/escaping/isolation/checksum checks pass | Actual install, two upgrades, rollback/history, repository/search and uninstall evidence pending |
 | 16 | Application Dockerfiles and GitHub Actions workflow supplied | Successful full pipeline, image publication and deployment evidence pending |
-| 17 | SAST, SCA, secret/image scanning, negative controls and blocking security gates supplied | Actual full scans/gates and deployment pipeline evidence pending; no clean-scan claim |
+| 17 | SAST, SCA, secret/image scanning and blocking gates supplied. Actual Bandit and Gitleaks scans pass and reject synthetic negative controls | Trivy dependency/image scans, their controls and full deployment pipeline evidence pending; no all-scans-clean claim |
 | 18 | Required S3 Terraform layout, five AWS service research READMEs; real provider validation/formatting and two mocked tests pass | Actual AWS plan/apply/show/output/destroy and screenshots require separate cloud authorization |
 | 19 | VPC/subnet/routes/security group/EC2/S3 configuration and architecture; real provider validation/formatting and four mocked tests pass | Actual AWS lifecycle, application access and cleanup evidence pending |
 | 20 | Prometheus/Grafana/blackbox configs, dashboard, alert rules, logs/traces explanation and GitOps setup; three monitoring Pods ready, Grafana healthy with seven panels | App target is absent and availability alerts fire; capture healthy application metrics, CPU/memory behavior, alert recovery and actual GitOps reconciliation |
@@ -36,7 +36,7 @@ The current homework and Section A form have **20 topics covering sessions 1–2
 - [S3 provider/mock results](terraform-s3-demo/evidence/local-validation.txt), [EC2/VPC/S3 provider/mock results](cloud-terraform/evidence/local-validation.txt), [EKS provider/mock results](final-devops-project/terraform/evidence/local-validation.txt): **10 mocked Terraform tests total**, not cloud deployment evidence.
 - [Monitoring runtime evidence](final-devops-project/monitoring/evidence/2026-10-07/README.md) explicitly shows the missing application target and firing alerts.
 - Existing capture-runner tests and label regression tests: **14 passed**. [Chart probe check](scripts/check-chart-probes.py) verifies the frontend probe stays independent of backend health.
-- [Security evidence inventory](final-devops-project/security/evidence/README.md) distinguishes checks executed from pending scans.
+- [Security evidence inventory](final-devops-project/security/evidence/README.md) records passing Bandit/Gitleaks scans and negative controls, separately from pending Trivy scans.
 
 ## Execution boundaries and next steps
 

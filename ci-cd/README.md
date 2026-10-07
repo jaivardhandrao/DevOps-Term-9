@@ -39,7 +39,7 @@ When executed, the Helm deployment uses an explicitly created `taskboard-ci` clu
 
 ## Run and inspect
 
-1. Open the pull request or push the homework branch. Read the [automatic tests/static checks](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/assignment-checks.yml). The [full pipeline](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/final-project.yml) remains pending approval and a manual dispatch.
+1. Open or update the pull request. Read the [automatic tests/static checks](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/assignment-checks.yml). The [full pipeline](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/final-project.yml) remains pending approval and a manual dispatch.
 2. Open each job to inspect its commands and exit codes. Download the named artifacts for test/scan/deployment output.
 3. A red test or security gate must block downstream images/deployment. `security/test-gates.sh` verifies intentional unsafe fixtures are rejected without committing them.
 4. Capture a screenshot of the actual successful run only after all required jobs pass. Automatic PR checks do not demonstrate security or CD; those require the separately approved full run.

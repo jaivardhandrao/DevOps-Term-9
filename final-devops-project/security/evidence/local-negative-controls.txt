@@ -1,0 +1,3 @@
+PASS: SAST rejected its negative control with exit 1
+PASS: Secret scan rejected its negative control with exit 1
+LOCAL ONLY: dependency and Trivy report controls were not executed

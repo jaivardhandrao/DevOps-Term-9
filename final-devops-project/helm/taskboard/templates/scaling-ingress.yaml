@@ -3,6 +3,8 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: backend
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: backend}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
@@ -21,6 +23,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: taskboard
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
