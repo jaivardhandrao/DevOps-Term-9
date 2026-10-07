@@ -30,3 +30,7 @@ rm .env
 The first check proves frontend-to-backend connectivity. The second proves backend-to-database
 connectivity. The third intentionally returns no database address because those two containers are
 isolated from one another. My run is captured in [verification.txt](verification.txt).
+
+## Fresh isolated topology evidence
+
+The [7 October raw transcript](../evidence/live-20261007T181301Z.txt) records exactly three new bridge networks, frontend→backend HTTP success, backend→new disposable MySQL TCP 3306 success, backend attachment to two networks, and failed frontend database access by both DNS name and direct IP. This independent safe runner uses a Nginx backend on port 80; the Compose example above continues to use its own backend on port 8080. No existing database, password file, or user container was accessed.

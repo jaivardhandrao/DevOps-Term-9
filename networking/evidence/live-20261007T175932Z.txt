@@ -1,0 +1,71 @@
+Jaivardhan D. Rao | 24BCS10117 | LIVE networking coursework
+Started UTC: 2026-10-07T17:59:32.800338+00:00
+Only new task-owned resources are used; no saved output is replayed.
+
+$ docker build --quiet -t devops-term9-foundation-lab:20261007 /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/linux-fundamentals/evidence
+sha256:2d521e3a3702e48bd3d39f5c80cd87cbe410ff573c931617db9099a616124d00
+[exit 0]
+
+$ docker run --name term9-evidence-fffee19c55-network --label devops.coursework.run=term9-evidence-fffee19c55 --rm -i --mount type=bind,src=/Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/networking/network-checks.sh,dst=/coursework/network-checks.sh,readonly devops-term9-foundation-lab:20261007 bash /coursework/network-checks.sh
+== Hostname ==
+80571e6b48c8
+
+== Interfaces ==
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+tunl0@NONE       DOWN           
+gre0@NONE        DOWN           
+gretap0@NONE     DOWN           
+erspan0@NONE     DOWN           
+ip_vti0@NONE     DOWN           
+ip6_vti0@NONE    DOWN           
+sit0@NONE        DOWN           
+ip6tnl0@NONE     DOWN           
+ip6gre0@NONE     DOWN           
+eth0@if87        UP             172.17.0.2/16 
+
+== Routes ==
+default via 172.17.0.1 dev eth0 
+172.17.0.0/16 dev eth0 proto kernel scope link src 172.17.0.2 
+
+== DNS lookup ==
+Server:		192.168.65.7
+Address:	192.168.65.7#53
+
+Non-authoritative answer:
+Name:	example.com
+Address: 104.20.23.154
+Name:	example.com
+Address: 172.66.147.243
+
+
+== Connectivity ==
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=63 time=84.6 ms
+64 bytes from 1.1.1.1: icmp_seq=2 ttl=63 time=11.3 ms
+
+--- 1.1.1.1 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1002ms
+rtt min/avg/max/mdev = 11.346/47.978/84.611/36.632 ms
+
+== HTTP headers ==
+HTTP/2 200 
+date: Wed, 07 Oct 2026 17:59:34 GMT
+content-type: text/html; charset=utf-8
+server: cloudflare
+last-modified: Sun, 04 Oct 2026 20:44:03 GMT
+allow: GET, HEAD
+accept-ranges: bytes
+age: 6437
+cf-cache-status: HIT
+cf-ray: a46ecceaec73ecdc-MAA
+alt-svc: h3=":443"; ma=86400
+
+
+== Listening sockets ==
+Netid State Recv-Q Send-Q Local Address:Port Peer Address:PortProcess
+[exit 0]
+
+LIVE OBSERVATIONS
+- The repository networking script ran in a fresh container, including example.com DNS/HTTP and 1.1.1.1 ICMP.
+Raw output: networking/evidence/live-20261007T175932Z.txt
+Cleanup finished for this run's exact container/network/image names and scratch directory.

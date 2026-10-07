@@ -1,0 +1,6 @@
+PASS: SAST rejected its negative control with exit 1
+PASS: Secret scan rejected its negative control with exit 42
+PASS: SAST and secret JSON contain the intended weak-crypto and synthetic-key findings
+PASS: SCA rejected its negative control with exit 42
+PASS: SCA JSON contains the intended vulnerable lodash dependency
+PASS: Trivy report gate rejected its negative control with exit 42

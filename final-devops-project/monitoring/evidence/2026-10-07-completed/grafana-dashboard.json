@@ -1,0 +1,223 @@
+{
+  "meta": {
+    "type": "db",
+    "canSave": false,
+    "canEdit": false,
+    "canAdmin": false,
+    "canStar": false,
+    "canDelete": false,
+    "slug": "taskboard-c2b7-application-health",
+    "url": "/d/taskboard/taskboard-c2b7-application-health",
+    "expires": "0001-01-01T00:00:00Z",
+    "created": "2026-10-07T18:21:28Z",
+    "updated": "2026-10-07T18:21:28Z",
+    "updatedBy": "Anonymous",
+    "createdBy": "Anonymous",
+    "version": 1,
+    "hasAcl": false,
+    "isFolder": false,
+    "apiVersion": "v0alpha1",
+    "folderId": 1,
+    "folderUid": "bg0j7vg89em0wb",
+    "folderTitle": "TaskBoard",
+    "folderUrl": "/dashboards/f/bg0j7vg89em0wb/taskboard",
+    "provisioned": true,
+    "provisionedExternalId": "taskboard.json",
+    "annotationsPermissions": {
+      "dashboard": {
+        "canAdd": false,
+        "canEdit": false,
+        "canDelete": false
+      },
+      "organization": {
+        "canAdd": false,
+        "canEdit": false,
+        "canDelete": false
+      }
+    }
+  },
+  "dashboard": {
+    "id": 2,
+    "panels": [
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 8,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "up{job=\"taskboard\"}",
+            "refId": "A"
+          }
+        ],
+        "title": "API scrape healthy",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 8,
+          "x": 8,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "probe_success{job=\"taskboard-readiness\"}",
+            "refId": "A"
+          }
+        ],
+        "title": "Database and schema ready",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "description": "API process RSS. Yellow at the Pod memory request (128 MiB); red at 90% of its 256 MiB limit. RSS differs from total container memory and is an early warning, not an OOM prediction.",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "yellow",
+                  "value": 134217728
+                },
+                {
+                  "color": "red",
+                  "value": 241591910
+                }
+              ]
+            },
+            "unit": "bytes"
+          }
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 8,
+          "x": 16,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes{job=\"taskboard\"}",
+            "refId": "A"
+          }
+        ],
+        "title": "Process resident memory",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 5
+        },
+        "targets": [
+          {
+            "expr": "rate(process_cpu_seconds_total{job=\"taskboard\"}[1m])",
+            "refId": "A"
+          }
+        ],
+        "title": "Process CPU (cores)",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 5
+        },
+        "targets": [
+          {
+            "expr": "sum by(status) (rate(taskboard_http_requests_total[1m]))",
+            "legendFormat": "{{status}}",
+            "refId": "A"
+          }
+        ],
+        "title": "Requests / second by status",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 13
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum by(le) (rate(taskboard_http_request_duration_seconds_bucket[1m])))",
+            "refId": "A"
+          }
+        ],
+        "title": "Latency p95 (seconds)",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 13
+        },
+        "targets": [
+          {
+            "expr": "ALERTS{alertstate=\"firing\"}",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "title": "Active alerts",
+        "type": "table"
+      }
+    ],
+    "refresh": "5s",
+    "schemaVersion": 39,
+    "time": {
+      "from": "now-15m",
+      "to": "now"
+    },
+    "timezone": "browser",
+    "title": "TaskBoard \u00b7 application health",
+    "uid": "taskboard",
+    "version": 1
+  }
+}

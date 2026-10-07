@@ -52,5 +52,12 @@ grep networking notes.txt
 ```
 
 The actual commit IDs and output from my run are in [cherry-pick-output.txt](cherry-pick-output.txt).
-A cherry-pick copies the selected change onto the current branch, so the new commit has a different
-ID even though its patch is the same.
+A cherry-pick copies the selected change onto the current branch. Its commit ID normally changes
+when its parent or metadata changes; identical parent and metadata can preserve the ID. The current
+live exercise uses `cherry-pick -x` to record the source commit in the new commit message.
+
+## Fresh isolated run — 7 October 2026
+
+[Raw commands and output](evidence/live-20261007T175740Z.txt) show a new temporary repository with four main-branch commits and two feature-branch commits. An unstaged plain commit fails as expected; `commit -a` includes the modified tracked file while leaving `untracked.txt` untracked. `cherry-pick -x` copies the selected networking commit to main and leaves the unrelated journaling file behind. All demonstration Git configuration and commits are confined to that scratch repository.
+
+Reproduce from the repository root: `python3 scripts/run-foundation-evidence.py --topic git`.

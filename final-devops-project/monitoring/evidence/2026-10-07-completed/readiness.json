@@ -1,0 +1,19 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "__name__": "probe_success",
+          "instance": "http://backend.capstone-oct7.svc.cluster.local:8000/ready",
+          "job": "taskboard-readiness"
+        },
+        "value": [
+          1791396703.046,
+          "1"
+        ]
+      }
+    ]
+  }
+}

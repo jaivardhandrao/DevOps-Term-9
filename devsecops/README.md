@@ -22,7 +22,7 @@ The [security policy and reproducible commands](../final-devops-project/security
 
 ## Delivery scope
 
-The instructor's full delivery flow is `build → test → scans → Docker build → image scan → push → Kubernetes deployment`. This PR implements the credential-free path through scanned artifacts and a disposable Kubernetes deployment; that full path remains pending execution. The optional registry publisher is present but does not run on PRs. The live `registry → persistent cluster` demonstration remains pending explicit publication/deployment authorization; no registry push, cloud deployment or fabricated success output is included.
+The instructor's full delivery flow is `build → test → scans → Docker build → image scan → push → Kubernetes deployment`. The credential-free path through scanned artifacts and disposable Kubernetes deployment passed in full GitHub run 37664321492. The optional registry publisher is present but does not run on PRs. The live `registry → persistent cluster` demonstration remains pending explicit publication/deployment authorization; no registry push, cloud deployment or fabricated success output is included.
 
 Proposed image names after an authorized publication are:
 
@@ -42,3 +42,19 @@ Read [dated local security checks](../final-devops-project/security/evidence/REA
 This actual [checks job](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37609532257/job/112753122569) passed the unit-test/build/static-configuration prerequisites. It is **not** the DevSecOps scan/deployment run. Actual security outcomes are separately recorded in the linked scanner reports above.
 
 ![Actual successful unit-test, build and static-check steps](../evidence/october-7/screenshots/github-actions-job-112753122569.jpg)
+
+## Actual full DevSecOps execution
+
+[Run 37664321492](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37664321492) passed all five executed jobs: unit tests/build, source-security gates, backend image gate, frontend image gate, and disposable Kubernetes/Helm deployment. The scan gates kept their original severity thresholds and included unfixed findings. [Downloaded run artifacts](../final-devops-project/security/evidence/github-run-37664321492/README.md) contain the real scanner JSON and deployed UI/API checks. Publishing was disabled and the GHCR job skipped; this run does not claim a registry or AWS demonstration.
+
+The real run overview shows all executed jobs green and the publisher skipped.
+
+![Actual full DevSecOps pipeline success with publication skipped](../evidence/october-7/screenshots/full-pipeline-37664321492-overview.jpg)
+
+The actual source-security job shows completed SAST, dependency, secret and negative-control gates. These screenshots show step status; the downloadable scanner JSON provides the findings and package details.
+
+![Actual source-security gates and negative controls succeeded](../evidence/october-7/screenshots/full-pipeline-37664321492-security.jpg)
+
+The scanned artifacts then passed the real disposable kind/Helm deployment and UI/API verification, followed by cleanup.
+
+![Actual scanned-image Kubernetes deployment, verification and cleanup succeeded](../evidence/october-7/screenshots/full-pipeline-37664321492-deployment.jpg)

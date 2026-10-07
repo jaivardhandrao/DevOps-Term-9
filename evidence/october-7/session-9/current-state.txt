@@ -1,0 +1,30 @@
+LIVE session 9 (resources) | 2026-10-07T17:53:39.545114+00:00
+KUBECONFIG=/Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/kube/config
+Context=devops-oct7; namespace=devops-homework; API=https://127.0.0.1:55923
+Current observations only. Earlier rollout/failure transitions remain in the timestamped lab logs.
+
+$ kubectl --context devops-oct7 --request-timeout=10s get nodes -o wide
+NAME          STATUS   ROLES           AGE     VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION     CONTAINER-RUNTIME
+devops-oct7   Ready    control-plane   7h44m   v1.34.0   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.12.76-linuxkit   containerd://2.3.4
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n kube-system get pods
+NAME                                  READY   STATUS    RESTARTS   AGE
+coredns-66bc5c9577-4tkrj              1/1     Running   0          7h44m
+etcd-devops-oct7                      1/1     Running   0          7h44m
+kindnet-wpdbm                         1/1     Running   0          7h44m
+kube-apiserver-devops-oct7            1/1     Running   0          7h44m
+kube-controller-manager-devops-oct7   1/1     Running   0          7h44m
+kube-proxy-6b9j5                      1/1     Running   0          7h44m
+kube-scheduler-devops-oct7            1/1     Running   0          7h44m
+metrics-server-b85d78fd7-dp6tl        1/1     Running   0          7h43m
+storage-provisioner                   1/1     Running   0          7h44m
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework get serviceaccount default
+NAME      SECRETS   AGE
+default   0         7h42m
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework get pod dns-client -o wide
+NAME         READY   STATUS    RESTARTS      AGE     IP           NODE          NOMINATED NODE   READINESS GATES
+dns-client   1/1     Running   7 (21m ago)   7h42m   10.244.0.7   devops-oct7   <none>           <none>
+
+LIVE session 9 (resources) CHECKS PASSED; no lab objects changed.

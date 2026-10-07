@@ -1,0 +1,2390 @@
+Run at 2026-10-07T17:57:09.767219+00:00
+Agent-operated local coursework lab. No external cluster or cloud resources used.
+
+$ kubectl config get-contexts devops-oct7 -o name
+devops-oct7
+exit=0
+
+$ kubectl config view --context devops-oct7 --minify -o 'jsonpath={.clusters[0].cluster.server}'
+https://127.0.0.1:55923
+exit=0
+
+$ kubectl --context devops-oct7 get nodes -o wide
+NAME          STATUS   ROLES           AGE     VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION     CONTAINER-RUNTIME
+devops-oct7   Ready    control-plane   7h47m   v1.34.0   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.12.76-linuxkit   containerd://2.3.4
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/mini-project.yaml
+deployment.apps/trouble-web created
+service/trouble-web created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced rollout status deployment/trouble-web --timeout=180s
+Waiting for deployment "trouble-web" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "trouble-web" rollout to finish: 1 of 2 updated replicas are available...
+deployment "trouble-web" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pods -o wide
+NAME                            READY   STATUS    RESTARTS   AGE     IP            NODE          NOMINATED NODE   READINESS GATES
+advanced-web-685f6dddf8-8qf45   1/1     Running   0          90s     10.244.0.86   devops-oct7   <none>           <none>
+advanced-web-685f6dddf8-j54bl   1/1     Running   0          4m46s   10.244.0.69   devops-oct7   <none>           <none>
+advanced-web-685f6dddf8-tmntj   1/1     Running   0          3m20s   10.244.0.73   devops-oct7   <none>           <none>
+advanced-web-685f6dddf8-x5jfq   1/1     Running   0          90s     10.244.0.85   devops-oct7   <none>           <none>
+advanced-web-685f6dddf8-zt627   1/1     Running   0          90s     10.244.0.84   devops-oct7   <none>           <none>
+trouble-web-5fdf45f579-jv4fk    1/1     Running   0          3s      10.244.0.89   devops-oct7   <none>           <none>
+trouble-web-5fdf45f579-snr8f    1/1     Running   0          3s      10.244.0.90   devops-oct7   <none>           <none>
+volume-examples                 1/1     Running   0          2m43s   10.244.0.77   devops-oct7   <none>           <none>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced explain pod.spec.containers.resources
+KIND:       Pod
+VERSION:    v1
+
+FIELD: resources <ResourceRequirements>
+
+
+DESCRIPTION:
+    Compute Resources required by this container. Cannot be updated. More info:
+    https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    ResourceRequirements describes the compute resource requirements.
+    
+FIELDS:
+  claims	<[]ResourceClaim>
+    Claims lists the names of resources, defined in spec.resourceClaims, that
+    are used by this container.
+    
+    This field depends on the DynamicResourceAllocation feature gate.
+    
+    This field is immutable. It can only be set for containers.
+
+  limits	<map[string]Quantity>
+    Limits describes the maximum amount of compute resources allowed. More info:
+    https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+
+  requests	<map[string]Quantity>
+    Requests describes the minimum amount of compute resources required. If
+    Requests is omitted for a container, it defaults to Limits if that is
+    explicitly specified, otherwise to an implementation-defined value. Requests
+    cannot exceed Limits. More info:
+    https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced top pods
+NAME                            CPU(cores)   MEMORY(bytes)   
+advanced-web-685f6dddf8-8qf45   115m         12Mi            
+advanced-web-685f6dddf8-j54bl   124m         11Mi            
+advanced-web-685f6dddf8-tmntj   115m         12Mi            
+advanced-web-685f6dddf8-x5jfq   125m         13Mi            
+advanced-web-685f6dddf8-zt627   119m         13Mi            
+volume-examples                 0m           0Mi
+exit=0
+
+CASE: crash
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/crash-broken.json
+pod/trouble-crash created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-crash -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-crash\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"sh\",\"-c\",\"echo intentional-startup-error \\u003e\\u00262; exit 1\"],\"image\":\"busybox:1.36.1\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"50m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"5m\",\"memory\":\"8Mi\"}}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T17:57:12Z",
+        "generation": 1,
+        "name": "trouble-crash",
+        "namespace": "devops-advanced",
+        "resourceVersion": "29775",
+        "uid": "6804e10a-5896-475e-bb6b-5fbeff6b6f06"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo intentional-startup-error \u003e\u00262; exit 1"
+                ],
+                "image": "busybox:1.36.1",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:12Z",
+                "observedGeneration": 1,
+                "status": "False",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:12Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:12Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:12Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:12Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "image": "busybox:1.36.1",
+                "imageID": "",
+                "lastState": {},
+                "name": "demo",
+                "ready": false,
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "reason": "ContainerCreating"
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Pending",
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T17:57:12Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-crash -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-crash\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"sh\",\"-c\",\"echo intentional-startup-error \\u003e\\u00262; exit 1\"],\"image\":\"busybox:1.36.1\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"50m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"5m\",\"memory\":\"8Mi\"}}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T17:57:12Z",
+        "generation": 1,
+        "name": "trouble-crash",
+        "namespace": "devops-advanced",
+        "resourceVersion": "29789",
+        "uid": "6804e10a-5896-475e-bb6b-5fbeff6b6f06"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo intentional-startup-error \u003e\u00262; exit 1"
+                ],
+                "image": "busybox:1.36.1",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:14Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:12Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:12Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:12Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:12Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "allocatedResources": {
+                    "cpu": "5m",
+                    "memory": "8Mi"
+                },
+                "containerID": "containerd://2a11c6eb50ad0340ae26110fe1ca7c35bd4960c0d8019f8a98df51ed74f186c0",
+                "image": "docker.io/library/busybox:1.36.1",
+                "imageID": "docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662",
+                "lastState": {
+                    "terminated": {
+                        "containerID": "containerd://2a11c6eb50ad0340ae26110fe1ca7c35bd4960c0d8019f8a98df51ed74f186c0",
+                        "exitCode": 1,
+                        "finishedAt": "2026-10-07T17:57:15Z",
+                        "reason": "Error",
+                        "startedAt": "2026-10-07T17:57:15Z"
+                    }
+                },
+                "name": "demo",
+                "ready": false,
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "restartCount": 1,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "message": "back-off 10s restarting failed container=demo pod=trouble-crash_devops-advanced(6804e10a-5896-475e-bb6b-5fbeff6b6f06)",
+                        "reason": "CrashLoopBackOff"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 0,
+                        "supplementalGroups": [
+                            0,
+                            10
+                        ],
+                        "uid": 0
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.0.91",
+        "podIPs": [
+            {
+                "ip": "10.244.0.91"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T17:57:12Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-crash
+NAME            READY   STATUS             RESTARTS     AGE
+trouble-crash   0/1     CrashLoopBackOff   1 (2s ago)   5s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced describe pod trouble-crash
+Name:             trouble-crash
+Namespace:        devops-advanced
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 23:27:12 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.91
+IPs:
+  IP:  10.244.0.91
+Containers:
+  demo:
+    Container ID:  containerd://2a11c6eb50ad0340ae26110fe1ca7c35bd4960c0d8019f8a98df51ed74f186c0
+    Image:         busybox:1.36.1
+    Image ID:      docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo intentional-startup-error >&2; exit 1
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Wed, 07 Oct 2026 23:27:15 +0530
+      Finished:     Wed, 07 Oct 2026 23:27:15 +0530
+    Ready:          False
+    Restart Count:  1
+    Limits:
+      cpu:     50m
+      memory:  32Mi
+    Requests:
+      cpu:        5m
+      memory:     8Mi
+    Environment:  <none>
+    Mounts:       <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:                      <none>
+QoS Class:                    Burstable
+Node-Selectors:               <none>
+Tolerations:                  node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age              From               Message
+  ----     ------     ----             ----               -------
+  Normal   Scheduled  5s               default-scheduler  Successfully assigned devops-advanced/trouble-crash to devops-oct7
+  Normal   Pulled     3s (x2 over 4s)  kubelet            Container image "busybox:1.36.1" already present on machine
+  Normal   Created    3s (x2 over 4s)  kubelet            Created container: demo
+  Normal   Started    2s (x2 over 4s)  kubelet            Started container demo
+  Warning  BackOff    1s (x2 over 2s)  kubelet            Back-off restarting failed container demo in pod trouble-crash_devops-advanced(6804e10a-5896-475e-bb6b-5fbeff6b6f06)
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced events --for pod/trouble-crash
+LAST SEEN         TYPE      REASON      OBJECT              MESSAGE
+5s                Normal    Scheduled   Pod/trouble-crash   Successfully assigned devops-advanced/trouble-crash to devops-oct7
+3s (x2 over 4s)   Normal    Pulled      Pod/trouble-crash   Container image "busybox:1.36.1" already present on machine
+3s (x2 over 4s)   Normal    Created     Pod/trouble-crash   Created container: demo
+2s (x2 over 4s)   Normal    Started     Pod/trouble-crash   Started container demo
+1s (x2 over 2s)   Warning   BackOff     Pod/trouble-crash   Back-off restarting failed container demo in pod trouble-crash_devops-advanced(6804e10a-5896-475e-bb6b-5fbeff6b6f06)
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced logs trouble-crash --previous
+intentional-startup-error
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced delete pod trouble-crash --wait=true
+pod "trouble-crash" deleted from devops-advanced namespace
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/crash-fixed.json
+pod/trouble-crash created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced wait --for=condition=Ready pod/trouble-crash --timeout=120s
+pod/trouble-crash condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-crash
+NAME            READY   STATUS    RESTARTS   AGE
+trouble-crash   1/1     Running   0          2s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced logs trouble-crash
+healthy
+exit=0
+
+CASE: image
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/image-broken.json
+pod/trouble-image created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-image -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-image\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"sh\",\"-c\",\"echo healthy; sleep 3600\"],\"image\":\"busybox:devops-intentionally-missing\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"50m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"5m\",\"memory\":\"8Mi\"}}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T17:57:20Z",
+        "generation": 1,
+        "name": "trouble-image",
+        "namespace": "devops-advanced",
+        "resourceVersion": "29811",
+        "uid": "aec7eae8-8eb1-430d-a74d-05d0c4e74db7"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo healthy; sleep 3600"
+                ],
+                "image": "busybox:devops-intentionally-missing",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "False",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "image": "busybox:devops-intentionally-missing",
+                "imageID": "",
+                "lastState": {},
+                "name": "demo",
+                "ready": false,
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "reason": "ContainerCreating"
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Pending",
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T17:57:20Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-image -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-image\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"sh\",\"-c\",\"echo healthy; sleep 3600\"],\"image\":\"busybox:devops-intentionally-missing\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"50m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"5m\",\"memory\":\"8Mi\"}}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T17:57:20Z",
+        "generation": 1,
+        "name": "trouble-image",
+        "namespace": "devops-advanced",
+        "resourceVersion": "29811",
+        "uid": "aec7eae8-8eb1-430d-a74d-05d0c4e74db7"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo healthy; sleep 3600"
+                ],
+                "image": "busybox:devops-intentionally-missing",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "False",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "image": "busybox:devops-intentionally-missing",
+                "imageID": "",
+                "lastState": {},
+                "name": "demo",
+                "ready": false,
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "reason": "ContainerCreating"
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Pending",
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T17:57:20Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-image -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-image\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"sh\",\"-c\",\"echo healthy; sleep 3600\"],\"image\":\"busybox:devops-intentionally-missing\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"50m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"5m\",\"memory\":\"8Mi\"}}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T17:57:20Z",
+        "generation": 1,
+        "name": "trouble-image",
+        "namespace": "devops-advanced",
+        "resourceVersion": "29819",
+        "uid": "aec7eae8-8eb1-430d-a74d-05d0c4e74db7"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo healthy; sleep 3600"
+                ],
+                "image": "busybox:devops-intentionally-missing",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:25Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "image": "busybox:devops-intentionally-missing",
+                "imageID": "",
+                "lastState": {},
+                "name": "demo",
+                "ready": false,
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "message": "rpc error: code = NotFound desc = failed to pull and unpack image \"docker.io/library/busybox:devops-intentionally-missing\": failed to resolve reference \"docker.io/library/busybox:devops-intentionally-missing\": docker.io/library/busybox:devops-intentionally-missing: not found",
+                        "reason": "ErrImagePull"
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Pending",
+        "podIP": "10.244.0.93",
+        "podIPs": [
+            {
+                "ip": "10.244.0.93"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T17:57:20Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-image
+NAME            READY   STATUS         RESTARTS   AGE
+trouble-image   0/1     ErrImagePull   0          8s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced describe pod trouble-image
+Name:             trouble-image
+Namespace:        devops-advanced
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 23:27:20 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.93
+IPs:
+  IP:  10.244.0.93
+Containers:
+  demo:
+    Container ID:  
+    Image:         busybox:devops-intentionally-missing
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo healthy; sleep 3600
+    State:          Waiting
+      Reason:       ErrImagePull
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     50m
+      memory:  32Mi
+    Requests:
+      cpu:        5m
+      memory:     8Mi
+    Environment:  <none>
+    Mounts:       <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:                      <none>
+QoS Class:                    Burstable
+Node-Selectors:               <none>
+Tolerations:                  node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age   From               Message
+  ----     ------     ----  ----               -------
+  Normal   Scheduled  9s    default-scheduler  Successfully assigned devops-advanced/trouble-image to devops-oct7
+  Normal   Pulling    8s    kubelet            Pulling image "busybox:devops-intentionally-missing"
+  Warning  Failed     4s    kubelet            Failed to pull image "busybox:devops-intentionally-missing": rpc error: code = NotFound desc = failed to pull and unpack image "docker.io/library/busybox:devops-intentionally-missing": failed to resolve reference "docker.io/library/busybox:devops-intentionally-missing": docker.io/library/busybox:devops-intentionally-missing: not found
+  Warning  Failed     4s    kubelet            Error: ErrImagePull
+  Normal   BackOff    4s    kubelet            Back-off pulling image "busybox:devops-intentionally-missing"
+  Warning  Failed     4s    kubelet            Error: ImagePullBackOff
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-image -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-image\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"sh\",\"-c\",\"echo healthy; sleep 3600\"],\"image\":\"busybox:devops-intentionally-missing\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"50m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"5m\",\"memory\":\"8Mi\"}}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T17:57:20Z",
+        "generation": 1,
+        "name": "trouble-image",
+        "namespace": "devops-advanced",
+        "resourceVersion": "29819",
+        "uid": "aec7eae8-8eb1-430d-a74d-05d0c4e74db7"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo healthy; sleep 3600"
+                ],
+                "image": "busybox:devops-intentionally-missing",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:25Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "image": "busybox:devops-intentionally-missing",
+                "imageID": "",
+                "lastState": {},
+                "name": "demo",
+                "ready": false,
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "message": "rpc error: code = NotFound desc = failed to pull and unpack image \"docker.io/library/busybox:devops-intentionally-missing\": failed to resolve reference \"docker.io/library/busybox:devops-intentionally-missing\": docker.io/library/busybox:devops-intentionally-missing: not found",
+                        "reason": "ErrImagePull"
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Pending",
+        "podIP": "10.244.0.93",
+        "podIPs": [
+            {
+                "ip": "10.244.0.93"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T17:57:20Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-image -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-image\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"sh\",\"-c\",\"echo healthy; sleep 3600\"],\"image\":\"busybox:devops-intentionally-missing\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"50m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"5m\",\"memory\":\"8Mi\"}}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T17:57:20Z",
+        "generation": 1,
+        "name": "trouble-image",
+        "namespace": "devops-advanced",
+        "resourceVersion": "29819",
+        "uid": "aec7eae8-8eb1-430d-a74d-05d0c4e74db7"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo healthy; sleep 3600"
+                ],
+                "image": "busybox:devops-intentionally-missing",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:25Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "image": "busybox:devops-intentionally-missing",
+                "imageID": "",
+                "lastState": {},
+                "name": "demo",
+                "ready": false,
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "message": "rpc error: code = NotFound desc = failed to pull and unpack image \"docker.io/library/busybox:devops-intentionally-missing\": failed to resolve reference \"docker.io/library/busybox:devops-intentionally-missing\": docker.io/library/busybox:devops-intentionally-missing: not found",
+                        "reason": "ErrImagePull"
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Pending",
+        "podIP": "10.244.0.93",
+        "podIPs": [
+            {
+                "ip": "10.244.0.93"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T17:57:20Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-image -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-image\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"sh\",\"-c\",\"echo healthy; sleep 3600\"],\"image\":\"busybox:devops-intentionally-missing\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"50m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"5m\",\"memory\":\"8Mi\"}}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T17:57:20Z",
+        "generation": 1,
+        "name": "trouble-image",
+        "namespace": "devops-advanced",
+        "resourceVersion": "29819",
+        "uid": "aec7eae8-8eb1-430d-a74d-05d0c4e74db7"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo healthy; sleep 3600"
+                ],
+                "image": "busybox:devops-intentionally-missing",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:25Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "image": "busybox:devops-intentionally-missing",
+                "imageID": "",
+                "lastState": {},
+                "name": "demo",
+                "ready": false,
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "message": "rpc error: code = NotFound desc = failed to pull and unpack image \"docker.io/library/busybox:devops-intentionally-missing\": failed to resolve reference \"docker.io/library/busybox:devops-intentionally-missing\": docker.io/library/busybox:devops-intentionally-missing: not found",
+                        "reason": "ErrImagePull"
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Pending",
+        "podIP": "10.244.0.93",
+        "podIPs": [
+            {
+                "ip": "10.244.0.93"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T17:57:20Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-image -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-image\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"sh\",\"-c\",\"echo healthy; sleep 3600\"],\"image\":\"busybox:devops-intentionally-missing\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"50m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"5m\",\"memory\":\"8Mi\"}}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T17:57:20Z",
+        "generation": 1,
+        "name": "trouble-image",
+        "namespace": "devops-advanced",
+        "resourceVersion": "29833",
+        "uid": "aec7eae8-8eb1-430d-a74d-05d0c4e74db7"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo healthy; sleep 3600"
+                ],
+                "image": "busybox:devops-intentionally-missing",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:25Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "message": "containers with unready status: [demo]",
+                "observedGeneration": 1,
+                "reason": "ContainersNotReady",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:57:20Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "image": "busybox:devops-intentionally-missing",
+                "imageID": "",
+                "lastState": {},
+                "name": "demo",
+                "ready": false,
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "waiting": {
+                        "message": "Back-off pulling image \"busybox:devops-intentionally-missing\": ErrImagePull: rpc error: code = NotFound desc = failed to pull and unpack image \"docker.io/library/busybox:devops-intentionally-missing\": failed to resolve reference \"docker.io/library/busybox:devops-intentionally-missing\": docker.io/library/busybox:devops-intentionally-missing: not found",
+                        "reason": "ImagePullBackOff"
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Pending",
+        "podIP": "10.244.0.93",
+        "podIPs": [
+            {
+                "ip": "10.244.0.93"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T17:57:20Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-image
+NAME            READY   STATUS             RESTARTS   AGE
+trouble-image   0/1     ImagePullBackOff   0          21s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced describe pod trouble-image
+Name:             trouble-image
+Namespace:        devops-advanced
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 23:27:20 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.93
+IPs:
+  IP:  10.244.0.93
+Containers:
+  demo:
+    Container ID:  
+    Image:         busybox:devops-intentionally-missing
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo healthy; sleep 3600
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     50m
+      memory:  32Mi
+    Requests:
+      cpu:        5m
+      memory:     8Mi
+    Environment:  <none>
+    Mounts:       <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:                      <none>
+QoS Class:                    Burstable
+Node-Selectors:               <none>
+Tolerations:                  node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age               From               Message
+  ----     ------     ----              ----               -------
+  Normal   Scheduled  21s               default-scheduler  Successfully assigned devops-advanced/trouble-image to devops-oct7
+  Warning  Failed     16s               kubelet            Failed to pull image "busybox:devops-intentionally-missing": rpc error: code = NotFound desc = failed to pull and unpack image "docker.io/library/busybox:devops-intentionally-missing": failed to resolve reference "docker.io/library/busybox:devops-intentionally-missing": docker.io/library/busybox:devops-intentionally-missing: not found
+  Warning  Failed     16s               kubelet            Error: ErrImagePull
+  Normal   BackOff    16s               kubelet            Back-off pulling image "busybox:devops-intentionally-missing"
+  Warning  Failed     16s               kubelet            Error: ImagePullBackOff
+  Normal   Pulling    4s (x2 over 20s)  kubelet            Pulling image "busybox:devops-intentionally-missing"
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced events --for pod/trouble-image
+LAST SEEN          TYPE      REASON      OBJECT              MESSAGE
+21s                Normal    Scheduled   Pod/trouble-image   Successfully assigned devops-advanced/trouble-image to devops-oct7
+16s                Warning   Failed      Pod/trouble-image   Failed to pull image "busybox:devops-intentionally-missing": rpc error: code = NotFound desc = failed to pull and unpack image "docker.io/library/busybox:devops-intentionally-missing": failed to resolve reference "docker.io/library/busybox:devops-intentionally-missing": docker.io/library/busybox:devops-intentionally-missing: not found
+16s                Warning   Failed      Pod/trouble-image   Error: ErrImagePull
+16s                Normal    BackOff     Pod/trouble-image   Back-off pulling image "busybox:devops-intentionally-missing"
+16s                Warning   Failed      Pod/trouble-image   Error: ImagePullBackOff
+4s (x2 over 20s)   Normal    Pulling     Pod/trouble-image   Pulling image "busybox:devops-intentionally-missing"
+exit=0
+Image pull failure observed; 30-second live screenshot window.
+
+$ kubectl --context devops-oct7 -n devops-advanced delete pod trouble-image --wait=true
+pod "trouble-image" deleted from devops-advanced namespace
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/image-fixed.json
+pod/trouble-image created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced wait --for=condition=Ready pod/trouble-image --timeout=120s
+pod/trouble-image condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-image
+NAME            READY   STATUS    RESTARTS   AGE
+trouble-image   1/1     Running   0          2s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced logs trouble-image
+healthy
+exit=0
+
+CASE: pending
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/pending-broken.json
+pod/trouble-pending created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-pending
+NAME              READY   STATUS    RESTARTS   AGE
+trouble-pending   0/1     Pending   0          10s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced describe pod trouble-pending
+Name:             trouble-pending
+Namespace:        devops-advanced
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Containers:
+  demo:
+    Image:      busybox:1.36.1
+    Port:       <none>
+    Host Port:  <none>
+    Command:
+      sh
+      -c
+      echo healthy; sleep 3600
+    Limits:
+      cpu:     50m
+      memory:  32Mi
+    Requests:
+      cpu:        5m
+      memory:     8Mi
+    Environment:  <none>
+    Mounts:       <none>
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:         <none>
+QoS Class:       Burstable
+Node-Selectors:  devops-lab=nonexistent
+Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  10s   default-scheduler  0/1 nodes are available: 1 node(s) didn't match Pod's node affinity/selector. no new claims to deallocate, preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced events --for pod/trouble-pending
+LAST SEEN   TYPE      REASON             OBJECT                MESSAGE
+10s         Warning   FailedScheduling   Pod/trouble-pending   0/1 nodes are available: 1 node(s) didn't match Pod's node affinity/selector. no new claims to deallocate, preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced delete pod trouble-pending --wait=true
+pod "trouble-pending" deleted from devops-advanced namespace
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/pending-fixed.json
+pod/trouble-pending created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced wait --for=condition=Ready pod/trouble-pending --timeout=120s
+pod/trouble-pending condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-pending
+NAME              READY   STATUS    RESTARTS   AGE
+trouble-pending   1/1     Running   0          2s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced logs trouble-pending
+healthy
+exit=0
+
+CASE: mount
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/mount-broken.json
+pod/trouble-mount created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-mount
+NAME            READY   STATUS              RESTARTS   AGE
+trouble-mount   0/1     ContainerCreating   0          10s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced describe pod trouble-mount
+Name:             trouble-mount
+Namespace:        devops-advanced
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 23:28:26 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Containers:
+  demo:
+    Container ID:  
+    Image:         busybox:1.36.1
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo healthy; sleep 3600
+    State:          Waiting
+      Reason:       ContainerCreating
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     50m
+      memory:  32Mi
+    Requests:
+      cpu:        5m
+      memory:     8Mi
+    Environment:  <none>
+    Mounts:
+      /config from missing (rw)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  missing:
+    Type:        ConfigMap (a volume populated by a ConfigMap)
+    Name:        trouble-missing-volume
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason       Age               From               Message
+  ----     ------       ----              ----               -------
+  Normal   Scheduled    10s               default-scheduler  Successfully assigned devops-advanced/trouble-mount to devops-oct7
+  Warning  FailedMount  2s (x5 over 10s)  kubelet            MountVolume.SetUp failed for volume "missing" : configmap "trouble-missing-volume" not found
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced events --for pod/trouble-mount
+LAST SEEN          TYPE      REASON        OBJECT              MESSAGE
+10s                Normal    Scheduled     Pod/trouble-mount   Successfully assigned devops-advanced/trouble-mount to devops-oct7
+2s (x5 over 10s)   Warning   FailedMount   Pod/trouble-mount   MountVolume.SetUp failed for volume "missing" : configmap "trouble-missing-volume" not found
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/mount-fixed.json
+configmap/trouble-missing-volume created
+pod/trouble-mount unchanged
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced wait --for=condition=Ready pod/trouble-mount --timeout=120s
+pod/trouble-mount condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced exec trouble-mount -- cat /config/MODE
+repaired
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-mount
+NAME            READY   STATUS    RESTARTS   AGE
+trouble-mount   1/1     Running   0          18s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced logs trouble-mount
+healthy
+exit=0
+
+CASE: config
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/config-broken.json
+pod/trouble-config created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-config
+NAME             READY   STATUS                       RESTARTS   AGE
+trouble-config   0/1     CreateContainerConfigError   0          10s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced describe pod trouble-config
+Name:             trouble-config
+Namespace:        devops-advanced
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 23:28:44 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.98
+IPs:
+  IP:  10.244.0.98
+Containers:
+  demo:
+    Container ID:  
+    Image:         busybox:1.36.1
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo healthy; sleep 3600
+    State:          Waiting
+      Reason:       CreateContainerConfigError
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     50m
+      memory:  32Mi
+    Requests:
+      cpu:     5m
+      memory:  8Mi
+    Environment:
+      MODE:  <set to the key 'MODE' of config map 'trouble-missing-env'>  Optional: false
+    Mounts:  <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:                      <none>
+QoS Class:                    Burstable
+Node-Selectors:               <none>
+Tolerations:                  node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age              From               Message
+  ----     ------     ----             ----               -------
+  Normal   Scheduled  10s              default-scheduler  Successfully assigned devops-advanced/trouble-config to devops-oct7
+  Normal   Pulled     9s (x2 over 9s)  kubelet            Container image "busybox:1.36.1" already present on machine
+  Warning  Failed     9s (x2 over 9s)  kubelet            Error: configmap "trouble-missing-env" not found
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced events --for pod/trouble-config
+LAST SEEN         TYPE      REASON      OBJECT               MESSAGE
+10s               Normal    Scheduled   Pod/trouble-config   Successfully assigned devops-advanced/trouble-config to devops-oct7
+9s (x2 over 9s)   Normal    Pulled      Pod/trouble-config   Container image "busybox:1.36.1" already present on machine
+9s (x2 over 9s)   Warning   Failed      Pod/trouble-config   Error: configmap "trouble-missing-env" not found
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/config-fixed.json
+configmap/trouble-missing-env created
+pod/trouble-config unchanged
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced wait --for=condition=Ready pod/trouble-config --timeout=120s
+pod/trouble-config condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced exec trouble-config -- printenv MODE
+repaired
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-config
+NAME             READY   STATUS    RESTARTS   AGE
+trouble-config   1/1     Running   0          14s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced logs trouble-config
+healthy
+exit=0
+
+CASE: dns
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/dns-broken.json
+pod/trouble-dns created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced wait --for=condition=Ready pod/trouble-dns --timeout=120s
+pod/trouble-dns condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-dns
+NAME          READY   STATUS    RESTARTS   AGE
+trouble-dns   1/1     Running   0          1s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced describe pod trouble-dns
+Name:             trouble-dns
+Namespace:        devops-advanced
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 23:28:58 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.99
+IPs:
+  IP:  10.244.0.99
+Containers:
+  demo:
+    Container ID:  containerd://efa1f0ea3c870435b91ab0e4b1e482b3738aaac946bdfa66c3dc653c7162ee89
+    Image:         busybox:1.36.1
+    Image ID:      docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo healthy; sleep 3600
+    State:          Running
+      Started:      Wed, 07 Oct 2026 23:28:59 +0530
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     50m
+      memory:  32Mi
+    Requests:
+      cpu:        5m
+      memory:     8Mi
+    Environment:  <none>
+    Mounts:       <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:                      <none>
+QoS Class:                    Burstable
+Node-Selectors:               <none>
+Tolerations:                  node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  1s    default-scheduler  Successfully assigned devops-advanced/trouble-dns to devops-oct7
+  Normal  Pulled     0s    kubelet            Container image "busybox:1.36.1" already present on machine
+  Normal  Created    0s    kubelet            Created container: demo
+  Normal  Started    0s    kubelet            Started container demo
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced events --for pod/trouble-dns
+LAST SEEN   TYPE     REASON      OBJECT            MESSAGE
+1s          Normal   Scheduled   Pod/trouble-dns   Successfully assigned devops-advanced/trouble-dns to devops-oct7
+0s          Normal   Pulled      Pod/trouble-dns   Container image "busybox:1.36.1" already present on machine
+0s          Normal   Created     Pod/trouble-dns   Created container: demo
+0s          Normal   Started     Pod/trouble-dns   Started container demo
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced exec trouble-dns -- nslookup trouble-web.devops-advanced.svc.cluster.local
+Server:		192.0.2.1
+Address:	192.0.2.1:53
+
+** server can't find trouble-web.devops-advanced.svc.cluster.local: NXDOMAIN
+
+** server can't find trouble-web.devops-advanced.svc.cluster.local: NXDOMAIN
+
+command terminated with exit code 1
+exit=1
+
+$ kubectl --context devops-oct7 -n devops-advanced delete pod trouble-dns --wait=true
+pod "trouble-dns" deleted from devops-advanced namespace
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/dns-fixed.json
+pod/trouble-dns created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced wait --for=condition=Ready pod/trouble-dns --timeout=120s
+pod/trouble-dns condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-dns
+NAME          READY   STATUS    RESTARTS   AGE
+trouble-dns   1/1     Running   0          2s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced logs trouble-dns
+healthy
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced exec trouble-dns -- nslookup trouble-web.devops-advanced.svc.cluster.local
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+Name:	trouble-web.devops-advanced.svc.cluster.local
+Address: 10.99.236.131
+exit=0
+
+CASE: network
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/network-broken.json
+pod/trouble-network created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced wait --for=condition=Ready pod/trouble-network --timeout=120s
+pod/trouble-network condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-network
+NAME              READY   STATUS    RESTARTS   AGE
+trouble-network   1/1     Running   0          2s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced describe pod trouble-network
+Name:             trouble-network
+Namespace:        devops-advanced
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 23:29:32 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.101
+IPs:
+  IP:  10.244.0.101
+Containers:
+  demo:
+    Container ID:  containerd://f086d85d2adcb3c8d3b06629518cb4096983b815d3e121cc41d0a961ca5d07f6
+    Image:         python:3.12-alpine
+    Image ID:      docker.io/library/python@sha256:1b668429b3511ab407d8e00648891631b0b1a4d7e15e3ca70f38ab5b91ad4ab4
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      python
+      -m
+      http.server
+      8080
+      --bind
+      127.0.0.1
+    State:          Running
+      Started:      Wed, 07 Oct 2026 23:29:33 +0530
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     50m
+      memory:  32Mi
+    Requests:
+      cpu:        5m
+      memory:     8Mi
+    Environment:  <none>
+    Mounts:       <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:                      <none>
+QoS Class:                    Burstable
+Node-Selectors:               <none>
+Tolerations:                  node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  2s    default-scheduler  Successfully assigned devops-advanced/trouble-network to devops-oct7
+  Normal  Pulled     1s    kubelet            Container image "python:3.12-alpine" already present on machine
+  Normal  Created    1s    kubelet            Created container: demo
+  Normal  Started    1s    kubelet            Started container demo
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced events --for pod/trouble-network
+LAST SEEN   TYPE     REASON      OBJECT                MESSAGE
+2s          Normal   Scheduled   Pod/trouble-network   Successfully assigned devops-advanced/trouble-network to devops-oct7
+1s          Normal   Pulled      Pod/trouble-network   Container image "python:3.12-alpine" already present on machine
+1s          Normal   Created     Pod/trouble-network   Created container: demo
+1s          Normal   Started     Pod/trouble-network   Started container demo
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-network -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-network\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"python\",\"-m\",\"http.server\",\"8080\",\"--bind\",\"127.0.0.1\"],\"image\":\"python:3.12-alpine\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"50m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"5m\",\"memory\":\"8Mi\"}}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T17:59:32Z",
+        "generation": 1,
+        "name": "trouble-network",
+        "namespace": "devops-advanced",
+        "resourceVersion": "30097",
+        "uid": "693e4b1b-58ae-4b84-af9d-0e5a5edacf31"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "python",
+                    "-m",
+                    "http.server",
+                    "8080",
+                    "--bind",
+                    "127.0.0.1"
+                ],
+                "image": "python:3.12-alpine",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:59:34Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:59:32Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:59:34Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:59:34Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T17:59:32Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "allocatedResources": {
+                    "cpu": "5m",
+                    "memory": "8Mi"
+                },
+                "containerID": "containerd://f086d85d2adcb3c8d3b06629518cb4096983b815d3e121cc41d0a961ca5d07f6",
+                "image": "docker.io/library/python:3.12-alpine",
+                "imageID": "docker.io/library/python@sha256:1b668429b3511ab407d8e00648891631b0b1a4d7e15e3ca70f38ab5b91ad4ab4",
+                "lastState": {},
+                "name": "demo",
+                "ready": true,
+                "resources": {
+                    "limits": {
+                        "cpu": "50m",
+                        "memory": "32Mi"
+                    },
+                    "requests": {
+                        "cpu": "5m",
+                        "memory": "8Mi"
+                    }
+                },
+                "restartCount": 0,
+                "started": true,
+                "state": {
+                    "running": {
+                        "startedAt": "2026-10-07T17:59:33Z"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 0,
+                        "supplementalGroups": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            6,
+                            10,
+                            11,
+                            20,
+                            26,
+                            27
+                        ],
+                        "uid": 0
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.0.101",
+        "podIPs": [
+            {
+                "ip": "10.244.0.101"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T17:59:32Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced exec volume-examples -- wget -T 3 -O- http://10.244.0.101:8080
+Connecting to 10.244.0.101:8080 (10.244.0.101:8080)
+wget: can't connect to remote host (10.244.0.101): Connection refused
+command terminated with exit code 1
+exit=1
+
+$ kubectl --context devops-oct7 -n devops-advanced exec trouble-network -- python -c 'import urllib.request;print(urllib.request.urlopen('"'"'http://127.0.0.1:8080'"'"').status)'
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/usr/local/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/local/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/local/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/local/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/usr/local/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/usr/local/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/usr/local/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/usr/local/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/urllib/request.py", line 1386, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+command terminated with exit code 1
+exit=1

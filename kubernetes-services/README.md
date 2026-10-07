@@ -2,7 +2,7 @@
 
 - **Name:** Jaivardhan D. Rao
 - **Enrollment number:** 24BCS10117
-- **Status:** October 7 live DNS, ClusterIP/NodePort HTTP, LoadBalancer internal HTTP and broken-selector recovery checks passed. LoadBalancer external-address/tunnel verification and new screenshots remain pending.
+- **Status:** October 7 live DNS, ClusterIP/NodePort HTTP, LoadBalancer internal HTTP and broken-selector recovery checks passed. Actual command output is linked below; the homework permits output or screenshots. LoadBalancer external-address/tunnel verification remains pending.
 
 Use the [disposable local lab](../kubernetes-fundamentals/README.md#local-lab-setup), then run the
 commands from this folder. A Service gives clients a stable discovery name while its selected
@@ -105,12 +105,33 @@ An empty ready-endpoint list does not by itself prove a DNS failure.
 
 ## Evidence and cleanup
 
+### Current live observation
+
+The [fresh resources/HTTP transcript](../evidence/october-7/session-11/current-state.txt)
+shows the Service types, ready StatefulSet identities, restored ClusterIP EndpointSlices,
+and successful current ClusterIP, node-IP NodePort and internal LoadBalancer responses.
+The [fresh DNS transcript](../evidence/october-7/session-11/current-dns.txt) shows absolute
+ClusterIP, ExternalName, headless and individual StatefulSet Pod DNS resolution.
+These observations do not prove an external LoadBalancer path: its address remains `<pending>`.
+
+For compact native Terminal views, run from the repository root with `LAB_KUBECONFIG`
+set to the isolated lab kubeconfig:
+
+```bash
+python3 evidence/october-7/live-verify.py 11 --kubeconfig "$LAB_KUBECONFIG" --context devops-oct7
+python3 evidence/october-7/live-verify.py 11 --view dns --kubeconfig "$LAB_KUBECONFIG" --context devops-oct7
+```
+
+These checks execute actual current API, DNS and HTTP reads. They do not change the
+Service selector; the historical broken-selector/recovery transition is in the complete
+lab transcript below.
+
 The [completed October 7 transcript](../evidence/october-7/session-11/20261007T101841Z.txt)
 records ClusterIP and NodePort HTTP, ExternalName/headless/stable Pod DNS, LoadBalancer
 internal Service HTTP, and a selector fault that removed endpoints and broke HTTP before
 restoration recovered traffic. The LoadBalancer external address remained pending; internal
-HTTP does not establish external or tunnel connectivity. New Terminal screenshots also remain
-pending. The [October inventory](../evidence/october-7/README.md) retains the earlier failed
+HTTP does not establish external or tunnel connectivity. Optional additional screenshots have
+not been captured. The [October inventory](../evidence/october-7/README.md) retains the earlier failed
 DNS attempt and explains the successful absolute-name queries.
 
 The historical September image below shows static Service-port and reference checks, not live DNS or
@@ -121,7 +142,7 @@ are available alongside it.
 
 The October transcript captures DNS answers, HTTP responses, Service ports, StatefulSet names
 and selector recovery. Capture the remaining LoadBalancer external-address/tunnel response
-and new screenshots. See [validation evidence](../KUBERNETES-VALIDATION.md). After the lab,
+and optional additional screenshots. See [validation evidence](../KUBERNETES-VALIDATION.md). After the lab,
 delete only these resources with their file paths;
 stop any Minikube tunnel. Keep `dns-client` until the session 10 canary check is finished.
 

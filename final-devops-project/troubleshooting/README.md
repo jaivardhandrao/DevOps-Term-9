@@ -1,24 +1,31 @@
 # Final troubleshooting challenge
 
-Perform this only in the dedicated coursework namespace/context, after capturing healthy CRUD and monitoring output. The following two independent faults exercise resource inspection, diagnosis, correction and verification. These are reproducible instructions; completion is established only by saved runtime evidence.
+Perform this only in the dedicated coursework namespace/context, after capturing healthy CRUD and monitoring output. The following two independent faults exercise resource inspection, diagnosis, correction and verification. Both were executed on October 7; [saved runtime evidence](evidence/2026-10-07/README.md) records failure, correction and recovery.
 
 ## Fault 1: Service points to no Pods
 
-Symptoms: frontend API requests return a gateway failure, backend EndpointSlices lose ready addresses, Prometheus `TaskBoardUnavailable` and `TaskBoardNotReady` eventually fire.
+Symptoms: frontend API requests return a gateway failure, backend EndpointSlices lose ready addresses, `TaskBoardNotReady` fires. `TaskBoardUnavailable` fires only if the metrics scrape also fails: an existing keep-alive TCP connection can survive a Service-selector change and leave `up=1`.
 
 ```sh
+# If Argo owns this app, temporarily pause its automatic repair during the drill.
+# Save the existing automated policy and restore it afterward.
+kubectl --context devops-oct7 -n monitoring-oct7 patch application taskboard --type=merge \
+  -p '{"spec":{"syncPolicy":{"automated":{"enabled":false}}}}'
 kubectl --context devops-oct7 -n capstone-oct7 get service backend -o yaml
 kubectl --context devops-oct7 -n capstone-oct7 patch service backend --type=merge \
   -p '{"spec":{"selector":{"app.kubernetes.io/component":"deliberately-missing"}}}'
 kubectl --context devops-oct7 -n capstone-oct7 get endpointslice -l kubernetes.io/service-name=backend
 kubectl --context devops-oct7 -n capstone-oct7 get pods --show-labels
-curl -sS http://127.0.0.1:18080/ready
+curl -sS http://127.0.0.1:18081/ready
 # After the 15-second alert duration and a scrape/evaluation interval:
 curl -fsS http://127.0.0.1:19090/api/v1/alerts
 # Fix the selector; preserve all other fields.
 kubectl --context devops-oct7 -n capstone-oct7 patch service backend --type=merge \
   -p '{"spec":{"selector":{"app.kubernetes.io/component":"backend"}}}'
-curl -fsS http://127.0.0.1:18080/ready
+curl -fsS http://127.0.0.1:18081/ready
+# The supplied Application starts enabled=true; restore its original policy.
+kubectl --context devops-oct7 -n monitoring-oct7 patch application taskboard --type=merge \
+  -p '{"spec":{"syncPolicy":{"automated":{"enabled":true}}}}'
 ```
 
 Root cause: the Service selector did not match the Deployment's Pod labels. DNS still resolved the Service, and backend Pods remained alive; DNS and process restarts would not fix the missing endpoints. Validate restored endpoints, readiness, CRUD and cleared alerts.
@@ -48,3 +55,6 @@ Save timestamps, initial healthy state, the failing HTTP/status/events, investig
 ## Boundaries and cleanup
 
 The API uses a persistent PostgreSQL PVC. Neither exercise deletes database data. Undo a Service-selector fault immediately after collecting evidence, including when interrupted. Delete the extra image-fault Deployment. Session 14 separately covers the broader Kubernetes troubleshooting catalogue.
+
+
+The selector drill must pause only this Application’s automated sync first; otherwise self-healing can repair the selector before the alert’s 15-second hold period. Always restore both the original Service selector and the original automated-sync policy, including on failure. The executed drill used a `finally` cleanup block. This is separate from the [GitOps drift test](../gitops/evidence/2026-10-07/drift-self-heal.json), which deliberately left self-healing enabled.

@@ -6,6 +6,8 @@ REPO = ROOT.parent
 CONTEXT = "devops-oct7"
 NS = "devops-advanced"
 MODE = sys.argv[1] if len(sys.argv)>1 else "storage"
+if MODE not in ("storage", "troubleshooting", "troubleshooting-tail"):
+    raise SystemExit("Use storage, troubleshooting or troubleshooting-tail")
 LOGROOT = ROOT if MODE == "storage" else REPO / "kubernetes-troubleshooting"
 (LOGROOT / "evidence").mkdir(exist_ok=True)
 log = (LOGROOT / "evidence" / (MODE + "-run.txt")).open("w")
@@ -45,6 +47,8 @@ endpoint=run(["kubectl","config","view","--context",CONTEXT,"--minify","-o","jso
 if not endpoint.startswith(("https://127.0.0.1:","https://localhost:")): raise RuntimeError("Refusing non-local API endpoint")
 run(["kubectl","--context",CONTEXT,"get","nodes","-o","wide"])
 if MODE == "storage":
+    # Directory ordering is alphabetical; namespace must exist before its objects.
+    k("apply","-f",ROOT/"mini-project"/"namespace.yaml")
     k("apply","-f",ROOT/"mini-project")
     k("apply","-f",ROOT/"hpa.yml")
     k("rollout","status","deployment/advanced-web","--timeout=240s")
@@ -73,7 +77,10 @@ if MODE == "storage":
             state=json.loads(k("get","deployment","advanced-web","-o","json"))
             k("get","pods","-l","app=advanced-web")
             if state.get("status",{}).get("readyReplicas",0)>2:
-                scaled=True;break
+                scaled=True
+                record("HPA scaled above two Ready replicas; 20-second screenshot window.")
+                time.sleep(20)
+                break
         k("describe","hpa","advanced-web")
     finally:
         k("delete","job","advanced-load","--ignore-not-found=true")
@@ -85,7 +92,8 @@ if MODE == "storage":
     k("get","pod",pod); k("get","endpointslices","-l","kubernetes.io/service-name=advanced-web","-o","yaml")
     k("exec",pod,"--","rm","/tmp/not-ready")
     k("wait","--for=condition=Ready","pod/"+pod,"--timeout=60s")
-    for i in range(18):
+    # Metrics sampling plus recommendation stabilization can exceed three minutes.
+    for i in range(36):
         time.sleep(10)
         k("get","hpa");k("top","pods",check=False)
         state=json.loads(k("get","deployment","advanced-web","-o","json"))
@@ -98,7 +106,10 @@ else:
     k("apply","-f",folder/"mini-project.yaml")
     k("rollout","status","deployment/trouble-web","--timeout=180s")
     k("get","pods","-o","wide");k("explain","pod.spec.containers.resources");k("top","pods",check=False)
-    for name in ["crash","image","pending","mount","config","dns","network"]:
+    cases = ["network"] if MODE == "troubleshooting-tail" else ["crash","image","pending","mount","config","dns","network"]
+    if MODE == "troubleshooting-tail":
+        k("delete","pod","trouble-network","--ignore-not-found=true","--wait=true")
+    for name in cases:
         record("\nCASE: "+name)
         k("apply","-f",folder/"scenarios"/(name+"-broken.json"))
         if name=="crash":wait_reason("trouble-crash","CrashLoopBackOff")
@@ -110,6 +121,9 @@ else:
         else:k("wait","--for=condition=Ready","pod/trouble-"+name,"--timeout=120s")
         k("get","pod","trouble-"+name);k("describe","pod","trouble-"+name)
         k("events","--for","pod/trouble-"+name)
+        if name == "image":
+            record("Image pull failure observed; 30-second live screenshot window.")
+            time.sleep(30)
         if name=="crash":k("logs","trouble-crash","--previous",check=False)
         if name=="dns":k("exec","trouble-dns","--","nslookup","trouble-web.devops-advanced.svc.cluster.local",check=False)
         if name=="network":

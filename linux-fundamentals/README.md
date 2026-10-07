@@ -97,3 +97,13 @@ servers running systemd I use `journalctl`.
 | Services and logs | `systemctl`, `journalctl` |
 | Archives | `tar -czf`, `tar -xzf` |
 | Built-in help | `man`, `command --help` |
+
+## Fresh isolated run — 7 October 2026
+
+[Raw commands and output](evidence/live-20261007T175903Z.txt) verify hard-link inode equality, a dangling soft link after target removal, temporary container user creation/removal, file/archive commands, disk/memory/process inspection, and two real `coursework-demo` journal entries. The [lab image](evidence/Dockerfile) installs its packages only inside disposable Ubuntu containers; no laptop account or package was changed.
+
+The application journal was produced by a standalone `systemd-journald`. The recorded `journalctl -u coursework-demo.service` returned no entries because systemd was not PID 1. A real systemd-managed service demonstration remains outstanding; tagged application logs do not establish that requirement. The earlier failed attempt is retained in [the initial transcript](evidence/live-20261007T175642Z.txt).
+
+A [read-only check of the isolated coursework Kubernetes node](evidence/systemd-service-journal.txt) subsequently confirmed PID 1 was `systemd` and `kubelet` was active. However, its unprivileged `journalctl -u kubelet --no-pager -n 15` read failed with journal ACL/permission errors. No elevated-user workaround or node change was attempted. This verifies the service state, but still does not provide readable service journal entries.
+
+Reproduce from the repository root: `python3 scripts/run-foundation-evidence.py --topic linux`. This runs real commands and cleans up its own container.

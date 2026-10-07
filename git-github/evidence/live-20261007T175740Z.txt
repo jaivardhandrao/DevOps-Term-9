@@ -1,0 +1,127 @@
+Jaivardhan D. Rao | 24BCS10117 | LIVE git coursework
+Started UTC: 2026-10-07T17:57:40.969185+00:00
+Only new task-owned resources are used; no saved output is replayed.
+
+$ git init -b main /var/folders/3g/t9h7yhrn30lbs8ywyk7b5lpc0000gn/T/term9-evidence-a88aad4a7b-1tdy20bo/repository
+Initialized empty Git repository in /private/var/folders/3g/t9h7yhrn30lbs8ywyk7b5lpc0000gn/T/term9-evidence-a88aad4a7b-1tdy20bo/repository/.git/
+[exit 0]
+
+$ git config user.name 'Coursework Demonstration'
+[exit 0]
+
+$ git config user.email coursework@example.invalid
+[exit 0]
+
+$ git config commit.gpgsign false
+[exit 0]
+
+$ git add notes.txt
+[exit 0]
+
+$ git commit -m 'Add base note'
+[main (root-commit) 8008f3b] Add base note
+ 1 file changed, 1 insertion(+)
+ create mode 100644 notes.txt
+[exit 0]
+
+$ git add notes.txt
+[exit 0]
+
+$ git commit -m 'Add linux note'
+[main 0bc367c] Add linux note
+ 1 file changed, 1 insertion(+)
+[exit 0]
+
+$ git add notes.txt
+[exit 0]
+
+$ git commit -m 'Add docker note'
+[main 429686f] Add docker note
+ 1 file changed, 1 insertion(+)
+[exit 0]
+
+$ git commit -m 'Unstaged change test'
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   notes.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	untracked.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+[exit 1]
+
+$ git commit -a -m 'Include tracked change only'
+[main ce21813] Include tracked change only
+ 1 file changed, 1 insertion(+)
+[exit 0]
+
+$ git status --short
+?? untracked.txt
+[exit 0]
+
+$ git switch -c command-notes
+Switched to a new branch 'command-notes'
+[exit 0]
+
+$ git add networking.txt
+[exit 0]
+
+$ git commit -m 'Add networking note'
+[command-notes 6fabce7] Add networking note
+ 1 file changed, 1 insertion(+)
+ create mode 100644 networking.txt
+[exit 0]
+
+$ git rev-parse HEAD
+6fabce78e8fbdcde9146ac60b8303e886360ced4
+[exit 0]
+
+$ git add journaling.txt
+[exit 0]
+
+$ git commit -m 'Add journaling note'
+[command-notes aba3bf5] Add journaling note
+ 1 file changed, 1 insertion(+)
+ create mode 100644 journaling.txt
+[exit 0]
+
+$ git log --oneline --all --graph --decorate
+* aba3bf5 (HEAD -> command-notes) Add journaling note
+* 6fabce7 Add networking note
+* ce21813 (main) Include tracked change only
+* 429686f Add docker note
+* 0bc367c Add linux note
+* 8008f3b Add base note
+[exit 0]
+
+$ git switch main
+Switched to branch 'main'
+[exit 0]
+
+$ git cherry-pick -x 6fabce78e8fbdcde9146ac60b8303e886360ced4
+[main c82c158] Add networking note
+ Date: Wed Oct 7 23:27:41 2026 +0530
+ 1 file changed, 1 insertion(+)
+ create mode 100644 networking.txt
+[exit 0]
+
+$ git log --oneline -5
+c82c158 Add networking note
+ce21813 Include tracked change only
+429686f Add docker note
+0bc367c Add linux note
+8008f3b Add base note
+[exit 0]
+
+$ git show HEAD:networking.txt
+DNS resolves names to addresses
+[exit 0]
+
+LIVE OBSERVATIONS
+- Four main commits and two feature commits created. Plain commit rejected unstaged changes; commit -a left the new file untracked; cherry-pick copied only the selected feature change.
+Raw output: git-github/evidence/live-20261007T175740Z.txt
+Cleanup finished for this run's exact container/network/image names and scratch directory.

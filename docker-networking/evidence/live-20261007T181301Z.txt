@@ -1,0 +1,92 @@
+Jaivardhan D. Rao | 24BCS10117 | LIVE docker-networking coursework
+Started UTC: 2026-10-07T18:13:01.931118+00:00
+Only new task-owned resources are used; no saved output is replayed.
+
+$ docker network create --label devops.coursework.run=term9-evidence-0cf7619dcf term9-evidence-0cf7619dcf-front
+650a8a51a61e82976e6056e3624891645fa370da3213b439a9fc38e8b5a124cd
+[exit 0]
+
+$ docker network create --label devops.coursework.run=term9-evidence-0cf7619dcf term9-evidence-0cf7619dcf-app
+57a94a98766686b8a0a44c563b6f79acafc3a167a8867e44499d46e31b24d5e6
+[exit 0]
+
+$ docker network create --label devops.coursework.run=term9-evidence-0cf7619dcf term9-evidence-0cf7619dcf-db
+2b2a4911af4ad8f452d8e027ed9db795b6fef2eb6dd9056cc2fa882f283a95f2
+[exit 0]
+
+$ docker run --name term9-evidence-0cf7619dcf-frontend --label devops.coursework.run=term9-evidence-0cf7619dcf -d --network term9-evidence-0cf7619dcf-front alpine:3.20 sleep 3600
+64ffa53f9791045648eabee9109c6d4ef7fbdd97ddd8dfdf1b49711c6d047e6a
+[exit 0]
+
+$ docker network connect term9-evidence-0cf7619dcf-app term9-evidence-0cf7619dcf-frontend
+[exit 0]
+
+$ docker run --name term9-evidence-0cf7619dcf-backend --label devops.coursework.run=term9-evidence-0cf7619dcf -d --network term9-evidence-0cf7619dcf-app --network-alias backend nginx:1.27-alpine sh -c 'printf '"'"'Hello from the backend container\n'"'"' >/usr/share/nginx/html/index.html; exec nginx -g '"'"'daemon off;'"'"''
+2766843622c3e94448d384c2ca3eddc0b7da2e6cb2c74c3fa3e757222bcb7d15
+[exit 0]
+
+$ docker network connect term9-evidence-0cf7619dcf-db term9-evidence-0cf7619dcf-backend
+[exit 0]
+
+$ docker run --name term9-evidence-0cf7619dcf-database --label devops.coursework.run=term9-evidence-0cf7619dcf -d --network term9-evidence-0cf7619dcf-db --network-alias database --tmpfs /var/lib/mysql -e MYSQL_RANDOM_ROOT_PASSWORD=yes mysql:8.4
+244a8242845d45b63c9a1130ccf4b1d5f53a1155003385811533c82604d8f93c
+[exit 0]
+
+$ docker exec term9-evidence-0cf7619dcf-frontend wget -qO- http://backend:80
+Hello from the backend container
+[exit 0]
+
+$ docker exec term9-evidence-0cf7619dcf-backend nc -zvw 2 database 3306
+database (172.22.0.3:3306) open
+[exit 0]
+
+$ docker exec term9-evidence-0cf7619dcf-frontend sh -c 'if nslookup database >/dev/null 2>&1; then echo '"'"'Unexpected database visibility'"'"'; exit 1; else echo '"'"'PASS: frontend has no direct database DNS route'"'"'; fi'
+PASS: frontend has no direct database DNS route
+[exit 0]
+
+$ docker inspect term9-evidence-0cf7619dcf-database --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
+172.22.0.3
+[exit 0]
+
+$ docker exec term9-evidence-0cf7619dcf-frontend sh -c 'if nc -z -w 2 "$1" 3306; then echo '"'"'Unexpected direct database access'"'"'; exit 1; else echo '"'"'PASS: frontend TCP access to the database IP is blocked'"'"'; fi' sh 172.22.0.3
+PASS: frontend TCP access to the database IP is blocked
+[exit 0]
+
+$ docker inspect term9-evidence-0cf7619dcf-backend --format '{{range $name, $config := .NetworkSettings.Networks}}{{$name}}{{println}}{{end}}'
+term9-evidence-0cf7619dcf-app
+term9-evidence-0cf7619dcf-db
+[exit 0]
+
+$ docker run --name term9-evidence-0cf7619dcf-bind --label devops.coursework.run=term9-evidence-0cf7619dcf -d -p 127.0.0.1:0:80 --mount type=bind,src=/var/folders/3g/t9h7yhrn30lbs8ywyk7b5lpc0000gn/T/term9-evidence-0cf7619dcf-t97pmre4/site,dst=/usr/share/nginx/html,readonly nginx:1.27-alpine
+e408267216f4f394e285d9f7b5a82619375fc47ba4b8a0ccd8098b67b81096e2
+[exit 0]
+
+$ docker port term9-evidence-0cf7619dcf-bind 80/tcp
+127.0.0.1:55018
+[exit 0]
+
+$ curl -fsS http://127.0.0.1:55018
+<h1>Hello students</h1>
+[exit 0]
+
+$ docker inspect term9-evidence-0cf7619dcf-bind --format '{{.Id}} {{.RestartCount}}'
+e408267216f4f394e285d9f7b5a82619375fc47ba4b8a0ccd8098b67b81096e2 0
+[exit 0]
+
+$ curl -fsS http://127.0.0.1:55018
+<h1>Hello students - updated live</h1>
+[exit 0]
+
+$ docker inspect term9-evidence-0cf7619dcf-bind --format '{{.Id}} {{.RestartCount}}'
+e408267216f4f394e285d9f7b5a82619375fc47ba4b8a0ccd8098b67b81096e2 0
+[exit 0]
+
+$ docker run --rm --network host alpine:3.20 sh -c 'if nc -z -w 1 127.0.0.1 80; then exit 42; fi'
+[exit 0]
+
+LIVE OBSERVATIONS
+- Three new networks: frontend-to-backend and backend-to-MySQL pass; frontend-to-database is isolated; backend has two networks.
+- Bind mount changed the HTTP response with the same container ID and zero restarts.
+- BLOCKED: port 80 is unavailable on macOS or already has a Docker-host listener; host-mode Apache skipped without changing an existing service.
+Raw output: docker-networking/evidence/live-20261007T181301Z.txt
+Cleanup finished for this run's exact container/network/image names and scratch directory.

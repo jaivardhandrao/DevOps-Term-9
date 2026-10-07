@@ -1,0 +1,34 @@
+LIVE session 12 (resources) | 2026-10-07T17:54:13.744371+00:00
+KUBECONFIG=/Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/kube/config
+Context=devops-oct7; namespace=devops-homework; API=https://127.0.0.1:55923
+Current observations only. Earlier rollout/failure transitions remain in the timestamped lab logs.
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework get deployment/demo-frontend deployment/demo-backend configmap/demo-config secret/demo-credentials ingress/demo-ingress
+NAME                            READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/demo-frontend   2/2     2            2           7h35m
+deployment.apps/demo-backend    2/2     2            2           7h36m
+
+NAME                    DATA   AGE
+configmap/demo-config   3      7h36m
+
+NAME                      TYPE     DATA   AGE
+secret/demo-credentials   Opaque   1      7h36m
+
+NAME                                     CLASS   HOSTS         ADDRESS        PORTS   AGE
+ingress.networking.k8s.io/demo-ingress   nginx   devops.test   192.168.49.2   80      7h35m
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework exec deployment/demo-backend -- python3 -c 'import os; print("environment="+os.environ["ENVIRONMENT"]); print("secret_loaded="+str(bool(os.environ.get("DEMO_TOKEN"))))'
+environment=staging
+secret_loaded=True
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n ingress-nginx port-forward --address=127.0.0.1 service/ingress-nginx-controller :80
+Forwarding from 127.0.0.1:58175 -> 80
+
+$ curl --noproxy '*' --fail --silent --show-error --max-time 5 -H 'Host: devops.test' http://127.0.0.1:58175/
+Hello from DevOps session 12 frontend
+
+$ curl --noproxy '*' --fail --silent --show-error --max-time 5 -H 'Host: devops.test' http://127.0.0.1:58175/api/health
+{"service": "DevOps session 12 API", "environment": "staging", "log_level": "INFO", "currency": "INR", "secret_loaded": true}
+Stopped only this observer's temporary ingress port-forward.
+
+LIVE session 12 (resources) CHECKS PASSED; no lab objects changed.

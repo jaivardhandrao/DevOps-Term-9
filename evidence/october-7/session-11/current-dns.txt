@@ -1,0 +1,43 @@
+LIVE session 11 (dns) | 2026-10-07T17:54:13.304224+00:00
+KUBECONFIG=/Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/kube/config
+Context=devops-oct7; namespace=devops-homework; API=https://127.0.0.1:55923
+Current observations only. Earlier rollout/failure transitions remain in the timestamped lab logs.
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework exec dns-client -- nslookup web-clusterip.devops-homework.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+Name:	web-clusterip.devops-homework.svc.cluster.local
+Address: 10.99.3.154
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework exec dns-client -- nslookup external-docs.devops-homework.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+external-docs.devops-homework.svc.cluster.local	canonical name = kubernetes.io
+
+external-docs.devops-homework.svc.cluster.local	canonical name = kubernetes.io
+Name:	kubernetes.io
+Address: 3.33.186.135
+Name:	kubernetes.io
+Address: 15.197.167.90
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework exec dns-client -- nslookup web-headless.devops-homework.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+Name:	web-headless.devops-homework.svc.cluster.local
+Address: 10.244.0.54
+Name:	web-headless.devops-homework.svc.cluster.local
+Address: 10.244.0.53
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework exec dns-client -- nslookup stateful-web-0.web-headless.devops-homework.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+Name:	stateful-web-0.web-headless.devops-homework.svc.cluster.local
+Address: 10.244.0.53
+
+LIVE session 11 (dns) CHECKS PASSED; no lab objects changed.

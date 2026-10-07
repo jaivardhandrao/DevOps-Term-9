@@ -4,7 +4,7 @@
 
 Coursework for the current **20 submission topics, sessions 1–21**. The October update extends the previous Linux/Docker/Kubernetes work with storage, troubleshooting, Helm, CI/CD, security, Terraform, monitoring, GitOps and a PostgreSQL-backed TaskBoard capstone.
 
-**Draft completion status:** implementations and runbooks are prepared across the current scope. Several practical requirements remain unverified because runtime approval was blocked or live cloud operations were outside this task's authorization. Do not interpret code, expected-output descriptions, schema validation or mocked tests as proof that those deployments ran. [The evidence checklist](EVIDENCE-CHECKLIST.md) records the exact gaps.
+**Coverage update, 7 October 2026:** actual local practicals, browser screenshots and security reports are added to the merged `main` branch while preserving all 20 submitted README paths. The [evidence checklist](EVIDENCE-CHECKLIST.md) separates completed observations from remaining service-journal, host-port, screenshot, registry and cloud requirements. Code, static validation and mocked tests are not described as live deployment evidence.
 
 ## Coursework map
 
@@ -33,15 +33,16 @@ Coursework for the current **20 submission topics, sessions 1–21**. The Octobe
 
 ## Actual verification
 
-- The final app has 11 backend and 5 frontend tests, successful container/frontend builds, real PostgreSQL CRUD, database outage/recovery and restart-persistence evidence, plus desktop/mobile browser screenshots. See [application evidence](final-devops-project/application/evidence/README.md).
-- Sessions 9–12 have fresh local command transcripts; session 12's invalid Kubernetes label was found by the API server and fixed. [October evidence](evidence/october-7/README.md) separates successful checks from failed attempts and remaining external-address/screenshot requirements.
-- All three Terraform configurations pass real provider-schema validation and formatting; **10 mocked tests** pass. No AWS resources were created.
-- The Notes Helm chart renders with development and production values. The final application chart also passes lint and rendering.
-- The existing capture-runner tests and new invalid-label regression checks pass: **14 tests**. Earlier sandbox-only failures were caused by prohibited `/dev/fd` process substitution; the fake-CLI tests passed when run with that sandbox restriction lifted.
-- [GitHub Actions tests/static checks passed](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37609532257) on commit `93c26a1`, including all regression/application tests, the frontend build and chart checks. This is separate from the pending full security/deployment pipeline.
-- Local Bandit SAST and Gitleaks secret scans pass, and both reject their synthetic negative controls. Trivy dependency/image scans and the full CI/CD execution remain pending. The [workflow](.github/workflows/final-project.yml) retains its security gates; image publication and external deployment are not claimed.
+- Linux, shell, networking and Git exercises were rerun in disposable containers or repositories. All six Docker apps and the multi-stage app were built and served real HTTP responses; genuine browser screenshots are embedded in their existing READMEs.
+- Sessions 9–12 have fresh guarded current-state observers and the original actual strategy/lifecycle/DNS/Ingress transcripts. [October evidence](evidence/october-7/README.md) distinguishes current-state screenshots from earlier failure/recovery observations.
+- Session 13 demonstrated PVC persistence and automatic HPA scaling **2 → 5 → 2**. Session 14 exercised all nine troubleshooting categories. Session 15 completed install, upgrades, failure/rollback, uninstall and a healthy review reinstall; its browser image shows the actual Notes app.
+- The TaskBoard app has **11 backend and 5 frontend tests**, PostgreSQL CRUD/outage/recovery evidence and desktop/mobile browser screenshots. A local Kubernetes deployment and database replacement preserved its task on the same PVC; [application evidence](final-devops-project/application/evidence/README.md) and [platform evidence](final-devops-project/kubernetes/evidence/2026-10-07/) record their distinct scope.
+- Real security scans found and then resolved **44 backend and 42 frontend HIGH package/advisory matches**. Rebuilt local images, application dependencies, Bandit and Gitleaks pass their configured gates; all synthetic negative controls pass. [Before/after reports](final-devops-project/security/evidence/README.md) preserve findings and image IDs. No severity gate was weakened.
+- The [full security and disposable deployment run](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37664321492) passed on commit `a218511`: tests, source gates, both AMD64 image scans, migrations, real Helm deployment, API CRUD and HPA metrics checks. The disposable CI cluster was removed; registry publication was skipped.
+- Prometheus reports healthy application metrics; a real readiness alert fired during a bounded routing fault and recovered after restoration. Argo reached Synced/Healthy and automatically corrected deliberate configuration drift. The Grafana memory display threshold was corrected to use bytes consistently with the configured request/limit.
+- All three Terraform projects pass real provider-schema validation and formatting; **10 mocked tests** pass. No AWS resources were created.
 
-[SUBMISSION.md](SUBMISSION.md) maps all 20 current form fields to README URLs. This task did not merge a PR or submit the form.
+[SUBMISSION.md](SUBMISSION.md) preserves all **20 main README URLs**. The automatic workflow now checks those paths and repository-relative links/images on every main push. PR #4 was merged before this coverage pass; this update does not submit or resubmit a form.
 
 ## Local capstone
 

@@ -1,0 +1,21 @@
+Actual read-only service journal check at 2026-10-07T18:17:48.295071+00:00
+Source: existing isolated devops-oct7 Minikube node, not the macOS host or another machine.
+No service, privilege, permissions, packages, or node configuration changed.
+
+$ minikube -p devops-oct7 ssh -- 'cat /proc/1/comm'
+systemd
+exit=0
+
+$ minikube -p devops-oct7 ssh -- 'systemctl is-active kubelet'
+active
+exit=0
+
+$ minikube -p devops-oct7 ssh -- 'journalctl -u kubelet --no-pager -n 15'
+[0;1;31mFailed to search journal ACL: Operation not supported[0m
+
+[0;1;31mNo journal files were opened due to insufficient permissions.[0m
+
+ssh: Process exited with status 1
+exit=1
+
+RESULT: The node runs systemd and kubelet, but this existing SSH user could not read the service journal. No sudo, different-user execution, permission change, install or alternate access route was attempted. This record is not successful journal-reading evidence.

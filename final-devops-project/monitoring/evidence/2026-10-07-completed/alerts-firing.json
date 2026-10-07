@@ -1,0 +1,78 @@
+{
+  "capturedAt": "2026-10-07T18:19:45.941939+00:00",
+  "alerts": {
+    "status": "success",
+    "data": {
+      "alerts": [
+        {
+          "labels": {
+            "alertname": "TaskBoardNotReady",
+            "instance": "http://backend.capstone-oct7.svc.cluster.local:8000/ready",
+            "job": "taskboard-readiness",
+            "severity": "critical"
+          },
+          "annotations": {
+            "runbook": "Check database readiness and migration Job; /health can pass while /ready fails.",
+            "summary": "TaskBoard cannot serve requests"
+          },
+          "state": "firing",
+          "activeAt": "2026-10-07T18:19:27.119064603Z",
+          "value": "0e+00"
+        }
+      ]
+    }
+  },
+  "up": [
+    "1"
+  ],
+  "probe": [
+    "0"
+  ],
+  "http": {
+    "status": 502,
+    "body": "<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n"
+  },
+  "endpointSlices": {
+    "apiVersion": "v1",
+    "items": [
+      {
+        "addressType": "IPv4",
+        "apiVersion": "discovery.k8s.io/v1",
+        "endpoints": null,
+        "kind": "EndpointSlice",
+        "metadata": {
+          "creationTimestamp": "2026-10-07T17:52:10Z",
+          "generateName": "backend-",
+          "generation": 14,
+          "labels": {
+            "app.kubernetes.io/component": "backend",
+            "app.kubernetes.io/instance": "taskboard",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "taskboard",
+            "endpointslice.kubernetes.io/managed-by": "endpointslice-controller.k8s.io",
+            "kubernetes.io/service-name": "backend"
+          },
+          "name": "backend-bbnds",
+          "namespace": "capstone-oct7",
+          "ownerReferences": [
+            {
+              "apiVersion": "v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Service",
+              "name": "backend",
+              "uid": "5ac1c400-366c-42b8-a3e5-7e01247aaf88"
+            }
+          ],
+          "resourceVersion": "31662",
+          "uid": "8302d85c-bbc2-4476-82f2-8e5bf211ef66"
+        },
+        "ports": null
+      }
+    ],
+    "kind": "List",
+    "metadata": {
+      "resourceVersion": ""
+    }
+  }
+}

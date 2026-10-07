@@ -1,0 +1,176 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "creationTimestamp": "2026-10-07T18:08:07Z",
+        "generateName": "image-fault-5685644d85-",
+        "generation": 1,
+        "labels": {
+          "app": "image-fault",
+          "pod-template-hash": "5685644d85"
+        },
+        "name": "image-fault-5685644d85-8fsxr",
+        "namespace": "capstone-oct7",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "image-fault-5685644d85",
+            "uid": "f4c3ba49-3ba4-44cb-99f2-c1b6482fa6ef"
+          }
+        ],
+        "resourceVersion": "30824",
+        "uid": "aa957926-a91c-4c4b-ae8e-31d261d5a51e"
+      },
+      "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "env": [
+              {
+                "name": "BACKEND_UPSTREAM",
+                "value": "backend:8000"
+              }
+            ],
+            "image": "taskboard-frontend:deliberately-missing",
+            "imagePullPolicy": "Never",
+            "name": "frontend",
+            "resources": {
+              "limits": {
+                "cpu": "100m",
+                "memory": "64Mi"
+              },
+              "requests": {
+                "cpu": "5m",
+                "memory": "16Mi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File"
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+          "runAsNonRoot": true,
+          "runAsUser": 101
+        },
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-07T18:08:08Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-07T18:08:07Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-07T18:08:07Z",
+            "message": "containers with unready status: [frontend]",
+            "observedGeneration": 1,
+            "reason": "ContainersNotReady",
+            "status": "False",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-07T18:08:07Z",
+            "message": "containers with unready status: [frontend]",
+            "observedGeneration": 1,
+            "reason": "ContainersNotReady",
+            "status": "False",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-07T18:08:07Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "image": "taskboard-frontend:deliberately-missing",
+            "imageID": "",
+            "lastState": {},
+            "name": "frontend",
+            "ready": false,
+            "restartCount": 0,
+            "started": false,
+            "state": {
+              "waiting": {
+                "message": "Container image \"taskboard-frontend:deliberately-missing\" is not present with pull policy of Never",
+                "reason": "ErrImageNeverPull"
+              }
+            }
+          }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+          {
+            "ip": "192.168.49.2"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Pending",
+        "podIP": "10.244.0.107",
+        "podIPs": [
+          {
+            "ip": "10.244.0.107"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T18:08:07Z"
+      }
+    }
+  ],
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": ""
+  }
+}

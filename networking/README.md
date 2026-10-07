@@ -34,3 +34,9 @@ interface state -> local address -> default route -> DNS -> remote port -> appli
 
 This order starts close to the machine and moves outward, which makes it easier to locate the
 layer where the failure begins.
+
+## Fresh isolated run — 7 October 2026
+
+[Raw commands and output](evidence/live-20261007T175932Z.txt) contain the actual script's interface and route inspection, successful `example.com` DNS resolution, two replies from `1.1.1.1` with zero packet loss, an HTTPS `HTTP/2 200` response, and local socket inspection. These are live results from a new Linux container, not laptop network inventory.
+
+Reproduce from the repository root: `python3 scripts/run-foundation-evidence.py --topic networking`. External DNS/ICMP/HTTPS results can vary with connectivity.

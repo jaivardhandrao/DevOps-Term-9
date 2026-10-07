@@ -1,0 +1,43 @@
+{
+  "startedAt": "2026-10-07T18:19:23.707757+00:00",
+  "originalSelector": {
+    "app.kubernetes.io/component": "backend",
+    "app.kubernetes.io/instance": "taskboard"
+  },
+  "originalAutomatedPolicy": {
+    "allowEmpty": false,
+    "enabled": true,
+    "prune": false,
+    "selfHeal": true
+  },
+  "note": "TaskBoardNotReady is the guaranteed outcome of a selector fault. Existing scrape TCP connections may keep up=1; do not claim a metrics-endpoint outage unless observed.",
+  "completedAt": "2026-10-07T18:19:56.169297+00:00",
+  "alerts": {
+    "status": "success",
+    "data": {
+      "alerts": []
+    }
+  },
+  "up": [
+    "1"
+  ],
+  "probe": [
+    "1"
+  ],
+  "http": {
+    "status": 200,
+    "body": {
+      "status": "ready"
+    }
+  },
+  "finalSelector": {
+    "app.kubernetes.io/component": "backend",
+    "app.kubernetes.io/instance": "taskboard"
+  },
+  "finalAutomatedPolicy": {
+    "allowEmpty": false,
+    "enabled": true,
+    "prune": false,
+    "selfHeal": true
+  }
+}

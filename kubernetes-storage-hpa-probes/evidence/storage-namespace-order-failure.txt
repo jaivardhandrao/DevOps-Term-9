@@ -1,0 +1,23 @@
+Run at 2026-10-07T17:51:34.244444+00:00
+Agent-operated local coursework lab. No external cluster or cloud resources used.
+
+$ kubectl config get-contexts devops-oct7 -o name
+devops-oct7
+exit=0
+
+$ kubectl config view --context devops-oct7 --minify -o 'jsonpath={.clusters[0].cluster.server}'
+https://127.0.0.1:55923
+exit=0
+
+$ kubectl --context devops-oct7 get nodes -o wide
+NAME          STATUS   ROLES           AGE     VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION     CONTAINER-RUNTIME
+devops-oct7   Ready    control-plane   7h42m   v1.34.0   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.12.76-linuxkit   containerd://2.3.4
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-storage-hpa-probes/mini-project
+namespace/devops-advanced created
+persistentvolumeclaim/advanced-data created
+service/advanced-web created
+Error from server (NotFound): error when creating "/Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-storage-hpa-probes/mini-project/configmap.yaml": namespaces "devops-advanced" not found
+Error from server (NotFound): error when creating "/Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-storage-hpa-probes/mini-project/deployment.yaml": namespaces "devops-advanced" not found
+exit=1

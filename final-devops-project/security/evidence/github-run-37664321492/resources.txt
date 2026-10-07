@@ -1,0 +1,13 @@
+NAME                            READY   STATUS      RESTARTS   AGE   IP            NODE                         NOMINATED NODE   READINESS GATES
+pod/backend-69cbd86ff7-vm8x5    1/1     Running     0          60s   10.244.0.8    taskboard-ci-control-plane   <none>           <none>
+pod/frontend-54cccd99b8-79q9s   1/1     Running     0          60s   10.244.0.7    taskboard-ci-control-plane   <none>           <none>
+pod/postgres-0                  1/1     Running     0          60s   10.244.0.11   taskboard-ci-control-plane   <none>           <none>
+pod/taskboard-migrate-1-2m5b6   0/1     Completed   1          60s   10.244.0.9    taskboard-ci-control-plane   <none>           <none>
+
+NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE   SELECTOR
+service/backend    ClusterIP   10.96.199.55    <none>        8000/TCP   60s   app.kubernetes.io/component=backend,app.kubernetes.io/instance=taskboard
+service/frontend   ClusterIP   10.96.8.204     <none>        8080/TCP   60s   app.kubernetes.io/component=frontend,app.kubernetes.io/instance=taskboard
+service/postgres   ClusterIP   10.96.166.171   <none>        5432/TCP   60s   app.kubernetes.io/component=database,app.kubernetes.io/instance=taskboard
+
+NAME                                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+persistentvolumeclaim/data-postgres-0   Bound    pvc-defc2545-8bd3-4529-a52c-d99b7f5f58ca   1Gi        RWO            standard       <unset>                 60s   Filesystem

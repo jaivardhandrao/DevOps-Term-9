@@ -1,0 +1,383 @@
+{
+  "capturedAt": "2026-10-07T18:09:53.701805+00:00",
+  "spec": {
+    "destination": {
+      "namespace": "capstone-oct7",
+      "server": "https://kubernetes.default.svc"
+    },
+    "project": "taskboard",
+    "source": {
+      "helm": {
+        "releaseName": "taskboard",
+        "valuesObject": {
+          "backend": {
+            "image": {
+              "pullPolicy": "Never",
+              "repository": "taskboard-backend",
+              "tag": "local"
+            }
+          },
+          "frontend": {
+            "image": {
+              "pullPolicy": "Never",
+              "repository": "taskboard-frontend",
+              "tag": "local"
+            }
+          }
+        }
+      },
+      "path": "final-devops-project/helm/taskboard",
+      "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+      "targetRevision": "main"
+    },
+    "syncPolicy": {
+      "automated": {
+        "allowEmpty": false,
+        "enabled": true,
+        "prune": false,
+        "selfHeal": true
+      },
+      "retry": {
+        "backoff": {
+          "duration": "5s",
+          "factor": 2,
+          "maxDuration": "30s"
+        },
+        "limit": 3
+      }
+    }
+  },
+  "status": {
+    "controllerNamespace": "monitoring-oct7",
+    "health": {
+      "lastTransitionTime": "2026-10-07T18:08:42Z",
+      "status": "Healthy"
+    },
+    "history": [
+      {
+        "deployStartedAt": "2026-10-07T18:06:34Z",
+        "deployedAt": "2026-10-07T18:06:54Z",
+        "id": 0,
+        "initiatedBy": {
+          "automated": true
+        },
+        "revision": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+        "source": {
+          "helm": {
+            "releaseName": "taskboard",
+            "valuesObject": {
+              "backend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-backend",
+                  "tag": "local"
+                }
+              },
+              "frontend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-frontend",
+                  "tag": "local"
+                }
+              }
+            }
+          },
+          "path": "final-devops-project/helm/taskboard",
+          "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+          "targetRevision": "main"
+        }
+      }
+    ],
+    "operationState": {
+      "finishedAt": "2026-10-07T18:06:54Z",
+      "message": "successfully synced (all tasks run)",
+      "operation": {
+        "initiatedBy": {
+          "automated": true
+        },
+        "retry": {
+          "backoff": {
+            "duration": "5s",
+            "factor": 2,
+            "maxDuration": "30s"
+          },
+          "limit": 3
+        },
+        "sync": {
+          "revision": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+          "source": {
+            "helm": {
+              "releaseName": "taskboard",
+              "valuesObject": {
+                "backend": {
+                  "image": {
+                    "pullPolicy": "Never",
+                    "repository": "taskboard-backend",
+                    "tag": "local"
+                  }
+                },
+                "frontend": {
+                  "image": {
+                    "pullPolicy": "Never",
+                    "repository": "taskboard-frontend",
+                    "tag": "local"
+                  }
+                }
+              }
+            },
+            "path": "final-devops-project/helm/taskboard",
+            "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+            "targetRevision": "main"
+          }
+        }
+      },
+      "phase": "Succeeded",
+      "startedAt": "2026-10-07T18:06:34Z",
+      "syncResult": {
+        "resources": [
+          {
+            "group": "",
+            "hookPhase": "Succeeded",
+            "kind": "ConfigMap",
+            "message": "configmap/taskboard-config configured. Warning: resource configmaps/taskboard-config is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by  apply.  apply should only be used on resources created declaratively by either  create --save-config or  apply. The missing annotation will be patched automatically.",
+            "name": "taskboard-config",
+            "namespace": "capstone-oct7",
+            "status": "Synced",
+            "syncPhase": "Sync",
+            "version": "v1"
+          },
+          {
+            "group": "",
+            "hookPhase": "Succeeded",
+            "kind": "Service",
+            "message": "service/backend configured. Warning: resource services/backend is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by  apply.  apply should only be used on resources created declaratively by either  create --save-config or  apply. The missing annotation will be patched automatically.",
+            "name": "backend",
+            "namespace": "capstone-oct7",
+            "status": "Synced",
+            "syncPhase": "Sync",
+            "version": "v1"
+          },
+          {
+            "group": "",
+            "hookPhase": "Succeeded",
+            "kind": "Service",
+            "message": "service/frontend configured. Warning: resource services/frontend is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by  apply.  apply should only be used on resources created declaratively by either  create --save-config or  apply. The missing annotation will be patched automatically.",
+            "name": "frontend",
+            "namespace": "capstone-oct7",
+            "status": "Synced",
+            "syncPhase": "Sync",
+            "version": "v1"
+          },
+          {
+            "group": "",
+            "hookPhase": "Succeeded",
+            "kind": "Service",
+            "message": "service/postgres configured. Warning: resource services/postgres is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by  apply.  apply should only be used on resources created declaratively by either  create --save-config or  apply. The missing annotation will be patched automatically.",
+            "name": "postgres",
+            "namespace": "capstone-oct7",
+            "status": "Synced",
+            "syncPhase": "Sync",
+            "version": "v1"
+          },
+          {
+            "group": "apps",
+            "hookPhase": "Succeeded",
+            "images": [
+              "postgres:17-alpine"
+            ],
+            "kind": "StatefulSet",
+            "message": "partitioned roll out complete: 1 new pods have been updated...",
+            "name": "postgres",
+            "namespace": "capstone-oct7",
+            "status": "Synced",
+            "syncPhase": "Sync",
+            "version": "v1"
+          },
+          {
+            "group": "batch",
+            "hookPhase": "Succeeded",
+            "hookType": "Sync",
+            "images": [
+              "taskboard-backend:local"
+            ],
+            "kind": "Job",
+            "message": "Reached expected number of succeeded pods",
+            "name": "taskboard-migrate-1",
+            "namespace": "capstone-oct7",
+            "status": "Synced",
+            "syncPhase": "Sync",
+            "version": "v1"
+          },
+          {
+            "group": "apps",
+            "hookPhase": "Succeeded",
+            "images": [
+              "taskboard-frontend:local"
+            ],
+            "kind": "Deployment",
+            "message": "deployment.apps/frontend configured. Warning: resource deployments/frontend is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by  apply.  apply should only be used on resources created declaratively by either  create --save-config or  apply. The missing annotation will be patched automatically.",
+            "name": "frontend",
+            "namespace": "capstone-oct7",
+            "status": "Synced",
+            "syncPhase": "Sync",
+            "version": "v1"
+          },
+          {
+            "group": "apps",
+            "hookPhase": "Succeeded",
+            "images": [
+              "taskboard-backend:local"
+            ],
+            "kind": "Deployment",
+            "message": "deployment.apps/backend configured. Warning: resource deployments/backend is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by  apply.  apply should only be used on resources created declaratively by either  create --save-config or  apply. The missing annotation will be patched automatically.",
+            "name": "backend",
+            "namespace": "capstone-oct7",
+            "status": "Synced",
+            "syncPhase": "Sync",
+            "version": "v1"
+          },
+          {
+            "group": "autoscaling",
+            "hookPhase": "Running",
+            "kind": "HorizontalPodAutoscaler",
+            "message": "horizontalpodautoscaler.autoscaling/backend configured. Warning: resource horizontalpodautoscalers/backend is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by  apply.  apply should only be used on resources created declaratively by either  create --save-config or  apply. The missing annotation will be patched automatically.",
+            "name": "backend",
+            "namespace": "capstone-oct7",
+            "status": "Synced",
+            "syncPhase": "Sync",
+            "version": "v2"
+          }
+        ],
+        "revision": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+        "source": {
+          "helm": {
+            "releaseName": "taskboard",
+            "valuesObject": {
+              "backend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-backend",
+                  "tag": "local"
+                }
+              },
+              "frontend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-frontend",
+                  "tag": "local"
+                }
+              }
+            }
+          },
+          "path": "final-devops-project/helm/taskboard",
+          "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+          "targetRevision": "main"
+        }
+      }
+    },
+    "reconciledAt": "2026-10-07T18:09:05Z",
+    "resourceHealthSource": "appTree",
+    "resources": [
+      {
+        "kind": "ConfigMap",
+        "name": "taskboard-config",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "version": "v1"
+      },
+      {
+        "kind": "Service",
+        "name": "backend",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "version": "v1"
+      },
+      {
+        "kind": "Service",
+        "name": "frontend",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "version": "v1"
+      },
+      {
+        "kind": "Service",
+        "name": "postgres",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "version": "v1"
+      },
+      {
+        "group": "apps",
+        "kind": "Deployment",
+        "name": "backend",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "syncWave": 2,
+        "version": "v1"
+      },
+      {
+        "group": "apps",
+        "kind": "Deployment",
+        "name": "frontend",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "syncWave": 2,
+        "version": "v1"
+      },
+      {
+        "group": "apps",
+        "kind": "StatefulSet",
+        "name": "postgres",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "version": "v1"
+      },
+      {
+        "group": "autoscaling",
+        "kind": "HorizontalPodAutoscaler",
+        "name": "backend",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "syncWave": 3,
+        "version": "v2"
+      }
+    ],
+    "sourceHydrator": {},
+    "sourceType": "Helm",
+    "summary": {},
+    "sync": {
+      "comparedTo": {
+        "destination": {
+          "namespace": "capstone-oct7",
+          "server": "https://kubernetes.default.svc"
+        },
+        "source": {
+          "helm": {
+            "releaseName": "taskboard",
+            "valuesObject": {
+              "backend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-backend",
+                  "tag": "local"
+                }
+              },
+              "frontend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-frontend",
+                  "tag": "local"
+                }
+              }
+            }
+          },
+          "path": "final-devops-project/helm/taskboard",
+          "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+          "targetRevision": "main"
+        }
+      },
+      "revision": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+      "status": "Synced"
+    }
+  }
+}

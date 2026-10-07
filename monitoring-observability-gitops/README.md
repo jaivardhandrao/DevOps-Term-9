@@ -4,17 +4,21 @@
 
 This submission connects monitoring to the [TaskBoard final project](../final-devops-project/). The executable monitoring stack, dashboard and alert rules are in [monitoring](../final-devops-project/monitoring/); the GitOps definitions and reconciliation instructions are in [gitops](../final-devops-project/gitops/).
 
-**Verified on October 7:** the monitoring stack is running, Grafana's seven-panel dashboard is provisioned, and missing-application alerts fire. [Actual evidence](../final-devops-project/monitoring/evidence/2026-10-07/README.md) records the unavailable application target. Full application telemetry, recovery and GitOps reconciliation remain pending.
+**Verified on October 7:** the deployed TaskBoard produces real CPU, memory, HTTP and latency metrics, with scrape health and database readiness both `1`. A controlled routing fault produced HTTP 502 and a firing readiness alert; correction restored HTTP 200 and cleared alerts. [Runtime evidence and the genuine browser dashboard](../final-devops-project/monitoring/evidence/2026-10-07-completed/README.md) record the results. Argo CD reached Synced/Healthy from `main` and automatically repaired deliberate ConfigMap drift, with [the exact Git revision and timeline](../final-devops-project/gitops/README.md).
+
+![Actual TaskBoard metrics and corrected memory thresholds in Grafana](../final-devops-project/monitoring/evidence/2026-10-07-completed/grafana.jpg)
+
+This is a genuine browser capture from the local cluster. The [earlier image](../final-devops-project/monitoring/evidence/2026-10-07-completed/grafana-before-threshold-fix.jpg) preserves a display bug: Grafana’s inherited raw-byte threshold colored normal RSS red. Explicit byte thresholds corrected that presentation; actual alert/recovery output is linked below.
 
 ## Monitoring demonstration
 
 Prometheus records API request count, error responses, request-duration buckets, process CPU seconds, resident memory and scrape health. A separate HTTP blackbox probe checks `/ready`, including PostgreSQL connectivity and the migrated tasks table. Grafana provisions a dashboard for availability, readiness, CPU, memory, traffic, latency and firing alerts. The stack runs on ClusterIP services with laptop access through loopback port-forwards.
 
-CPU rate (`rate(process_cpu_seconds_total[1m])`) measures cores used by the API process; memory (`process_resident_memory_bytes`) measures its resident bytes. These are process measurements, not full-node resource usage. Use `kubectl top pods` to compare container CPU/memory from metrics-server and inspect HPA.
+CPU rate (`rate(process_cpu_seconds_total[1m])`) measures cores used by the API process; memory (`process_resident_memory_bytes`) measures its resident bytes. These are process measurements, not full-node resource usage. Use `kubectl top pods` to compare container CPU/memory from metrics-server and inspect HPA. The dashboard RSS warning thresholds are explicit bytes: yellow at the 128 MiB Pod request, red at 90% of the 256 MiB limit. RSS is not total container memory, so this is an early warning rather than an OOM prediction.
 
 Logs are available through `kubectl logs deployment/backend`. A failing request is investigated by matching its timestamp/status with request logs, readiness, Service endpoints and database Pod status. There is no notification receiver, so a firing alert does not email or message anyone.
 
-The [controlled selector-fault runbook](../final-devops-project/troubleshooting/README.md) breaks backend routing, captures the resulting alert and restores the selector. Runtime evidence, when collected, belongs beside that runbook or in the root evidence directory; configuration alone is not a successful-demo claim.
+The [controlled selector-fault runbook](../final-devops-project/troubleshooting/README.md) breaks backend routing, captures the resulting alert and restores the selector. [Saved fault and recovery evidence](../final-devops-project/troubleshooting/evidence/2026-10-07/README.md) includes the actual HTTP response, EndpointSlices and alert state. Metrics scraping can remain up through an existing TCP connection while new requests fail, so the independent readiness probe is essential.
 
 ## Observability concepts
 

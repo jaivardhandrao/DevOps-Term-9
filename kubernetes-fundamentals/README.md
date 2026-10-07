@@ -2,7 +2,7 @@
 
 - **Name:** Jaivardhan D. Rao
 - **Enrollment number:** 24BCS10117
-- **Status:** October 7 live checks passed: Ready node, CoreDNS, default ServiceAccount, ready client and healthy system Pods. New Terminal screenshot pending; September screenshot retained as history.
+- **Status:** October 7 live checks passed: Ready node, CoreDNS, default ServiceAccount, ready client and healthy system Pods. The genuine September node/client screenshot is retained as historical evidence; the new run has command transcripts.
 
 Kubernetes reconciles the desired state declared in API objects with the containers actually
 running on worker nodes. For example, a Deployment requesting three replicas gives controllers
@@ -74,6 +74,23 @@ completed checks on the isolated `devops-oct7` cluster. This was an agent-execut
 Kubernetes and kubectl v1.34.0. See the [October evidence inventory](../evidence/october-7/README.md)
 for scope and remaining screenshots. The example commands above use a separate `devops-coursework`
 profile; the transcript identifies the profile actually used.
+
+### Current live observation
+
+The [current-state transcript](../evidence/october-7/session-9/current-state.txt)
+was captured by executing fresh commands against `devops-oct7` on October 7. It shows
+the Ready node, current system Pods, the default ServiceAccount and ready DNS client.
+Client restart counts are preserved in the output; the observer does not reset them.
+
+To print a fresh view for native Terminal capture, run from the repository root with
+`LAB_KUBECONFIG` set to the isolated lab kubeconfig:
+
+```bash
+python3 evidence/october-7/live-verify.py 9 --kubeconfig "$LAB_KUBECONFIG" --context devops-oct7
+```
+
+The [observer](../evidence/october-7/live-verify.py) refuses a non-loopback API and
+never changes lab objects. Its output is current state, not a replay of September evidence.
 
 ### September historical evidence
 

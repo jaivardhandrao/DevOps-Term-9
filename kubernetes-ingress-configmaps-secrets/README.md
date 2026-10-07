@@ -2,7 +2,7 @@
 
 - **Name:** Jaivardhan D. Rao
 - **Enrollment number:** 24BCS10117
-- **Status:** October 7 live HTTP Ingress, ConfigMap reload, Secret presence and broken-route recovery checks passed. New Terminal screenshots and optional TLS remain pending.
+- **Status:** October 7 live HTTP Ingress, ConfigMap reload, Secret presence and broken-route recovery checks passed. A genuine current frontend browser screenshot is included. API and before/after troubleshooting screenshots remain pending; TLS is optional.
 
 Use the [local lab setup](../kubernetes-fundamentals/README.md#local-lab-setup). Run commands from
 this folder. The demo has an Nginx frontend and a small Python API. It does not connect to or
@@ -179,13 +179,47 @@ value, so check the bytes instead of guessing from a base64 suffix.
 
 ## Evidence, troubleshooting, and cleanup
 
+### Current live observation
+
+The [fresh current-state transcript](../evidence/october-7/session-12/current-state.txt)
+shows ready frontend/backend Deployments, ConfigMap and Secret metadata, current
+`environment=staging` and `secret_loaded=True`, and successful frontend/API responses
+through the Ingress controller. Secret values are never printed.
+
+For a fresh native Terminal view, run from the repository root with `LAB_KUBECONFIG`
+set to the isolated lab kubeconfig:
+
+```bash
+python3 evidence/october-7/live-verify.py 12 --kubeconfig "$LAB_KUBECONFIG" --context devops-oct7
+```
+
+The observer creates its own temporary loopback port-forward with an automatically
+allocated port and stops only that process on exit. It changes no Kubernetes objects.
+These HTTP checks establish current HTTP Ingress behavior, not TLS or a new configuration
+change/restart/failure drill; those earlier transitions remain in the timestamped transcript.
+
+### Actual current HTTP frontend screenshot
+
+![Actual browser response from the session 12 frontend through HTTP Ingress](../evidence/october-7/screenshots/session-12-live-frontend.jpg)
+
+Captured on October 7 from the actual running Ingress route using a private loopback
+port-forward and a GET-only relay that supplies `Host: devops.test`. The relay passes the
+actual response bytes unchanged. The screenshot shows `Hello from DevOps session 12 frontend`;
+it does not show TLS, the API response or a before/after failure transition.
+
+Chrome reported `net::ERR_BLOCKED_BY_CLIENT` when opening the API route, so no API screenshot
+was produced. An ordinary HTTP header check returned 200 with `Content-Type: application/json`
+and no attachment header. No browser protection was bypassed, no response type or URL was
+rewritten, and no new Ingress fault was introduced. The temporary relay and its own
+port-forward were stopped. [Capture provenance and scope](../evidence/october-7/session-12/browser-capture.md).
+
 The [completed October 7 transcript](../evidence/october-7/session-12/20261007T102115Z.txt)
 records ConfigMap and Secret presence, frontend and API HTTP Ingress, configuration changing
 after a backend restart, a deliberately broken Ingress returning 503 followed by restored API
 traffic, and the public newline fixture. No Secret value is printed. The
 [October inventory](../evidence/october-7/README.md) preserves the failed attempts and explains
-the invalid-label correction and asynchronous endpoint propagation. New Terminal screenshots
-and optional TLS remain pending. See the [troubleshooting notes](troubleshooting.md).
+the invalid-label correction and asynchronous endpoint propagation. Before/after troubleshooting
+screenshots and optional TLS remain pending. See the [troubleshooting notes](troubleshooting.md).
 
 These historical September output images show the actual Docker containers and their HTTP responses.
 They do not prove Kubernetes configuration injection or Ingress routing.
@@ -197,7 +231,8 @@ They do not prove Kubernetes configuration injection or Ingress routing.
 [Raw logs and live Kubernetes screenshot instructions](../evidence/local-validation/README.md)
 
 The October transcript contains resource listings, non-sensitive configuration, HTTP routes
-and ConfigMap reload observations. Capture new screenshots and optional TLS responses separately.
+and ConfigMap reload observations. Capture the missing API/troubleshooting screenshots and any
+optional TLS responses separately.
 Do not capture the value of `DEMO_TOKEN`.
 For missing configuration, inspect Pod events and referenced object/key names. For routing
 failures, inspect the Ingress class, host/path, backend Service port, and ready EndpointSlices.

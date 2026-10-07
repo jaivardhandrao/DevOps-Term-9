@@ -16,3 +16,6 @@ The blackbox scrape target itself is `up`: Prometheus can reach the exporter. Th
 The captured runtime predates the file-only change disabling Grafana suggested plugin preinstallation and update/usage checks. That later environment change was not rolled out. It does not affect the captured dashboard or target results.
 
 Still pending: successful application metrics, CPU/memory workload observations, controlled alert recovery, Kubernetes capstone CRUD/persistence, and actual Argo CD Git reconciliation. No screenshot or execution output has been fabricated.
+
+
+This is the earlier capture. See [the completed application monitoring and recovery](../2026-10-07-completed/README.md) for the later verified state.

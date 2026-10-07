@@ -2,7 +2,7 @@
 
 - **Name:** Jaivardhan D. Rao
 - **Enrollment number:** 24BCS10117
-- **Status:** October 7 live checks passed for ReplicaSet replacement, all four deployment strategies, rollback and all 12 lifecycle/probe/init/sidecar/termination drills. New Terminal screenshots pending.
+- **Status:** October 7 live checks passed for ReplicaSet replacement, all four deployment strategies, rollback and all 12 lifecycle/probe/init/sidecar/termination drills. Required lifecycle and strategy screenshots remain pending.
 
 Complete the [local lab setup](../kubernetes-fundamentals/README.md#local-lab-setup) first.
 Run the following commands from this folder. Each exercise uses distinct labels so a standalone
@@ -132,6 +132,25 @@ HTTP responses from stable and canary Pods; recreate replacement; and all 12 lif
 probe, init, sidecar and termination drills, including the `cleanup-complete` log.
 These are agent-executed observations on `devops-oct7`, not expected output or native
 Terminal screenshots. See the [October inventory](../evidence/october-7/README.md).
+
+### Current live observation
+
+The [current-state transcript](../evidence/october-7/session-10/current-state.txt)
+shows current Deployment/ReplicaSet/DaemonSet/Pod readiness, retained rollout history,
+blue/green EndpointSlices, and fresh HTTP responses `Hello from v1` and `Hello from green`.
+This confirms the present restored/routed state. It does not recreate the earlier
+replacement, rollout, rollback, strategy switch or lifecycle transitions; those remain
+documented in the timestamped complete lab transcript above.
+
+For a fresh native Terminal view, run from the repository root with `LAB_KUBECONFIG`
+set to the isolated lab kubeconfig:
+
+```bash
+python3 evidence/october-7/live-verify.py 10 --kubeconfig "$LAB_KUBECONFIG" --context devops-oct7
+```
+
+The observer performs current reads and HTTP requests only; it does not repeat the
+mutating deployment or failure drills.
 
 ### September historical evidence
 

@@ -1,0 +1,37 @@
+{
+  "run_url": "https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37664321492",
+  "source_commit": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+  "captured_at_utc": "2026-10-07T18:14:55.121859+00:00",
+  "reports": [
+    {
+      "file": "backend-scan.json",
+      "raw_sha256": "ccc9c006d9c318a125a0e59999be7c9d837ac3dd52c0f49f37df901c48ff46e7",
+      "published_sha256": "37e4f533ceedda937e5d0ad542f45671fce278de520aee76671ac6baeda8674c",
+      "public_fingerprint_omitted": true
+    },
+    {
+      "file": "frontend-scan.json",
+      "raw_sha256": "6696cccd50a92ea04eb99eebfa7a71f294252a6ac4acc9094243310f3c2f5cd9",
+      "published_sha256": "6696cccd50a92ea04eb99eebfa7a71f294252a6ac4acc9094243310f3c2f5cd9",
+      "public_fingerprint_omitted": false
+    },
+    {
+      "file": "sast.json",
+      "raw_sha256": "82ebc3249589aac53c3d88d59b5b10ccf81fb0471715429828763e7d0a477c67",
+      "published_sha256": "82ebc3249589aac53c3d88d59b5b10ccf81fb0471715429828763e7d0a477c67",
+      "public_fingerprint_omitted": false
+    },
+    {
+      "file": "sca.json",
+      "raw_sha256": "a6bb250ab0a2eb3624bb01022932e0c6f746de2d2ad7330389e17180a61e6a03",
+      "published_sha256": "a6bb250ab0a2eb3624bb01022932e0c6f746de2d2ad7330389e17180a61e6a03",
+      "public_fingerprint_omitted": false
+    },
+    {
+      "file": "secrets.json",
+      "raw_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "published_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "public_fingerprint_omitted": false
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 {
   "uid": "taskboard",
-  "title": "TaskBoard · application health",
+  "title": "TaskBoard \u00b7 application health",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "timezone": "browser",
   "refresh": "5s",
   "time": {
@@ -61,7 +61,27 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "bytes"
+          "unit": "bytes",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 134217728
+              },
+              {
+                "color": "red",
+                "value": 241591910
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
         }
       },
       "targets": [
@@ -73,7 +93,8 @@
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
-      }
+      },
+      "description": "API process RSS. Yellow at the Pod memory request (128 MiB); red at 90% of its 256 MiB limit. RSS differs from total container memory and is an early warning, not an OOM prediction."
     },
     {
       "title": "Process CPU (cores)",

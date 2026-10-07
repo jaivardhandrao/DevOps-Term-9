@@ -2,7 +2,7 @@
 
 This submission implements a small Python HTTP application, persistent storage, CPU-based scaling and three health probes. It follows the session mini-project's two-to-five replica range and 50% CPU target, with smaller resource requests for a disposable local cluster.
 
-**Execution status (October 7, 2026): incomplete.** The four application routes passed a real local HTTP smoke check. The initial Kubernetes run stopped at its context guard before creating any workloads; after correcting the guard, automatic approval review rejected cluster execution. PVC persistence, HPA scale-up/down and the readiness failure exercise have therefore **not been observed**. See [the evidence inventory](evidence/README.md). The manifests and runner are prepared for an authorized rerun.
+**Execution status (October 7, 2026): practicals verified.** The authorized local run demonstrated PVC persistence after Pod replacement, both volume examples, Service HTTP access, real CPU load, HPA scaling **2 → 5 → 2**, and readiness removal/recovery. The initial three-minute scale-down observer timed out; the unchanged HPA later reduced replicas automatically, verified in a separate follow-up record. All failed attempts remain preserved. Terminal screenshots are still blocked by the computer-use tool; no transcript has been rendered into a pretend screenshot. See [the evidence inventory](evidence/README.md).
 
 ## Files and architecture
 
@@ -21,7 +21,7 @@ Metrics Server -> CPU metrics -> HPA -> Deployment replica count
 - [hpa.yml](hpa.yml): `autoscaling/v2`, CPU utilization target 50%, minimum 2 and maximum 5 replicas.
 - [Load generator](load-generator.yaml): four request loops, resource limits, maximum lifetime 240 seconds.
 - [Lab driver](run-lab.py): context guard, command/output capture, persistence and scaling assertions.
-- [Initial guarded execution record](evidence/storage-run.txt) and [HTTP smoke check](evidence/http-smoke.txt). These are agent-operated terminal outputs, not a claim that the student manually ran them.
+- [Actual storage/HPA/probe run](evidence/storage-run.txt), [automatic scale-down follow-up](evidence/scale-down-follow-up.txt), and [HTTP smoke check](evidence/http-smoke.txt). These are agent-operated terminal outputs, not a claim that the student manually ran them.
 
 ## Reproduce
 
@@ -48,7 +48,7 @@ It stops only its `advanced-load` Job, tests a controlled readiness failure, res
 
 CPU utilization is relative to the CPU **request**, not the limit or whole node. A 25m request and 50% target means the target is approximately 12.5m per Pod. `/work` performs PBKDF2 computation so HTTP load measurably consumes CPU. `/health` and `/ready` remain cheap. The Pod limit is 200m; five app Pods are capped at one CPU collectively. HPA needs a working metrics API and must tolerate its initial sampling delay.
 
-The 60-second scale-down stabilization window is intentionally shorter than the common five-minute default for this lab. Scaling is sampled, so observations vary with metrics timing; the evidence records actual values rather than promised percentages.
+The 60-second scale-down stabilization window is intentionally shorter than the common five-minute default for this lab. Scaling is sampled, so observations vary with metrics timing; the evidence records actual values rather than promised percentages. This run reached 178% CPU when scale-up was observed and later sampled 478% while metrics caught up. After the load Job was deleted, fresh metrics and the recommendation window took longer than the original three-minute observation limit. The follow-up recorded 8% CPU, two Ready Pods, and controller events for both automatic resizes. The replay driver now allows six minutes for observation; it never forces the replica count to make a test pass.
 
 | Probe | Purpose | Failure behavior in this app |
 |---|---|---|
@@ -62,7 +62,9 @@ The mini-project shares one ReadWriteOnce PVC across replicas **only on this sin
 
 ## Validation status
 
-The dated [execution record](evidence/storage-run.txt) shows the initial guard failure; it is not persistence or autoscaling evidence. Those runtime requirements remain incomplete until a complete successful lab record is captured. No screenshot has been synthesized from expected output.
+The [execution record](evidence/storage-run.txt) shows the persistent marker on replacement Pods, `ephemeral` and `node-local` volume contents, successful HTTP access, HPA growth to five Ready replicas, and a deliberately unready Pod with EndpointSlice `ready: false`. Removing the marker restored readiness. The [follow-up](evidence/scale-down-follow-up.txt) establishes automatic return to two Ready replicas. The final assertion of the original run timed out; that failure has not been relabeled as a successful single run.
+
+The first newly authorized attempt also found an ordering bug: applying a directory attempted ConfigMap/Deployment creation before its namespace. The driver now creates the namespace explicitly first. [That failed attempt](evidence/storage-namespace-order-failure.txt) and [the earlier context-guard record](evidence/storage-initial-context-guard.txt) remain available. No screenshot has been synthesized from expected output.
 
 ## References
 

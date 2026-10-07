@@ -1,0 +1,4 @@
+NAME                       CPU(cores)   MEMORY(bytes)   
+backend-7b7756fdb6-dvwwg   9m           62Mi            
+frontend-9b58d55b9-6xm8s   1m           12Mi            
+postgres-0                 10m          30Mi            

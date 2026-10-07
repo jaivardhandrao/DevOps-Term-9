@@ -1,0 +1,289 @@
+{
+  "capturedAt": "2026-10-07T18:24:05.387690+00:00",
+  "spec": {
+    "destination": {
+      "namespace": "capstone-oct7",
+      "server": "https://kubernetes.default.svc"
+    },
+    "project": "taskboard",
+    "source": {
+      "helm": {
+        "releaseName": "taskboard",
+        "valuesObject": {
+          "backend": {
+            "image": {
+              "pullPolicy": "Never",
+              "repository": "taskboard-backend",
+              "tag": "local"
+            }
+          },
+          "frontend": {
+            "image": {
+              "pullPolicy": "Never",
+              "repository": "taskboard-frontend",
+              "tag": "local"
+            }
+          }
+        }
+      },
+      "path": "final-devops-project/helm/taskboard",
+      "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+      "targetRevision": "main"
+    },
+    "syncPolicy": {
+      "automated": {
+        "allowEmpty": false,
+        "enabled": true,
+        "prune": false,
+        "selfHeal": true
+      },
+      "retry": {
+        "backoff": {
+          "duration": "5s",
+          "factor": 2,
+          "maxDuration": "30s"
+        },
+        "limit": 3
+      }
+    }
+  },
+  "status": {
+    "controllerNamespace": "monitoring-oct7",
+    "health": {
+      "lastTransitionTime": "2026-10-07T18:11:49Z",
+      "status": "Healthy"
+    },
+    "history": [
+      {
+        "deployStartedAt": "2026-10-07T18:06:34Z",
+        "deployedAt": "2026-10-07T18:06:54Z",
+        "id": 0,
+        "initiatedBy": {
+          "automated": true
+        },
+        "revision": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+        "source": {
+          "helm": {
+            "releaseName": "taskboard",
+            "valuesObject": {
+              "backend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-backend",
+                  "tag": "local"
+                }
+              },
+              "frontend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-frontend",
+                  "tag": "local"
+                }
+              }
+            }
+          },
+          "path": "final-devops-project/helm/taskboard",
+          "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+          "targetRevision": "main"
+        }
+      }
+    ],
+    "operationState": {
+      "finishedAt": "2026-10-07T18:19:47Z",
+      "message": "successfully synced (all tasks run)",
+      "operation": {
+        "initiatedBy": {
+          "automated": true
+        },
+        "retry": {
+          "backoff": {
+            "duration": "5s",
+            "factor": 2,
+            "maxDuration": "30s"
+          },
+          "limit": 3
+        },
+        "sync": {
+          "autoHealAttemptsCount": 2,
+          "resources": [
+            {
+              "kind": "Service",
+              "name": "backend"
+            }
+          ],
+          "revision": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+          "source": {
+            "helm": {
+              "releaseName": "taskboard",
+              "valuesObject": {
+                "backend": {
+                  "image": {
+                    "pullPolicy": "Never",
+                    "repository": "taskboard-backend",
+                    "tag": "local"
+                  }
+                },
+                "frontend": {
+                  "image": {
+                    "pullPolicy": "Never",
+                    "repository": "taskboard-frontend",
+                    "tag": "local"
+                  }
+                }
+              }
+            },
+            "path": "final-devops-project/helm/taskboard",
+            "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+            "targetRevision": "main"
+          }
+        }
+      },
+      "phase": "Succeeded",
+      "startedAt": "2026-10-07T18:19:46Z",
+      "syncResult": {
+        "resources": [
+          {
+            "group": "",
+            "hookPhase": "Running",
+            "kind": "Service",
+            "message": "service/backend unchanged",
+            "name": "backend",
+            "namespace": "capstone-oct7",
+            "status": "Synced",
+            "syncPhase": "Sync",
+            "version": "v1"
+          }
+        ],
+        "revision": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+        "source": {
+          "helm": {
+            "releaseName": "taskboard",
+            "valuesObject": {
+              "backend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-backend",
+                  "tag": "local"
+                }
+              },
+              "frontend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-frontend",
+                  "tag": "local"
+                }
+              }
+            }
+          },
+          "path": "final-devops-project/helm/taskboard",
+          "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+          "targetRevision": "main"
+        }
+      }
+    },
+    "reconciledAt": "2026-10-07T18:23:05Z",
+    "resourceHealthSource": "appTree",
+    "resources": [
+      {
+        "kind": "ConfigMap",
+        "name": "taskboard-config",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "version": "v1"
+      },
+      {
+        "kind": "Service",
+        "name": "backend",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "version": "v1"
+      },
+      {
+        "kind": "Service",
+        "name": "frontend",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "version": "v1"
+      },
+      {
+        "kind": "Service",
+        "name": "postgres",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "version": "v1"
+      },
+      {
+        "group": "apps",
+        "kind": "Deployment",
+        "name": "backend",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "syncWave": 2,
+        "version": "v1"
+      },
+      {
+        "group": "apps",
+        "kind": "Deployment",
+        "name": "frontend",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "syncWave": 2,
+        "version": "v1"
+      },
+      {
+        "group": "apps",
+        "kind": "StatefulSet",
+        "name": "postgres",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "version": "v1"
+      },
+      {
+        "group": "autoscaling",
+        "kind": "HorizontalPodAutoscaler",
+        "name": "backend",
+        "namespace": "capstone-oct7",
+        "status": "Synced",
+        "syncWave": 3,
+        "version": "v2"
+      }
+    ],
+    "sourceHydrator": {},
+    "sourceType": "Helm",
+    "summary": {},
+    "sync": {
+      "comparedTo": {
+        "destination": {
+          "namespace": "capstone-oct7",
+          "server": "https://kubernetes.default.svc"
+        },
+        "source": {
+          "helm": {
+            "releaseName": "taskboard",
+            "valuesObject": {
+              "backend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-backend",
+                  "tag": "local"
+                }
+              },
+              "frontend": {
+                "image": {
+                  "pullPolicy": "Never",
+                  "repository": "taskboard-frontend",
+                  "tag": "local"
+                }
+              }
+            }
+          },
+          "path": "final-devops-project/helm/taskboard",
+          "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+          "targetRevision": "main"
+        }
+      },
+      "revision": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+      "status": "Synced"
+    }
+  }
+}

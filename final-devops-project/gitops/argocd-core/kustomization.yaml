@@ -4,6 +4,14 @@ namespace: monitoring-oct7
 resources:
   - https://raw.githubusercontent.com/argoproj/argo-cd/v3.5.4/manifests/core-install.yaml
 patches:
+  # Upstream pins this subject to argocd; Kustomize does not rewrite it here.
+  - target:
+      kind: ClusterRoleBinding
+      name: argocd-application-controller
+    patch: |-
+      - op: replace
+        path: /subjects/0/namespace
+        value: monitoring-oct7
   - target:
       kind: Deployment
       name: argocd-applicationset-controller

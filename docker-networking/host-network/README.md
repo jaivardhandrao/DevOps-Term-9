@@ -13,3 +13,7 @@ This behaves most directly on Linux, where `curl http://localhost:80` can be use
 Docker Desktop must have host-network forwarding enabled for that exact macOS/Windows host test.
 The second host-network container still verifies the shared Docker host namespace without changing
 that global setting. The result is in [verification.txt](verification.txt).
+
+## Current verification boundary
+
+The [7 October isolated runner](../evidence/live-20261007T181301Z.txt) found macOS port 80 unavailable and skipped starting a fresh host-network Apache listener. It did not stop an existing service or change Docker Desktop forwarding. The older transcript above proves the shared Docker Linux host namespace only; it is not evidence that macOS `localhost:80` worked. A direct macOS-host port-80 result and a corresponding screenshot remain outstanding.

@@ -1,0 +1,59 @@
+Actual scale-down follow-up at 2026-10-07T18:01:56.024659+00:00
+The original three-minute observation ended before scale-down; this read-only follow-up checks the subsequent state without changing HPA or replicas.
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/kubectl --context devops-oct7 -n devops-advanced get hpa
+NAME           REFERENCE                 TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+advanced-web   Deployment/advanced-web   cpu: 8%/50%   2         5         2          9m30s
+exit=0
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/kubectl --context devops-oct7 -n devops-advanced get pods -l app=advanced-web
+NAME                            READY   STATUS    RESTARTS   AGE
+advanced-web-685f6dddf8-j54bl   1/1     Running   0          9m30s
+advanced-web-685f6dddf8-tmntj   1/1     Running   0          8m4s
+exit=0
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/kubectl --context devops-oct7 -n devops-advanced top pods -l app=advanced-web
+NAME                            CPU(cores)   MEMORY(bytes)   
+advanced-web-685f6dddf8-j54bl   2m           11Mi            
+advanced-web-685f6dddf8-tmntj   2m           11Mi
+exit=0
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/kubectl --context devops-oct7 -n devops-advanced describe hpa advanced-web
+Name:                                                  advanced-web
+Namespace:                                             devops-advanced
+Labels:                                                <none>
+Annotations:                                           <none>
+CreationTimestamp:                                     Wed, 07 Oct 2026 23:22:26 +0530
+Reference:                                             Deployment/advanced-web
+Metrics:                                               ( current / target )
+  resource cpu on pods  (as a percentage of request):  8% (2m) / 50%
+Min replicas:                                          2
+Max replicas:                                          5
+Behavior:
+  Scale Up:
+    Stabilization Window: 0 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Pods     Value: 4    Period: 15 seconds
+      - Type: Percent  Value: 100  Period: 15 seconds
+  Scale Down:
+    Stabilization Window: 60 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Percent  Value: 100  Period: 15 seconds
+Deployment pods:       2 current / 2 desired
+Conditions:
+  Type            Status  Reason            Message
+  ----            ------  ------            -------
+  AbleToScale     True    ReadyForNewScale  recommended size matches current size
+  ScalingActive   True    ValidMetricFound  the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)
+  ScalingLimited  True    TooFewReplicas    the desired replica count is less than the minimum replica count
+Events:
+  Type     Reason                        Age                    From                       Message
+  ----     ------                        ----                   ----                       -------
+  Warning  FailedGetResourceMetric       8m30s (x4 over 9m15s)  horizontal-pod-autoscaler  failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Warning  FailedComputeMetricsReplicas  8m30s (x4 over 9m15s)  horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Warning  FailedGetResourceMetric       7m30s (x4 over 8m15s)  horizontal-pod-autoscaler  failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+  Warning  FailedComputeMetricsReplicas  7m30s (x4 over 8m15s)  horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+  Normal   SuccessfulRescale             6m14s                  horizontal-pod-autoscaler  New size: 5; reason: cpu resource utilization (percentage of request) above target
+  Normal   SuccessfulRescale             2m29s                  horizontal-pod-autoscaler  New size: 2; reason: All metrics below target
+exit=0
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/kubectl --context devops-oct7 -n devops-advanced get deployment advanced-web -o 'jsonpath={.spec.replicas} {.status.readyReplicas}'
+2 2
+exit=0

@@ -1,0 +1,126 @@
+Jaivardhan D. Rao | 24BCS10117 | LIVE linux coursework
+Started UTC: 2026-10-07T17:59:03.711856+00:00
+Only new task-owned resources are used; no saved output is replayed.
+
+$ docker build --quiet -t devops-term9-foundation-lab:20261007 /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/linux-fundamentals/evidence
+sha256:a2452426dd83447387b8239d8a1dce55aa17241ec20baa4b2c87124eb87f34df
+[exit 0]
+
+$ docker run --name term9-evidence-648f8b791e-linux --label devops.coursework.run=term9-evidence-648f8b791e --rm -i --network none devops-term9-foundation-lab:20261007 bash -s
++ printf '\n== Links ==\n'
++ mkdir links
+
+== Links ==
++ printf 'link exercise\n'
++ ln links/original links/hard
++ ln -s original links/soft
++ ls -li links
+total 8
+310622 -rw-r--r-- 2 root root 14 Oct  7 17:59 hard
+310622 -rw-r--r-- 2 root root 14 Oct  7 17:59 original
+310623 lrwxrwxrwx 1 root root  8 Oct  7 17:59 soft -> original
+++ stat -c %i links/original
+++ stat -c %i links/hard
++ test 310622 = 310622
++ rm links/original
++ cat links/hard
+link exercise
++ test -L links/soft
++ test '!' -e links/soft
++ printf 'PASS: hard link survives deletion; symbolic link is dangling\n'
++ rm links/hard links/soft
+PASS: hard link survives deletion; symbolic link is dangling
++ rmdir links
++ printf '\n== Disposable-container user only ==\n'
++ adduser --disabled-password --gecos 'Coursework demonstration' courseworkdemo
+
+== Disposable-container user only ==
+info: Adding user `courseworkdemo' ...
+info: Selecting UID/GID from range 1000 to 59999 ...
+info: Adding new group `courseworkdemo' (1001) ...
+info: Adding new user `courseworkdemo' (1001) with group `courseworkdemo (1001)' ...
+info: Creating home directory `/home/courseworkdemo' ...
+info: Copying files from `/etc/skel' ...
+info: Adding new user `courseworkdemo' to supplemental / extra groups `users' ...
+info: Adding user `courseworkdemo' to group `users' ...
++ id courseworkdemo
+uid=1001(courseworkdemo) gid=1001(courseworkdemo) groups=1001(courseworkdemo),100(users)
++ getent passwd courseworkdemo
+courseworkdemo:x:1001:1001:Coursework demonstration,,,:/home/courseworkdemo:/bin/bash
++ deluser courseworkdemo
+warn: `/usr/bin/crontab' not executed. Skipping crontab removal. Package `cron' required.
+info: Removing user `courseworkdemo' ...
++ rm -r /home/courseworkdemo
++ getent passwd courseworkdemo
++ printf 'PASS: temporary container account removed; host accounts unchanged\n'
+PASS: temporary container account removed; host accounts unchanged
+
+== Files, search, archives, identity, disk and processes ==
+/lab
++ printf '\n== Files, search, archives, identity, disk and processes ==\n'
++ pwd
++ mkdir files
++ printf 'hello students\n'
++ cp files/notes.txt files/copied.txt
++ mv files/copied.txt files/moved.txt
++ ls -la files
+total 16
+drwxr-xr-x 2 root root 4096 Oct  7 17:59 .
+drwxr-xr-x 1 root root 4096 Oct  7 17:59 ..
+-rw-r--r-- 1 root root   15 Oct  7 17:59 moved.txt
+-rw-r--r-- 1 root root   15 Oct  7 17:59 notes.txt
++ grep -n students files/notes.txt
+1:hello students
++ head -n 1 files/notes.txt
+hello students
++ tar -czf notes.tar.gz files
++ tar -tzf notes.tar.gz
+files/
+files/notes.txt
+files/moved.txt
++ file notes.tar.gz
+notes.tar.gz: gzip compressed data, from Unix, original size modulo 2^32 10240
++ whoami
+root
++ id
+uid=0(root) gid=0(root) groups=0(root)
++ df -h /lab
+Filesystem      Size  Used Avail Use% Mounted on
+overlay         251G   24G  215G  11% /
++ free -h
+               total        used        free      shared  buff/cache   available
+Mem:            13Gi       3.8Gi       332Mi        54Mi       9.8Gi       9.9Gi
+Swap:          4.0Gi          0B       4.0Gi
++ ps -eo pid,ppid,user,comm
+    PID    PPID USER     COMMAND
+      1       0 root     bash
+     86       1 root     ps
+
+== Container application journal ==
++ printf '\n== Container application journal ==\n'
++ mkdir -p /run/systemd/journal
++ journal_pid=88
++ /usr/lib/systemd/systemd-journald
++ sleep 1
++ printf 'Started isolated coursework application\n'
++ systemd-cat -t coursework-demo
++ printf 'Application health check succeeded\n'
++ systemd-cat -t coursework-demo
++ sleep 1
++ journalctl --no-pager -t coursework-demo -n 5
+Oct 07 17:59:30 905661c70787 coursework-demo[91]: Started isolated coursework application
+Oct 07 17:59:30 905661c70787 coursework-demo[93]: Application health check succeeded
++ journalctl --no-pager -u coursework-demo.service -n 5
+-- No entries --
++ journalctl --disk-usage
+Archived and active journals take up 8.0M in the file system.
++ kill 88
+LIMIT: systemd is not PID 1; these are real tagged application entries, not a systemd-managed service.
++ printf 'LIMIT: systemd is not PID 1; these are real tagged application entries, not a systemd-managed service.\n'
+[exit 0]
+
+LIVE OBSERVATIONS
+- Hard/soft links and disposable Ubuntu user lifecycle verified.
+- Real application-tagged journal captured. A systemd-managed service is not claimed.
+Raw output: linux-fundamentals/evidence/live-20261007T175903Z.txt
+Cleanup finished for this run's exact container/network/image names and scratch directory.

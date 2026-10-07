@@ -1,0 +1,41 @@
+LIVE session 10 (resources) | 2026-10-07T17:53:39.814089+00:00
+KUBECONFIG=/Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/kube/config
+Context=devops-oct7; namespace=devops-homework; API=https://127.0.0.1:55923
+Current observations only. Earlier rollout/failure transitions remain in the timestamped lab logs.
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework get deployment core-web web-blue web-green web-stable web-canary recreate-web
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+core-web       3/3     3            3           7h39m
+web-blue       2/2     2            2           7h37m
+web-green      2/2     2            2           7h37m
+web-stable     3/3     3            3           7h37m
+web-canary     1/1     1            1           7h37m
+recreate-web   2/2     2            2           7h37m
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework get replicaset/replica-web daemonset/node-agent pod/standalone-web
+NAME                          DESIRED   CURRENT   READY   AGE
+replicaset.apps/replica-web   3         3         3       7h39m
+
+NAME                        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+daemonset.apps/node-agent   1         1         1       1            1           <none>          7h39m
+
+NAME                 READY   STATUS    RESTARTS   AGE
+pod/standalone-web   1/1     Running   0          7h39m
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework rollout history deployment/core-web
+deployment.apps/core-web 
+REVISION  CHANGE-CAUSE
+2         <none>
+3         <none>
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework get endpointslices -l kubernetes.io/service-name=blue-green -o wide
+NAME               ADDRESSTYPE   PORTS   ENDPOINTS                 AGE
+blue-green-t7q9p   IPv4          80      10.244.0.30,10.244.0.29   7h37m
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework exec dns-client -- wget -T 5 -qO- http://core-web
+Hello from v1
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework exec dns-client -- wget -T 5 -qO- http://blue-green
+Hello from green
+
+LIVE session 10 (resources) CHECKS PASSED; no lab objects changed.

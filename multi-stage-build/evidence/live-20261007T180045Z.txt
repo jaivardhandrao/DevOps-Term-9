@@ -1,0 +1,54 @@
+Jaivardhan D. Rao | 24BCS10117 | LIVE multistage coursework
+Started UTC: 2026-10-07T18:00:45.380486+00:00
+Only new task-owned resources are used; no saved output is replayed.
+
+$ docker build --quiet -t term9-evidence-483e411dec-multistage:local /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/multi-stage-build
+sha256:7f4e1d071af2a072577ea83d4b68fbb601effa4520acf5506e7e0c0727b65dd9
+[exit 0]
+
+$ docker run --name term9-evidence-483e411dec-multistage --label devops.coursework.run=term9-evidence-483e411dec -d -p 127.0.0.1:8080:80 term9-evidence-483e411dec-multistage:local
+4d348f55a9dd526c3141c15fd40187698a5620a0e63b349117d2f943cd58bc4a
+[exit 0]
+
+$ docker port term9-evidence-483e411dec-multistage 80/tcp
+127.0.0.1:8080
+[exit 0]
+
+$ curl --fail --silent --show-error --max-time 3 http://127.0.0.1:8080
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-stage Docker Build</title>
+    <style>
+      :root { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #d7e2ea; background: #101820; }
+      body { min-height: 100vh; margin: 0; display: grid; place-items: center; }
+      main { width: min(42rem, calc(100vw - 4rem)); border: 1px solid #375265; padding: 3rem; background: #172630; }
+      small { color: #7dd3a8; }
+      h1 { margin: 0.8rem 0; font-size: clamp(2rem, 7vw, 4rem); line-height: 1.05; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <small>builder: Node.js / runtime: Nginx</small>
+      <h1>Hello World from Docker multi-stage build</h1>
+      <p>The build tools stay in stage one; only the static output reaches this image.</p>
+    </main>
+  </body>
+</html>
+[exit 0]
+
+$ docker ps --filter 'name=^/term9-evidence-483e411dec-multistage$' --format 'table {{.Names}}	{{.Status}}	{{.Ports}}'
+NAMES                                  STATUS                  PORTS
+term9-evidence-483e411dec-multistage   Up Less than a second   127.0.0.1:8080->80/tcp
+[exit 0]
+
+$ docker exec term9-evidence-483e411dec-multistage sh -c 'test ! -e /usr/local/bin/node && test ! -d /app/node_modules && echo '"'"'PASS: Nginx runtime has no Node build toolchain'"'"''
+PASS: Nginx runtime has no Node build toolchain
+[exit 0]
+
+LIVE OBSERVATIONS
+- Exact required heading served on 127.0.0.1:8080; docker ps confirmed the mapping.
+Raw output: multi-stage-build/evidence/live-20261007T180045Z.txt
+Cleanup finished for this run's exact container/network/image names and scratch directory.

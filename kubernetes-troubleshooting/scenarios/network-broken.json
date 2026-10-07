@@ -21,13 +21,25 @@
         ],
         "resources": {
           "requests": {
-            "cpu": "5m",
-            "memory": "8Mi"
+            "cpu": "10m",
+            "memory": "16Mi"
           },
           "limits": {
-            "cpu": "50m",
-            "memory": "32Mi"
+            "cpu": "100m",
+            "memory": "64Mi"
           }
+        },
+        "startupProbe": {
+          "exec": {
+            "command": [
+              "python",
+              "-c",
+              "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080', timeout=2).close()"
+            ]
+          },
+          "periodSeconds": 2,
+          "timeoutSeconds": 5,
+          "failureThreshold": 30
         }
       }
     ]

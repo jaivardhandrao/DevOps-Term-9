@@ -1,0 +1,18 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "instance": "backend.capstone-oct7.svc.cluster.local:8000",
+          "job": "taskboard"
+        },
+        "value": [
+          1791396703.053,
+          "0.006908965291540152"
+        ]
+      }
+    ]
+  }
+}

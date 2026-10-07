@@ -1,0 +1,85 @@
+Jaivardhan D. Rao | 24BCS10117 | LIVE docker-networking coursework
+Started UTC: 2026-10-07T18:01:06.763059+00:00
+Only new task-owned resources are used; no saved output is replayed.
+
+$ docker network create --label devops.coursework.run=term9-evidence-fdb9e368c0 term9-evidence-fdb9e368c0-front
+ccba800fde5f7abd8b98f388cfa6c5a5ccc3f7ba991e4d492de411b834fc4c20
+[exit 0]
+
+$ docker network create --label devops.coursework.run=term9-evidence-fdb9e368c0 term9-evidence-fdb9e368c0-app
+2d72ebc2e4f3766a990fe03ec4d9acbe9265b9697000fc27c9be896ebb38c2a0
+[exit 0]
+
+$ docker network create --label devops.coursework.run=term9-evidence-fdb9e368c0 term9-evidence-fdb9e368c0-db
+3c46c419303424b58d86456e2f90d07ede74f60e99c35148f4c1b335319cbb0c
+[exit 0]
+
+$ docker run --name term9-evidence-fdb9e368c0-frontend --label devops.coursework.run=term9-evidence-fdb9e368c0 -d --network term9-evidence-fdb9e368c0-front alpine:3.20 sleep 600
+Unable to find image 'alpine:3.20' locally
+3.20: Pulling from library/alpine
+3f26bc2dec0b: Pulling fs layer
+3f26bc2dec0b: Download complete
+3f26bc2dec0b: Pull complete
+8b093306b817: Download complete
+cee42a41056b: Download complete
+Digest: sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc
+Status: Downloaded newer image for alpine:3.20
+c96afa2cf0b531fc572e29b2d29fca0f5771696612457bc8bb61170c912fc164
+[exit 0]
+
+$ docker network connect term9-evidence-fdb9e368c0-app term9-evidence-fdb9e368c0-frontend
+[exit 0]
+
+$ docker run --name term9-evidence-fdb9e368c0-backend --label devops.coursework.run=term9-evidence-fdb9e368c0 -d --network term9-evidence-fdb9e368c0-app --network-alias backend alpine:3.20 sh -c 'mkdir -p /www; printf '"'"'Hello from the backend container\n'"'"' >/www/index.html; exec httpd -f -p 8080 -h /www'
+ed6779cd98786df4a81fbf5e8281c6e9af568cfd329e801746dbefcaff4edd7a
+[exit 0]
+
+$ docker network connect term9-evidence-fdb9e368c0-db term9-evidence-fdb9e368c0-backend
+[exit 0]
+
+$ docker run --name term9-evidence-fdb9e368c0-database --label devops.coursework.run=term9-evidence-fdb9e368c0 -d --network term9-evidence-fdb9e368c0-db --network-alias database --tmpfs /var/lib/mysql -e MYSQL_RANDOM_ROOT_PASSWORD=yes mysql:8.4
+Unable to find image 'mysql:8.4' locally
+8.4: Pulling from library/mysql
+c39e7994a8f2: Pulling fs layer
+a7411e35d6d4: Pulling fs layer
+f4aeb931cc30: Pulling fs layer
+674e0586d6a0: Pulling fs layer
+9caa8c3382dd: Pulling fs layer
+9d43d3bd420c: Pulling fs layer
+a9f1b48c6cb3: Pulling fs layer
+7c2e7d54e98e: Pulling fs layer
+6dddcbf9098d: Pulling fs layer
+0f6670c3ce31: Pulling fs layer
+6dddcbf9098d: Download complete
+097a02c958f8: Download complete
+c39e7994a8f2: Download complete
+674e0586d6a0: Download complete
+a9f1b48c6cb3: Download complete
+7c2e7d54e98e: Download complete
+f4aeb931cc30: Download complete
+9caa8c3382dd: Download complete
+a7411e35d6d4: Download complete
+674e0586d6a0: Pull complete
+f4aeb931cc30: Pull complete
+a7411e35d6d4: Pull complete
+6dddcbf9098d: Pull complete
+7c2e7d54e98e: Pull complete
+9caa8c3382dd: Pull complete
+1e6475e65a4b: Download complete
+9d43d3bd420c: Download complete
+a9f1b48c6cb3: Pull complete
+9d43d3bd420c: Pull complete
+0f6670c3ce31: Download complete
+c39e7994a8f2: Pull complete
+0f6670c3ce31: Pull complete
+Digest: sha256:6ea90827b1100f8f2ae306a539f86d2c264a26ed435a2a9f75551dd5c3aeb242
+Status: Downloaded newer image for mysql:8.4
+6e3d2e522f7ae5117e9b3294b183809210b90b533c475cd6f8033afbf1830a6b
+[exit 0]
+
+$ docker exec term9-evidence-fdb9e368c0-frontend wget -qO- http://backend:8080
+wget: bad address 'backend:8080'
+[exit 1]
+
+FAILED: Command exited 1: docker exec term9-evidence-fdb9e368c0-frontend wget -qO- http://backend:8080
+Cleanup finished for this run's exact container/network/image names and scratch directory.

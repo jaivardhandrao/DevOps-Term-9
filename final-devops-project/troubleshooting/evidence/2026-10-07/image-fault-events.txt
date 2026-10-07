@@ -1,0 +1,52 @@
+Name:             image-fault-5685644d85-8fsxr
+Namespace:        capstone-oct7
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 23:38:07 +0530
+Labels:           app=image-fault
+                  pod-template-hash=5685644d85
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.107
+IPs:
+  IP:           10.244.0.107
+Controlled By:  ReplicaSet/image-fault-5685644d85
+Containers:
+  frontend:
+    Container ID:   
+    Image:          taskboard-frontend:deliberately-missing
+    Image ID:       
+    Port:           <none>
+    Host Port:      <none>
+    State:          Waiting
+      Reason:       ErrImageNeverPull
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     100m
+      memory:  64Mi
+    Requests:
+      cpu:     5m
+      memory:  16Mi
+    Environment:
+      BACKEND_UPSTREAM:  backend:8000
+    Mounts:              <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:                      <none>
+QoS Class:                    Burstable
+Node-Selectors:               <none>
+Tolerations:                  node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason             Age              From               Message
+  ----     ------             ----             ----               -------
+  Normal   Scheduled          2s               default-scheduler  Successfully assigned capstone-oct7/image-fault-5685644d85-8fsxr to devops-oct7
+  Warning  ErrImageNeverPull  1s (x2 over 2s)  kubelet            Container image "taskboard-frontend:deliberately-missing" is not present with pull policy of Never
+  Warning  Failed             1s (x2 over 2s)  kubelet            Error: ErrImageNeverPull

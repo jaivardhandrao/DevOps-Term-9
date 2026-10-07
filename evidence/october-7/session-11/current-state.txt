@@ -1,0 +1,39 @@
+LIVE session 11 (resources) | 2026-10-07T17:54:12.923779+00:00
+KUBECONFIG=/Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/kube/config
+Context=devops-oct7; namespace=devops-homework; API=https://127.0.0.1:55923
+Current observations only. Earlier rollout/failure transitions remain in the timestamped lab logs.
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework get service web-clusterip web-nodeport web-loadbalancer external-docs web-headless
+NAME               TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)        AGE
+web-clusterip      ClusterIP      10.99.3.154    <none>          80/TCP         7h37m
+web-nodeport       NodePort       10.103.25.81   <none>          80:30081/TCP   7h37m
+web-loadbalancer   LoadBalancer   10.98.10.17    <pending>       80:30732/TCP   7h37m
+external-docs      ExternalName   <none>         kubernetes.io   <none>         7h37m
+web-headless       ClusterIP      None           <none>          80/TCP         7h37m
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework get statefulset/stateful-web pod/stateful-web-0 pod/stateful-web-1
+NAME                            READY   AGE
+statefulset.apps/stateful-web   2/2     7h37m
+
+NAME                 READY   STATUS    RESTARTS   AGE
+pod/stateful-web-0   1/1     Running   0          7h37m
+pod/stateful-web-1   1/1     Running   0          7h37m
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework get endpointslices -l kubernetes.io/service-name=web-clusterip -o wide
+NAME                  ADDRESSTYPE   PORTS   ENDPOINTS                             AGE
+web-clusterip-pnn77   IPv4          80      10.244.0.52,10.244.0.51,10.244.0.50   7h37m
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework exec dns-client -- wget -T 5 -qO- http://web-clusterip
+Hello from v1
+
+$ kubectl --context devops-oct7 --request-timeout=10s get node -o 'jsonpath={.items[0].status.addresses[?(@.type=="InternalIP")].address}'
+192.168.49.2
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework exec dns-client -- wget -T 5 -qO- http://192.168.49.2:30081
+Hello from v1
+
+$ kubectl --context devops-oct7 --request-timeout=10s -n devops-homework exec dns-client -- wget -T 5 -qO- http://web-loadbalancer
+Hello from v1
+LoadBalancer above is tested internally only; <pending> is not external/tunnel verification.
+
+LIVE session 11 (resources) CHECKS PASSED; no lab objects changed.

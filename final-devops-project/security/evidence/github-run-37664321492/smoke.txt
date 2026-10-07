@@ -1,0 +1,3 @@
+PASS: frontend HTML, proxy, liveness, database readiness and metrics
+PASS: create, list, read, update, statistics and invalid-input rejection
+PASS: delete and missing-task response; temporary task removed

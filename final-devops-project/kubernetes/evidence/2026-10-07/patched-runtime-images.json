@@ -1,0 +1,31 @@
+{
+  "capturedAt": "2026-10-07T18:13:03.950162+00:00",
+  "images": [
+    {
+      "component": "backend",
+      "pod": "backend-7b7756fdb6-dvwwg",
+      "runtimeImageID": "sha256:4a5ddecb0c92a40e48544a6e2fd6cb96a35090d058b203cdda62cb3b8ffd292c",
+      "ready": true,
+      "scanReport": "security/evidence/backend-image.json",
+      "scanImageID": "sha256:872f422299f6cdce80a5a2e74d0bc89243d6c5719527b9c9ebac2838afb39af0",
+      "scanRepoDigests": [
+        "taskboard-backend@sha256:872f422299f6cdce80a5a2e74d0bc89243d6c5719527b9c9ebac2838afb39af0"
+      ],
+      "highCriticalCount": 0,
+      "mappingEvidence": "application/evidence/patched-images-build-retry.txt (OCI index and config digest recorded by image build)"
+    },
+    {
+      "component": "frontend",
+      "pod": "frontend-9b58d55b9-6xm8s",
+      "runtimeImageID": "sha256:a7e099ed237cc096d0d3b5000670b5fde70d48a52309a4566092ba3649e9fdeb",
+      "ready": true,
+      "scanReport": "security/evidence/frontend-image.json",
+      "scanImageID": "sha256:7026b798efbe9b09bb301a97f208c355534280f7f9884a8ce558e07acc298897",
+      "scanRepoDigests": [
+        "taskboard-frontend@sha256:7026b798efbe9b09bb301a97f208c355534280f7f9884a8ce558e07acc298897"
+      ],
+      "highCriticalCount": 0,
+      "mappingEvidence": "application/evidence/patched-images-build-retry.txt (OCI index and config digest recorded by image build)"
+    }
+  ]
+}

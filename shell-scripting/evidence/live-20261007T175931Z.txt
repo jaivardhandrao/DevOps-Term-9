@@ -1,0 +1,41 @@
+Jaivardhan D. Rao | 24BCS10117 | LIVE shell coursework
+Started UTC: 2026-10-07T17:59:31.517255+00:00
+Only new task-owned resources are used; no saved output is replayed.
+
+$ docker build --quiet -t devops-term9-foundation-lab:20261007 /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/linux-fundamentals/evidence
+sha256:9056df0042a46b2d2ebc114bdc12a40ee09b8e65fe6473fabb98438be62a8708
+[exit 0]
+
+$ docker run --name term9-evidence-9d5e5beeaa-shell --label devops.coursework.run=term9-evidence-9d5e5beeaa --rm -i --network none --mount type=bind,src=/Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/shell-scripting/system-info.sh,dst=/coursework/system-info.sh,readonly devops-term9-foundation-lab:20261007 bash -euo pipefail -c 'printf '"'"'Jaivardhan D. Rao\n24BCS10117\n'"'"' | bash /coursework/system-info.sh; test -s system-report/processes.txt; test -s system-report/summary.txt; printf '"'"'\nPASS: both generated reports are nonempty\n'"'"''
+System information report
+Name: Jaivardhan D. Rao
+Enrollment number: 24BCS10117
+Date: 2026-10-07 17:59:32 UTC
+Hostname: af68e6c1f885
+Username: root
+
+Disk usage:
+Filesystem            Size  Used Avail Use% Mounted on
+overlay               251G   24G  215G  11% /
+tmpfs                  64M     0   64M   0% /dev
+shm                    64M     0   64M   0% /dev/shm
+/run/host_mark/Users  927G  526G  401G  57% /coursework/system-info.sh
+/dev/vda1             251G   24G  215G  11% /etc/hosts
+tmpfs                 6.9G     0  6.9G   0% /proc/scsi
+tmpfs                 6.9G     0  6.9G   0% /sys/firmware
+
+Running processes were saved to system-report/processes.txt
+
+Running processes:
+    PID    PPID USER     COMMAND
+      1       0 root     bash
+      8       1 root     bash
+     14       8 root     ps
+
+PASS: both generated reports are nonempty
+[exit 0]
+
+LIVE OBSERVATIONS
+- The actual repository script accepted input and generated disk/process reports inside the new Linux container.
+Raw output: shell-scripting/evidence/live-20261007T175931Z.txt
+Cleanup finished for this run's exact container/network/image names and scratch directory.

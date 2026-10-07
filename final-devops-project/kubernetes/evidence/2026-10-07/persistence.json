@@ -1,0 +1,28 @@
+{
+  "captured_at": "2026-10-07T17:58:00.144205+00:00",
+  "namespace": "capstone-oct7",
+  "context": "devops-oct7",
+  "old_database_pod_uid": "1f2dc911-0aa4-4165-b56b-9b17494e3409",
+  "pvc_uid_before": "701c3244-0feb-4726-8433-3b598d75dadb",
+  "created_task": {
+    "title": "PVC persistence 3efeeb88c6",
+    "description": "Disposable restart verification",
+    "status": "in_progress",
+    "priority": "high",
+    "id": 2,
+    "created_at": "2026-10-07T17:58:00.346721Z",
+    "updated_at": "2026-10-07T17:58:00.346721Z"
+  },
+  "new_database_pod_uid": "e9e6d21a-e23c-4d2d-9b1d-81f5a7fda303",
+  "pvc_uid_after": "701c3244-0feb-4726-8433-3b598d75dadb",
+  "task_after_restart": {
+    "title": "PVC persistence 3efeeb88c6",
+    "description": "Disposable restart verification",
+    "status": "in_progress",
+    "priority": "high",
+    "id": 2,
+    "created_at": "2026-10-07T17:58:00.346721Z",
+    "updated_at": "2026-10-07T17:58:00.346721Z"
+  },
+  "test_record_cleanup": "deleted after successful persistence verification"
+}

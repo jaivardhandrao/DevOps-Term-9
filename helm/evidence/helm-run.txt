@@ -1,0 +1,3396 @@
+Run at 2026-10-07T17:52:52.560878+00:00
+Agent-operated disposable local Helm lab; no cloud deployment.
+
+$ kubectl config get-contexts devops-oct7 -o name
+devops-oct7
+exit=0
+
+$ kubectl config view --context devops-oct7 --minify -o 'jsonpath={.clusters[0].cluster.server}'
+https://127.0.0.1:55923
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm version --short
+v3.19.0+g3d8990f
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm create /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/helm/created-chart
+Creating /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/helm/created-chart
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm lint /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/helm/notes-chart
+==> Linting /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/helm/notes-chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm template notes /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/helm/notes-chart
+---
+# Source: notes-chart/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notes-config
+data:
+  APP_NAME: "Notes"
+  ENVIRONMENT: "development"
+  index.html: |
+    <!doctype html><html lang="en"><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Notes</title>
+    <style>body{font:20px system-ui;max-width:40rem;margin:12vh auto;padding:2rem;background:#f3efe5;color:#173329}h1{font-size:3rem}small{color:#527164}</style>
+    <main><small>development</small><h1>Notes</h1><p>Capture a thought, then improve it.</p></main></html>
+---
+# Source: notes-chart/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: notes-notes
+spec:
+  type: ClusterIP
+  selector: {app.kubernetes.io/instance: notes, app.kubernetes.io/name: notes}
+  ports:
+    - {port: 80, targetPort: http}
+---
+# Source: notes-chart/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-notes
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app.kubernetes.io/instance: notes, app.kubernetes.io/name: notes}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/instance: notes, app.kubernetes.io/name: notes}
+      annotations:
+        checksum/config: f323a0998a4a4733b407b39c33f68bcda1eca1361b3ae62457bf62fd8746adcc
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: notes
+          image: "nginx:1.27-alpine"
+          ports:
+            - {name: http, containerPort: 80}
+          envFrom:
+            - configMapRef: {name: notes-config}
+          resources:
+            limits:
+              cpu: 50m
+              memory: 48Mi
+            requests:
+              cpu: 5m
+              memory: 16Mi
+          startupProbe:
+            httpGet: {path: /, port: http}
+            failureThreshold: 20
+            periodSeconds: 2
+          readinessProbe:
+            httpGet: {path: /, port: http}
+          livenessProbe:
+            httpGet: {path: /, port: http}
+          volumeMounts:
+            - {name: page, mountPath: /usr/share/nginx/html/index.html, subPath: index.html, readOnly: true}
+      volumes:
+        - name: page
+          configMap: {name: notes-config}
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+"ingress-nginx" already exists with the same configuration, skipping
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm repo update
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "ingress-nginx" chart repository
+Update Complete. ⎈Happy Helming!⎈
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm repo list
+NAME         	URL                                       
+ingress-nginx	https://kubernetes.github.io/ingress-nginx
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm search repo ingress-nginx
+NAME                       	CHART VERSION	APP VERSION	DESCRIPTION                                       
+ingress-nginx/ingress-nginx	4.15.1       	1.15.1     	Ingress controller for Kubernetes using NGINX a...
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm install notes /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/helm/notes-chart --create-namespace --wait --timeout 180s
+NAME: notes
+LAST DEPLOYED: Wed Oct  7 23:23:14 2026
+NAMESPACE: devops-helm
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm list
+NAME 	NAMESPACE  	REVISION	UPDATED                             	STATUS  	CHART            	APP VERSION
+notes	devops-helm	1       	2026-10-07 23:23:14.210957 +0530 IST	deployed	notes-chart-0.1.0	1.0.0
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm status notes
+NAME: notes
+LAST DEPLOYED: Wed Oct  7 23:23:14 2026
+NAMESPACE: devops-helm
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm get values notes --all
+COMPUTED VALUES:
+app:
+  environment: development
+  message: Capture a thought, then improve it.
+  name: Notes
+image:
+  repository: nginx
+  tag: 1.27-alpine
+replicaCount: 1
+resources:
+  limits:
+    cpu: 50m
+    memory: 48Mi
+  requests:
+    cpu: 5m
+    memory: 16Mi
+service:
+  port: 80
+  type: ClusterIP
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm get manifest notes
+---
+# Source: notes-chart/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notes-config
+data:
+  APP_NAME: "Notes"
+  ENVIRONMENT: "development"
+  index.html: |
+    <!doctype html><html lang="en"><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Notes</title>
+    <style>body{font:20px system-ui;max-width:40rem;margin:12vh auto;padding:2rem;background:#f3efe5;color:#173329}h1{font-size:3rem}small{color:#527164}</style>
+    <main><small>development</small><h1>Notes</h1><p>Capture a thought, then improve it.</p></main></html>
+---
+# Source: notes-chart/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: notes-notes
+spec:
+  type: ClusterIP
+  selector: {app.kubernetes.io/instance: notes, app.kubernetes.io/name: notes}
+  ports:
+    - {port: 80, targetPort: http}
+---
+# Source: notes-chart/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-notes
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app.kubernetes.io/instance: notes, app.kubernetes.io/name: notes}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/instance: notes, app.kubernetes.io/name: notes}
+      annotations:
+        checksum/config: f323a0998a4a4733b407b39c33f68bcda1eca1361b3ae62457bf62fd8746adcc
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: notes
+          image: "nginx:1.27-alpine"
+          ports:
+            - {name: http, containerPort: 80}
+          envFrom:
+            - configMapRef: {name: notes-config}
+          resources:
+            limits:
+              cpu: 50m
+              memory: 48Mi
+            requests:
+              cpu: 5m
+              memory: 16Mi
+          startupProbe:
+            httpGet: {path: /, port: http}
+            failureThreshold: 20
+            periodSeconds: 2
+          readinessProbe:
+            httpGet: {path: /, port: http}
+          livenessProbe:
+            httpGet: {path: /, port: http}
+          volumeMounts:
+            - {name: page, mountPath: /usr/share/nginx/html/index.html, subPath: index.html, readOnly: true}
+      volumes:
+        - name: page
+          configMap: {name: notes-config}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get pods -o wide
+NAME                           READY   STATUS    RESTARTS   AGE     IP            NODE          NOMINATED NODE   READINESS GATES
+notes-notes-5d4597b467-4pw98   1/1     Running   0          2m20s   10.244.0.72   devops-oct7   <none>           <none>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get service notes-notes
+NAME          TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+notes-notes   ClusterIP   10.108.87.35   <none>        80/TCP    2m20s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm exec deployment/notes-notes -- sh -c 'printenv APP_NAME ENVIRONMENT; wget -q -O- http://notes-notes'
+Notes
+development
+<!doctype html><html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notes</title>
+<style>body{font:20px system-ui;max-width:40rem;margin:12vh auto;padding:2rem;background:#f3efe5;color:#173329}h1{font-size:3rem}small{color:#527164}</style>
+<main><small>development</small><h1>Notes</h1><p>Capture a thought, then improve it.</p></main></html>
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm upgrade notes /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/helm/notes-chart -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/helm/notes-chart/values-prod.yaml --wait --timeout 180s
+Release "notes" has been upgraded. Happy Helming!
+NAME: notes
+LAST DEPLOYED: Wed Oct  7 23:25:34 2026
+NAMESPACE: devops-helm
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get pods -o wide
+NAME                           READY   STATUS        RESTARTS   AGE     IP            NODE          NOMINATED NODE   READINESS GATES
+notes-notes-5d4597b467-4pw98   1/1     Terminating   0          2m30s   10.244.0.72   devops-oct7   <none>           <none>
+notes-notes-b97f5b69c-2zt6v    1/1     Running       0          4s      10.244.0.83   devops-oct7   <none>           <none>
+notes-notes-b97f5b69c-8l9qk    1/1     Running       0          10s     10.244.0.81   devops-oct7   <none>           <none>
+notes-notes-b97f5b69c-kpj47    1/1     Running       0          7s      10.244.0.82   devops-oct7   <none>           <none>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get service notes-notes
+NAME          TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+notes-notes   ClusterIP   10.108.87.35   <none>        80/TCP    2m30s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm exec deployment/notes-notes -- sh -c 'printenv APP_NAME ENVIRONMENT; wget -q -O- http://notes-notes'
+Notes
+production
+<!doctype html><html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notes</title>
+<style>body{font:20px system-ui;max-width:40rem;margin:12vh auto;padding:2rem;background:#f3efe5;color:#173329}h1{font-size:3rem}small{color:#527164}</style>
+<main><small>production</small><h1>Notes</h1><p>Production notes are ready.</p></main></html>
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm upgrade notes /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/helm/notes-chart -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/helm/notes-chart/values-prod.yaml --set image.tag=devops-intentionally-missing
+Release "notes" has been upgraded. Happy Helming!
+NAME: notes
+LAST DEPLOYED: Wed Oct  7 23:25:45 2026
+NAMESPACE: devops-helm
+STATUS: deployed
+REVISION: 3
+TEST SUITE: None
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get pods -l app.kubernetes.io/instance=notes -o json
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:45Z",
+                "generateName": "notes-notes-74f658567b-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "74f658567b"
+                },
+                "name": "notes-notes-74f658567b-l957j",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-74f658567b",
+                        "uid": "112ae944-e36c-483a-8686-14287327162e"
+                    }
+                ],
+                "resourceVersion": "29482",
+                "uid": "100740af-5e84-4060-94bb-c12abf9d0217"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:devops-intentionally-missing",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "observedGeneration": 1,
+                        "status": "False",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "message": "containers with unready status: [notes]",
+                        "observedGeneration": 1,
+                        "reason": "ContainersNotReady",
+                        "status": "False",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "message": "containers with unready status: [notes]",
+                        "observedGeneration": 1,
+                        "reason": "ContainersNotReady",
+                        "status": "False",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "image": "nginx:devops-intentionally-missing",
+                        "imageID": "",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": false,
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "waiting": {
+                                "reason": "ContainerCreating"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Pending",
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:45Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:40Z",
+                "generateName": "notes-notes-b97f5b69c-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "b97f5b69c"
+                },
+                "name": "notes-notes-b97f5b69c-2zt6v",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-b97f5b69c",
+                        "uid": "41d85594-071c-40b9-8b9e-97f3970d8714"
+                    }
+                ],
+                "resourceVersion": "29429",
+                "uid": "e7efa125-a30a-40b4-85d0-2b28e6769b47"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:1.27-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:42Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:43Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:43Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "5m",
+                            "memory": "16Mi"
+                        },
+                        "containerID": "containerd://13a98105148c23abf2f8c5847bd8492d0eadee8c2894155013df128dfef6ac40",
+                        "image": "docker.io/library/nginx:1.27-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T17:55:42Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.83",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.83"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:40Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:34Z",
+                "generateName": "notes-notes-b97f5b69c-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "b97f5b69c"
+                },
+                "name": "notes-notes-b97f5b69c-8l9qk",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-b97f5b69c",
+                        "uid": "41d85594-071c-40b9-8b9e-97f3970d8714"
+                    }
+                ],
+                "resourceVersion": "29296",
+                "uid": "ee9833cd-c686-4c43-ae4a-a90af64470b0"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:1.27-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:35Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:34Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:34Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "5m",
+                            "memory": "16Mi"
+                        },
+                        "containerID": "containerd://d6fc4b6f5efbcc7f6bd0b55100014bf587fff7a9b5bc350c40b073c544616003",
+                        "image": "docker.io/library/nginx:1.27-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T17:55:35Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.81",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.81"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:34Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:37Z",
+                "generateName": "notes-notes-b97f5b69c-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "b97f5b69c"
+                },
+                "name": "notes-notes-b97f5b69c-kpj47",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-b97f5b69c",
+                        "uid": "41d85594-071c-40b9-8b9e-97f3970d8714"
+                    }
+                ],
+                "resourceVersion": "29344",
+                "uid": "c93d9ac1-59e4-46d8-b9d8-15d637cd6b60"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:1.27-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:39Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "5m",
+                            "memory": "16Mi"
+                        },
+                        "containerID": "containerd://2265478558e36dde105ca01ed1d679421c579dcadff5d438438e456e3cee0965",
+                        "image": "docker.io/library/nginx:1.27-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T17:55:39Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.82",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.82"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:37Z"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get pods -l app.kubernetes.io/instance=notes -o json
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:45Z",
+                "generateName": "notes-notes-74f658567b-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "74f658567b"
+                },
+                "name": "notes-notes-74f658567b-l957j",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-74f658567b",
+                        "uid": "112ae944-e36c-483a-8686-14287327162e"
+                    }
+                ],
+                "resourceVersion": "29482",
+                "uid": "100740af-5e84-4060-94bb-c12abf9d0217"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:devops-intentionally-missing",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "observedGeneration": 1,
+                        "status": "False",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "message": "containers with unready status: [notes]",
+                        "observedGeneration": 1,
+                        "reason": "ContainersNotReady",
+                        "status": "False",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "message": "containers with unready status: [notes]",
+                        "observedGeneration": 1,
+                        "reason": "ContainersNotReady",
+                        "status": "False",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "image": "nginx:devops-intentionally-missing",
+                        "imageID": "",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": false,
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "waiting": {
+                                "reason": "ContainerCreating"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Pending",
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:45Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:40Z",
+                "generateName": "notes-notes-b97f5b69c-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "b97f5b69c"
+                },
+                "name": "notes-notes-b97f5b69c-2zt6v",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-b97f5b69c",
+                        "uid": "41d85594-071c-40b9-8b9e-97f3970d8714"
+                    }
+                ],
+                "resourceVersion": "29429",
+                "uid": "e7efa125-a30a-40b4-85d0-2b28e6769b47"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:1.27-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:42Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:43Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:43Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "5m",
+                            "memory": "16Mi"
+                        },
+                        "containerID": "containerd://13a98105148c23abf2f8c5847bd8492d0eadee8c2894155013df128dfef6ac40",
+                        "image": "docker.io/library/nginx:1.27-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T17:55:42Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.83",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.83"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:40Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:34Z",
+                "generateName": "notes-notes-b97f5b69c-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "b97f5b69c"
+                },
+                "name": "notes-notes-b97f5b69c-8l9qk",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-b97f5b69c",
+                        "uid": "41d85594-071c-40b9-8b9e-97f3970d8714"
+                    }
+                ],
+                "resourceVersion": "29296",
+                "uid": "ee9833cd-c686-4c43-ae4a-a90af64470b0"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:1.27-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:35Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:34Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:34Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "5m",
+                            "memory": "16Mi"
+                        },
+                        "containerID": "containerd://d6fc4b6f5efbcc7f6bd0b55100014bf587fff7a9b5bc350c40b073c544616003",
+                        "image": "docker.io/library/nginx:1.27-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T17:55:35Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.81",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.81"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:34Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:37Z",
+                "generateName": "notes-notes-b97f5b69c-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "b97f5b69c"
+                },
+                "name": "notes-notes-b97f5b69c-kpj47",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-b97f5b69c",
+                        "uid": "41d85594-071c-40b9-8b9e-97f3970d8714"
+                    }
+                ],
+                "resourceVersion": "29344",
+                "uid": "c93d9ac1-59e4-46d8-b9d8-15d637cd6b60"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:1.27-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:39Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "5m",
+                            "memory": "16Mi"
+                        },
+                        "containerID": "containerd://2265478558e36dde105ca01ed1d679421c579dcadff5d438438e456e3cee0965",
+                        "image": "docker.io/library/nginx:1.27-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T17:55:39Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.82",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.82"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:37Z"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get pods -l app.kubernetes.io/instance=notes -o json
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:45Z",
+                "generateName": "notes-notes-74f658567b-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "74f658567b"
+                },
+                "name": "notes-notes-74f658567b-l957j",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-74f658567b",
+                        "uid": "112ae944-e36c-483a-8686-14287327162e"
+                    }
+                ],
+                "resourceVersion": "29511",
+                "uid": "100740af-5e84-4060-94bb-c12abf9d0217"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:devops-intentionally-missing",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:57Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "message": "containers with unready status: [notes]",
+                        "observedGeneration": 1,
+                        "reason": "ContainersNotReady",
+                        "status": "False",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "message": "containers with unready status: [notes]",
+                        "observedGeneration": 1,
+                        "reason": "ContainersNotReady",
+                        "status": "False",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:45Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "image": "nginx:devops-intentionally-missing",
+                        "imageID": "",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": false,
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "waiting": {
+                                "message": "failed to pull and unpack image \"docker.io/library/nginx:devops-intentionally-missing\": failed to resolve reference \"docker.io/library/nginx:devops-intentionally-missing\": failed to authorize: failed to fetch anonymous token: Get \"https://auth.docker.io/token?scope=%5BREDACTED%5D\u0026service=%5BREDACTED%5D\": dial tcp: lookup auth.docker.io on 192.168.65.254:53: server misbehaving",
+                                "reason": "ErrImagePull"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Pending",
+                "podIP": "10.244.0.87",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.87"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:45Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:40Z",
+                "generateName": "notes-notes-b97f5b69c-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "b97f5b69c"
+                },
+                "name": "notes-notes-b97f5b69c-2zt6v",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-b97f5b69c",
+                        "uid": "41d85594-071c-40b9-8b9e-97f3970d8714"
+                    }
+                ],
+                "resourceVersion": "29429",
+                "uid": "e7efa125-a30a-40b4-85d0-2b28e6769b47"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:1.27-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:42Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:43Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:43Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "5m",
+                            "memory": "16Mi"
+                        },
+                        "containerID": "containerd://13a98105148c23abf2f8c5847bd8492d0eadee8c2894155013df128dfef6ac40",
+                        "image": "docker.io/library/nginx:1.27-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T17:55:42Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.83",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.83"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:40Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:34Z",
+                "generateName": "notes-notes-b97f5b69c-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "b97f5b69c"
+                },
+                "name": "notes-notes-b97f5b69c-8l9qk",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-b97f5b69c",
+                        "uid": "41d85594-071c-40b9-8b9e-97f3970d8714"
+                    }
+                ],
+                "resourceVersion": "29296",
+                "uid": "ee9833cd-c686-4c43-ae4a-a90af64470b0"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:1.27-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:35Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:34Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:34Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "5m",
+                            "memory": "16Mi"
+                        },
+                        "containerID": "containerd://d6fc4b6f5efbcc7f6bd0b55100014bf587fff7a9b5bc350c40b073c544616003",
+                        "image": "docker.io/library/nginx:1.27-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T17:55:35Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.81",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.81"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:34Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "checksum/config": "2a14886bba685be4a74f951672f2060ba3f85bf8e27de7d09ec64e13c54ea7af"
+                },
+                "creationTimestamp": "2026-10-07T17:55:37Z",
+                "generateName": "notes-notes-b97f5b69c-",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/instance": "notes",
+                    "app.kubernetes.io/name": "notes",
+                    "pod-template-hash": "b97f5b69c"
+                },
+                "name": "notes-notes-b97f5b69c-kpj47",
+                "namespace": "devops-helm",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "notes-notes-b97f5b69c",
+                        "uid": "41d85594-071c-40b9-8b9e-97f3970d8714"
+                    }
+                ],
+                "resourceVersion": "29344",
+                "uid": "c93d9ac1-59e4-46d8-b9d8-15d637cd6b60"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "envFrom": [
+                            {
+                                "configMapRef": {
+                                    "name": "notes-config"
+                                }
+                            }
+                        ],
+                        "image": "nginx:1.27-alpine",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "name": "notes",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 20,
+                            "httpGet": {
+                                "path": "/",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 2,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "subPath": "index.html"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "devops-oct7",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "notes-config"
+                        },
+                        "name": "page"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:39Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:40Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-10-07T17:55:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "5m",
+                            "memory": "16Mi"
+                        },
+                        "containerID": "containerd://2265478558e36dde105ca01ed1d679421c579dcadff5d438438e456e3cee0965",
+                        "image": "docker.io/library/nginx:1.27-alpine",
+                        "imageID": "docker.io/library/nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+                        "lastState": {},
+                        "name": "notes",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "48Mi"
+                            },
+                            "requests": {
+                                "cpu": "5m",
+                                "memory": "16Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-10-07T17:55:39Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    10,
+                                    11,
+                                    20,
+                                    26,
+                                    27
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html/index.html",
+                                "name": "page",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.244.0.82",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.82"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-10-07T17:55:37Z"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get pods
+NAME                           READY   STATUS         RESTARTS   AGE
+notes-notes-74f658567b-l957j   0/1     ErrImagePull   0          12s
+notes-notes-b97f5b69c-2zt6v    1/1     Running        0          17s
+notes-notes-b97f5b69c-8l9qk    1/1     Running        0          23s
+notes-notes-b97f5b69c-kpj47    1/1     Running        0          20s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm events --types=Warning
+LAST SEEN              TYPE      REASON   OBJECT                             MESSAGE
+111s (x2 over 2m12s)   Warning   Failed   Pod/notes-notes-5d4597b467-4pw98   Failed to pull image "nginx:1.27-alpine": failed to pull and unpack image "docker.io/library/nginx:1.27-alpine": failed to resolve reference "docker.io/library/nginx:1.27-alpine": failed to do request: Head "https://registry-1.docker.io/v2/library/nginx/manifests/1.27-alpine": dial tcp: lookup registry-1.docker.io on 192.168.65.254:53: server misbehaving
+111s (x2 over 2m12s)   Warning   Failed   Pod/notes-notes-5d4597b467-4pw98   Error: ErrImagePull
+98s (x2 over 2m11s)    Warning   Failed   Pod/notes-notes-5d4597b467-4pw98   Error: ImagePullBackOff
+1s                     Warning   Failed   Pod/notes-notes-74f658567b-l957j   Failed to pull image "nginx:devops-intentionally-missing": failed to pull and unpack image "docker.io/library/nginx:devops-intentionally-missing": failed to resolve reference "docker.io/library/nginx:devops-intentionally-missing": failed to authorize: failed to fetch anonymous token: Get "https://auth.docker.io/token?scope=%5BREDACTED%5D&service=%5BREDACTED%5D": dial tcp: lookup auth.docker.io on 192.168.65.254:53: server misbehaving
+1s                     Warning   Failed   Pod/notes-notes-74f658567b-l957j   Error: ErrImagePull
+0s                     Warning   Failed   Pod/notes-notes-74f658567b-l957j   Error: ImagePullBackOff
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm history notes
+REVISION	UPDATED                 	STATUS    	CHART            	APP VERSION	DESCRIPTION     
+1       	Wed Oct  7 23:23:14 2026	superseded	notes-chart-0.1.0	1.0.0      	Install complete
+2       	Wed Oct  7 23:25:34 2026	superseded	notes-chart-0.1.0	1.0.0      	Upgrade complete
+3       	Wed Oct  7 23:25:45 2026	deployed  	notes-chart-0.1.0	1.0.0      	Upgrade complete
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm rollback notes 2 --wait --timeout 180s
+Rollback was a success! Happy Helming!
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get pods -o wide
+NAME                          READY   STATUS    RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+notes-notes-b97f5b69c-2zt6v   1/1     Running   0          19s   10.244.0.83   devops-oct7   <none>           <none>
+notes-notes-b97f5b69c-8l9qk   1/1     Running   0          25s   10.244.0.81   devops-oct7   <none>           <none>
+notes-notes-b97f5b69c-kpj47   1/1     Running   0          22s   10.244.0.82   devops-oct7   <none>           <none>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get service notes-notes
+NAME          TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+notes-notes   ClusterIP   10.108.87.35   <none>        80/TCP    2m45s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm exec deployment/notes-notes -- sh -c 'printenv APP_NAME ENVIRONMENT; wget -q -O- http://notes-notes'
+Notes
+production
+<!doctype html><html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notes</title>
+<style>body{font:20px system-ui;max-width:40rem;margin:12vh auto;padding:2rem;background:#f3efe5;color:#173329}h1{font-size:3rem}small{color:#527164}</style>
+<main><small>production</small><h1>Notes</h1><p>Production notes are ready.</p></main></html>
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm history notes
+REVISION	UPDATED                 	STATUS    	CHART            	APP VERSION	DESCRIPTION     
+1       	Wed Oct  7 23:23:14 2026	superseded	notes-chart-0.1.0	1.0.0      	Install complete
+2       	Wed Oct  7 23:25:34 2026	superseded	notes-chart-0.1.0	1.0.0      	Upgrade complete
+3       	Wed Oct  7 23:25:45 2026	superseded	notes-chart-0.1.0	1.0.0      	Upgrade complete
+4       	Wed Oct  7 23:25:57 2026	deployed  	notes-chart-0.1.0	1.0.0      	Rollback to 2
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm uninstall notes --wait --timeout 120s
+release "notes" uninstalled
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm list
+NAME	NAMESPACE	REVISION	UPDATED	STATUS	CHART	APP VERSION
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get deployment/notes-notes service/notes-notes configmap/notes-config --ignore-not-found=true
+
+exit=0
+
+$ /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/.runtime/bin/helm --kube-context devops-oct7 -n devops-helm install notes /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/helm/notes-chart --wait --timeout 180s
+NAME: notes
+LAST DEPLOYED: Wed Oct  7 23:26:00 2026
+NAMESPACE: devops-helm
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get pods -o wide
+NAME                           READY   STATUS    RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+notes-notes-5d4597b467-9bbnl   1/1     Running   0          4s    10.244.0.88   devops-oct7   <none>           <none>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm get service notes-notes
+NAME          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+notes-notes   ClusterIP   10.102.195.119   <none>        80/TCP    4s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-helm exec deployment/notes-notes -- sh -c 'printenv APP_NAME ENVIRONMENT; wget -q -O- http://notes-notes'
+Notes
+development
+<!doctype html><html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notes</title>
+<style>body{font:20px system-ui;max-width:40rem;margin:12vh auto;padding:2rem;background:#f3efe5;color:#173329}h1{font-size:3rem}small{color:#527164}</style>
+<main><small>development</small><h1>Notes</h1><p>Capture a thought, then improve it.</p></main></html>
+exit=0
+
+Completed install, two upgrades, observed failure, rollback, uninstall and review reinstall.

@@ -1,0 +1,34 @@
+Jaivardhan D. Rao | 24BCS10117 | LIVE linux coursework
+Started UTC: 2026-10-07T17:56:42.601214+00:00
+Only new task-owned resources are used; no saved output is replayed.
+
+$ docker build --quiet -t devops-term9-foundation-lab:20261007 /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/linux-fundamentals/evidence
+sha256:a1012a7bb10f228540e846cdc92a069b516a8eb967ec62aa64c4b0c3f759d85a
+[exit 0]
+
+$ docker run --name term9-evidence-50bbe4b859-linux --label devops.coursework.run=term9-evidence-50bbe4b859 --rm -i --network none devops-term9-foundation-lab:20261007 bash -s
+
+== Links ==
+total 8
+306024 -rw-r--r-- 2 root root 14 Oct  7 17:57 hard
+306024 -rw-r--r-- 2 root root 14 Oct  7 17:57 original
+306025 lrwxrwxrwx 1 root root  8 Oct  7 17:57 soft -> original
+link exercise
+PASS: hard link survives deletion; symbolic link is dangling
+
+== Disposable-container user only ==
+info: Adding user `courseworkdemo' ...
+info: Selecting UID/GID from range 1000 to 59999 ...
+info: Adding new group `courseworkdemo' (1001) ...
+info: Adding new user `courseworkdemo' (1001) with group `courseworkdemo (1001)' ...
+info: Creating home directory `/home/courseworkdemo' ...
+info: Copying files from `/etc/skel' ...
+info: Adding new user `courseworkdemo' to supplemental / extra groups `users' ...
+info: Adding user `courseworkdemo' to group `users' ...
+uid=1001(courseworkdemo) gid=1001(courseworkdemo) groups=1001(courseworkdemo),100(users)
+courseworkdemo:x:1001:1001:Coursework demonstration,,,:/home/courseworkdemo:/bin/bash
+fatal: In order to use the --remove-home, --remove-all-files, and --backup features, you need to install the `perl' package. To accomplish that, run apt-get install perl.
+[exit 56]
+
+FAILED: Command exited 56: docker run --name term9-evidence-50bbe4b859-linux --label devops.coursework.run=term9-evidence-50bbe4b859 --rm -i --network none devops-term9-foundation-lab:20261007 bash -s
+Cleanup finished for this run's exact container/network/image names and scratch directory.

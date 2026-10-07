@@ -47,3 +47,12 @@ curl -fsS 'http://127.0.0.1:19090/api/v1/alerts'
 Metrics reveal trends; logs preserve individual request/failure records. Traces follow one request across services and would identify which downstream span is slow. This app supplies metrics and container logs; it does not claim a deployed OpenTelemetry collector or distributed tracing backend.
 
 See [the troubleshooting runbook](../troubleshooting/README.md) for a controlled Service-selector fault that demonstrates alerts and recovery without corrupting data.
+
+
+## Verified runtime demonstration
+
+[October 7 evidence](evidence/2026-10-07-completed/README.md) includes a genuine Grafana browser screenshot, healthy scrape/readiness, process and container CPU/memory, HTTP counts/latency, logs and an actual readiness alert followed by recovery. The [earlier capture](evidence/2026-10-07/README.md) remains historical evidence from before the application deployment.
+
+The resident-memory panel uses explicit byte thresholds: yellow `134217728` (128 MiB, the backend request), red `241591910` (90% of its 256 MiB limit). Its first capture inherited Grafana’s default raw threshold of 80 and incorrectly colored ~78 MiB red. The original screenshot is retained; the corrected dashboard was reloaded and recaptured. Process RSS is not identical to total container memory and these thresholds are an early warning, not an OOM guarantee.
+
+An empty “Active alerts” table means Prometheus returned no firing `ALERTS` series; consult the saved alerts API response to distinguish this from a connectivity error. The backend selector fault fired `TaskBoardNotReady`. The existing scrape TCP connection kept `up=1` in this run, so it did not fire `TaskBoardUnavailable`; the separate readiness check caught the user-visible failure.

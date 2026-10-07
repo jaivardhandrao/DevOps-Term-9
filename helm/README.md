@@ -2,7 +2,7 @@
 
 This hand-authored [Notes chart](notes-chart/) packages a small Nginx landing page, Service and ConfigMap. The page displays its environment and message so an upgrade or rollback can be verified through HTTP. A checksum annotation rolls Pods when the ConfigMap changes, avoiding stale environment variables and subPath-mounted content.
 
-**Execution status (October 7, 2026): runtime incomplete.** Development and production chart linting passed, templates rendered locally, and `helm create` succeeded in a workspace scratch directory. Repository add/update/list/search also succeeded using public metadata and workspace-only cache. Offline rendering additionally verified configurable ports, HTML escaping, content checksum changes and release isolation. Live install, upgrades, rollback and uninstall were not executed because automatic approval review blocked local cluster mutation under the earlier read-only scope. The workflow below is prepared, not a claim of completed commands. See [evidence status](evidence/README.md).
+**Execution status (October 7, 2026): complete local lifecycle observed.** Install/list/status/get, the production upgrade, a second bad-image upgrade, failure inspection, history, rollback to revision 2, uninstall and a healthy development reinstall all executed successfully in the isolated cluster. Chart creation, repository/search practice, linting and rendering also passed. The actual live app screenshot below supplements the [full command record](evidence/helm-run.txt).
 
 ## Chart structure
 
@@ -71,6 +71,12 @@ The service port is independently configurable and forwards to named container p
 
 ## Actual evidence
 
-The [static validation record](evidence/static-validation.txt) contains actual Helm version and two successful lint runs. [Offline command practice](evidence/offline-command-practice.md) records successful scratch chart creation and additional rendering checks; [repository practice](evidence/repository-practice.txt) records actual public repository/search output. The driver will create `evidence/helm-run.txt` only when it executes; no live Helm lifecycle record or screenshot is currently available. No expected-output screenshot has been fabricated.
+The [static validation record](evidence/static-validation.txt) contains actual Helm version and two successful lint runs. [Offline command practice](evidence/offline-command-practice.md) records successful scratch chart creation and additional rendering checks; [repository practice](evidence/repository-practice.txt) records actual public repository/search output.
+
+[helm-run.txt](evidence/helm-run.txt) records the complete real lifecycle and ends with completion. Revision 3's nonexistent image produced ErrImagePull/ImagePullBackOff; rollback created revision 4 with `Rollback to 2` and restored the production page. Uninstall removed the first release; the final reinstall starts a new development release history at revision 1. Therefore the current live history does not retain the uninstalled release's earlier revisions; they are preserved in the raw record.
+
+![Actual Notes app after the successful review reinstall](evidence/notes-live.jpg)
+
+Captured at **2026-10-07 18:04:24 UTC** from the actual HTTP page at `http://127.0.0.1:18085/`, forwarded from `devops-helm/service/notes-notes` in `devops-oct7`. This is an unaltered JPEG returned by the Codex in-app browser screenshot API. It shows the final development reinstall, not a Terminal history or a staged design mockup. Terminal access was disallowed by the computer-use tool, so command and revision proof remains the raw execution record. No log rendering was substituted for a screenshot.
 
 References: [instructor mini-project](https://github.com/Nency-Ravaliya/devops-heros/tree/main/session-15-helm/mini-project), [Helm CLI](https://helm.sh/docs/helm/), [rollback command](https://helm.sh/docs/helm/helm_rollback/), [chart template guide](https://helm.sh/docs/chart_template_guide/).

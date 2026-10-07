@@ -1,0 +1,133 @@
+{
+  "initial": "coursework",
+  "injected": "intentional-drift",
+  "observations": [
+    {
+      "at": "2026-10-07T18:13:04.088453+00:00",
+      "APP_ENV": "intentional-drift",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "capstone-oct7",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "helm": {
+              "releaseName": "taskboard",
+              "valuesObject": {
+                "backend": {
+                  "image": {
+                    "pullPolicy": "Never",
+                    "repository": "taskboard-backend",
+                    "tag": "local"
+                  }
+                },
+                "frontend": {
+                  "image": {
+                    "pullPolicy": "Never",
+                    "repository": "taskboard-frontend",
+                    "tag": "local"
+                  }
+                }
+              }
+            },
+            "path": "final-devops-project/helm/taskboard",
+            "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+            "targetRevision": "main"
+          }
+        },
+        "revision": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-10-07T18:11:49Z",
+        "status": "Healthy"
+      }
+    },
+    {
+      "at": "2026-10-07T18:13:06.168018+00:00",
+      "APP_ENV": "intentional-drift",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "capstone-oct7",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "helm": {
+              "releaseName": "taskboard",
+              "valuesObject": {
+                "backend": {
+                  "image": {
+                    "pullPolicy": "Never",
+                    "repository": "taskboard-backend",
+                    "tag": "local"
+                  }
+                },
+                "frontend": {
+                  "image": {
+                    "pullPolicy": "Never",
+                    "repository": "taskboard-frontend",
+                    "tag": "local"
+                  }
+                }
+              }
+            },
+            "path": "final-devops-project/helm/taskboard",
+            "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+            "targetRevision": "main"
+          }
+        },
+        "revision": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+        "status": "OutOfSync"
+      },
+      "health": {
+        "lastTransitionTime": "2026-10-07T18:11:49Z",
+        "status": "Healthy"
+      }
+    },
+    {
+      "at": "2026-10-07T18:13:08.255363+00:00",
+      "APP_ENV": "coursework",
+      "sync": {
+        "comparedTo": {
+          "destination": {
+            "namespace": "capstone-oct7",
+            "server": "https://kubernetes.default.svc"
+          },
+          "source": {
+            "helm": {
+              "releaseName": "taskboard",
+              "valuesObject": {
+                "backend": {
+                  "image": {
+                    "pullPolicy": "Never",
+                    "repository": "taskboard-backend",
+                    "tag": "local"
+                  }
+                },
+                "frontend": {
+                  "image": {
+                    "pullPolicy": "Never",
+                    "repository": "taskboard-frontend",
+                    "tag": "local"
+                  }
+                }
+              }
+            },
+            "path": "final-devops-project/helm/taskboard",
+            "repoURL": "https://github.com/jaivardhandrao/DevOps-Term-9.git",
+            "targetRevision": "main"
+          }
+        },
+        "revision": "a21851154ac1bf984ab7c7a0304073a19faac27d",
+        "status": "Synced"
+      },
+      "health": {
+        "lastTransitionTime": "2026-10-07T18:11:49Z",
+        "status": "Healthy"
+      }
+    }
+  ],
+  "restored": "coursework"
+}

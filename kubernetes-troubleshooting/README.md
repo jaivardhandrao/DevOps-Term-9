@@ -2,9 +2,9 @@
 
 Nine required issue types are demonstrated in the dedicated `devops-advanced` namespace, alongside a two-replica Nginx mini-project. The approach is: observe status, inspect events and logs, form a specific hypothesis, change the relevant configuration, then retest the failed behavior.
 
-**Execution status (October 7, 2026): implementation prepared; live scenarios not executed.** Automatic approval review blocked local cluster mutation under the earlier read-only task scope. The table below describes planned reproducible failure/fix cases, not observed runtime results. See [evidence status](evidence/README.md).
+**Execution status (October 7, 2026): all nine issue types verified across two recorded runs.** The first run covered crash, image, scheduling, mount, configuration and DNS faults. It exposed a startup race in the network fixture; after adding a startup probe, the focused continuation completed network and Service recovery. Both records are preserved. See [evidence status](evidence/README.md).
 
-[The lab driver](../kubernetes-storage-hpa-probes/run-lab.py) records actual commands, output and exit codes into `evidence/troubleshooting-run.txt` when authorized to execute. No such successful record currently exists. The small broken and corrected Pod definitions are in [scenarios/](scenarios/); JSON is accepted as a Kubernetes manifest.
+[The lab driver](../kubernetes-storage-hpa-probes/run-lab.py) recorded actual commands, output and exit codes in [troubleshooting-run.txt](evidence/troubleshooting-run.txt) and [troubleshooting-tail-run.txt](evidence/troubleshooting-tail-run.txt). The small broken and corrected Pod definitions are in [scenarios/](scenarios/); JSON is accepted as a Kubernetes manifest.
 
 ## Reproduce
 
@@ -26,11 +26,11 @@ It requires the named `devops-oct7` context and a local API endpoint. Use a fres
 | Pending | Node selector requires a nonexistent `devops-lab` label | `describe pod` shows scheduler rejection | Remove the invalid node selector in the fixed manifest; verify Pod scheduled and Ready |
 | ContainerCreating | Required ConfigMap-backed volume is absent | `describe` / events show `FailedMount` | Create the missing ConfigMap and verify `/config/MODE` reads `repaired` |
 | Service connectivity | Service selector uses `app: wrong-app` | Compare Pod labels, Service selector and empty EndpointSlice | Restore `app: trouble-web`; retest HTTP through the Service |
-| DNS | Pod's custom resolver points to documentation-only IP 192.0.2.1 | `nslookup` times out while app itself is healthy | Restore normal ClusterFirst DNS; resolve the full Service name |
+| DNS | Pod's custom resolver points to documentation-only IP 192.0.2.1 | `nslookup` fails to resolve the Service (NXDOMAIN in this environment) while the app is healthy | Restore normal ClusterFirst DNS; resolve the full Service name |
 | Pod networking | HTTP server binds only 127.0.0.1 | Local loopback works but a different Pod cannot reach its Pod IP | Bind to 0.0.0.0; verify remote Pod-to-Pod HTTP |
 | Configuration | Required `MODE` environment variable references an absent ConfigMap | Observe CreateContainerConfigError and events | Create the ConfigMap and verify `printenv MODE` |
 
-The Pod-networking case diagnoses an application bind address rather than changing the CNI or global firewall. The DNS test changes one Pod only. This keeps deliberate failures contained and makes their root causes distinct.
+The Pod-networking case diagnoses an application bind address rather than changing the CNI or global firewall. The DNS test changes one Pod only. This keeps deliberate failures contained and makes their root causes distinct. The initial network fixture had no startup check: Kubernetes marked it Ready before Python began listening, so even the loopback control request failed. The corrected fixture uses an exec startup probe against loopback before the diagnostic requests. The continuation then observed local HTTP 200 alongside refused remote access, followed by successful remote access after binding to 0.0.0.0. This startup correction is separate from the intentionally introduced bind-address fault.
 
 ## Commands practiced
 
@@ -65,6 +65,8 @@ For the Service challenge, both Nginx Pods can be healthy while the Service has 
 
 ## Evidence status
 
-The execution record is the authority for what was actually observed. An interrupted run does not prove later cases. No fabricated screenshot is included; the homework's separate screenshot requirement remains a presentation item unless actual screen captures accompany this record.
+The first record is the authority for the initial seven issue categories (ErrImagePull and ImagePullBackOff are both observed stages); it stopped at the network control request. The focused continuation, invoked with `troubleshooting-tail`, proves the final networking and Service selector cases and ends with all assertions completed. The Service had no endpoints and rejected HTTP while its selector was wrong, then exposed ready endpoints and returned Nginx HTML after correction.
+
+Terminal screenshots remain blocked because CUA disallowed access to `com.apple.Terminal`. No fabricated screenshot or rendered log image is included. The submitted raw before/after outputs remain complete.
 
 References: [debug running Pods](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/), [debug Services](https://kubernetes.io/docs/tasks/debug/debug-application/debug-service/), [debug DNS](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/).

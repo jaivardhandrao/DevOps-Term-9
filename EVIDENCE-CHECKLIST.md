@@ -1,61 +1,46 @@
 # Coursework evidence and completion checklist
 
-**Status recorded: 7 October 2026. This is a draft implementation, not a claim that every practical requirement is complete.**
+**Status recorded: 7 October 2026. Coverage is reported from actual evidence, not implementation alone.**
 
-The current homework and Section A form have **20 topics covering sessions 1–21**. Sessions 1–2 share one field. The [submission map](SUBMISSION.md) provides all 20 README links. Earlier September work covered only 11 fields; that draft was not submitted during this task.
+The current homework and Section A form have **20 topics covering sessions 1–21**. Sessions 1–2 share one field. [All 20 submitted main URLs](SUBMISSION.md) remain unchanged. The original September evidence is retained alongside new, explicitly agent-executed practicals.
 
 ## Requirement-by-requirement status
 
 | Sessions | Supplied work and actual evidence | Remaining evidence or work |
 | --- | --- | --- |
-| 1–2 | Existing Linux README, commands and prior coursework retained | Prior artifacts were inspected, not rerun in October; review against the current homework before submission |
-| 3 | Existing shell scripts and README retained | No new execution claimed |
-| 4 | Existing networking work retained | No new network exercise claimed |
-| 5 | Existing Git/GitHub work retained | No new instructor submission claimed |
-| 6 | Existing Docker application work retained | No fresh rerun of this older session |
-| 7 | Existing multi-stage image work retained | No fresh rerun of this older session |
-| 8 | Existing Docker networking work retained | No fresh rerun of this older session |
-| 9 | Ready node, CoreDNS, namespace/default ServiceAccount and healthy client observed on a new isolated Minikube profile | New native Terminal screenshot if required; earlier actual screenshot retained |
-| 10 | ReplicaSet replacement, rolling update/rollback, blue/green, canary, recreate and all 12 lifecycle/probe fixtures observed in actual transcripts | Required fresh screenshots; do not substitute expected-output text |
-| 11 | ClusterIP, NodePort, ExternalName, headless DNS, internal LoadBalancer routing and broken-selector recovery observed; comparison/FQDN/CoreDNS docs added | External LoadBalancer address remains pending; fresh screenshots |
-| 12 | HTTP Ingress frontend/API routes, ConfigMap restart, mounted Secret presence without disclosure, broken-route failure and recovery observed; invalid frontend label fixed | TLS demonstration and required screenshots remain pending |
-| 13 | Storage documentation, original HTTP mini-project, PVC/probes/HPA and bounded load driver; four real local HTTP routes verified | Live PVC retention, CPU/load, HPA scale-out/recovery, probes and screenshots blocked before workloads were created |
-| 14 | Nine issue categories, fourteen broken/fixed fixture files, diagnosis commands and Nginx mini-project | Live failure/root-cause/fix observations and screenshots pending |
-| 15 | Notes chart, production values and lifecycle driver; lint/render, local `helm create`, port/escaping/isolation/checksum checks and actual public repository add/update/list/search pass | Actual install, two upgrades, rollback/history and uninstall evidence pending |
-| 16 | Application Dockerfiles and GitHub Actions workflow supplied | Successful full pipeline, image publication and deployment evidence pending |
-| 17 | SAST, SCA, secret/image scanning and blocking gates supplied. Actual Bandit and Gitleaks scans pass and reject synthetic negative controls | Trivy dependency/image scans, their controls and full deployment pipeline evidence pending; no all-scans-clean claim |
-| 18 | Required S3 Terraform layout, five AWS service research READMEs; real provider validation/formatting and two mocked tests pass | Actual AWS plan/apply/show/output/destroy and screenshots require separate cloud authorization |
-| 19 | VPC/subnet/routes/security group/EC2/S3 configuration and architecture; real provider validation/formatting and four mocked tests pass | Actual AWS lifecycle, application access and cleanup evidence pending |
-| 20 | Prometheus/Grafana/blackbox configs, dashboard, alert rules, logs/traces explanation and GitOps setup; three monitoring Pods ready, Grafana healthy with seven panels | App target is absent and availability alerts fire; capture healthy application metrics, CPU/memory behavior, alert recovery and actual GitOps reconciliation |
-| 21 | Responsive React/FastAPI/PostgreSQL app; 11 backend + 5 frontend tests; images build; actual CRUD, outage/recovery and persisted task after restart; desktop/mobile screenshots. Helm renders; EKS provider validation and four mocked tests pass | Kubernetes app deployment/PVC recovery/HPA/Ingress, full security CI, registry push, cloud deployment, GitOps and platform fault/fix screenshots pending |
+| 1–2 | Real hard/soft-link exercises, disposable Ubuntu user lifecycle, command practice and application-tagged journal entries | Specific-service journal remains unverified: the isolated node runs systemd/kubelet, but its bounded journal read was denied; no elevation attempted |
+| 3 | The actual shell script accepted input and generated nonempty disk/process reports in a new Linux container | No additional execution gap identified |
+| 4 | The networking script ran in a new container with actual DNS/HTTP/ICMP output | Container networking context is stated; no host-network equivalence claimed |
+| 5 | Four main/two feature commits in an isolated repository; `commit -a` versus plain commit and selective cherry-pick verified | Actual Markdown commands/output satisfy the allowed evidence format |
+| 6 | All six application images built and returned HTTP; genuine browser captures show each application | Browser captures prove visible applications, not Docker CLI state |
+| 7 | Multi-stage image ran on loopback port 8080; `docker ps`, HTTP heading and absence of Node build tools verified; genuine browser capture | Three application types are demonstrated by the linked session 6 runs |
+| 8 | All three networks, backend on two networks, frontend/backend/MySQL connectivity and database isolation verified; genuine bind-mount before/after images with same container and zero restarts | Apache directly on Mac host port 80 was unavailable and is not claimed; no host settings changed |
+| 9 | Ready node, CoreDNS, default ServiceAccount/client and system Pods; retained authentic screenshot plus fresh command output | Retained screenshot is limited to what it shows; fresh native capture is unavailable |
+| 10 | ReplicaSet replacement, all four deployment strategies and all 12 lifecycle/probe/init/sidecar/termination fixtures observed | Per-lifecycle-YAML screenshots required by the homework remain incomplete |
+| 11 | All five Service types, internal HTTP/DNS and broken-selector recovery; comparison/FQDN/CoreDNS docs | Homework permits output or screenshots; command output is supplied. External LoadBalancer address/tunnel remains unverified |
+| 12 | HTTP Ingress frontend/API, ConfigMap restart, Secret presence without disclosure, broken route and recovery; invalid label fixed | Actual healthy frontend browser screenshot supplied; API browser view was blocked, so fault/recovery screenshots remain incomplete. TLS is optional |
+| 13 | PVC survived Pod replacement; probes and mini-project HTTP verified; HPA automatically scaled 2 → 5 → 2 under and after bounded CPU load | Command-output evidence is present; HPA screenshots remain incomplete |
+| 14 | All nine issue categories observed with investigation/fix evidence; real HTTP-startup race found and corrected with a startup probe | Requested problem/fix screenshots remain incomplete |
+| 15 | Helm create/repository practice, lint/render, install, two upgrades, failure/rollback, history, uninstall and healthy review reinstall; actual Notes browser capture | Browser image shows the app; CLI lifecycle is evidenced by actual transcripts |
+| 16 | Full GitHub run at a218511 passed tests/builds, all scan gates, Helm+migrations, real CRUD, HPA metrics and cleanup | Genuine successful-run and completed-job browser screenshots supplied |
+| 17 | Actual SAST/SCA/secrets/image gates pass; 44/42 prior HIGH matches remediated without exclusions; all negative controls pass | Full pipeline and genuine browser screenshots supplied. Required registry publication remains outside this pass |
+| 18 | S3 Terraform layout, five AWS research READMEs, real provider validation/formatting and two mocked tests | Live AWS lifecycle and cloud screenshots require separate paid-cloud authorization |
+| 19 | VPC/subnet/routes/security-group/EC2/S3 code and architecture, real provider validation/formatting and four mocked tests | Live AWS application/lifecycle/cleanup evidence remains pending |
+| 20 | Healthy app metrics/dashboard; actual readiness alert fired and recovered; Argo Synced/Healthy at a218511 and automatically corrected deliberate configuration drift | Genuine corrected dashboard screenshot supplied; no notification to external recipients was sent |
+| 21 | App tests/builds, genuine desktop/mobile UI, local Kubernetes Helm deployment, CRUD and PVC-preserving database replacement; HPA has valid metrics | Patched images, healthy UI/Grafana, GitOps self-heal, image/selector fault recovery and full CI verified; registry/cloud work and some command-state screenshots remain pending |
 
-## Evidence locations
+## Evidence and limitations
 
-- [October Kubernetes transcripts](evidence/october-7/README.md) identify successful runs and retain failed attempts. They are actual command output from agent-run checks, not native Terminal screenshots.
-- [Application tests, HTTP/persistence logs and screenshots](final-devops-project/application/evidence/README.md).
-- [S3 provider/mock results](terraform-s3-demo/evidence/local-validation.txt), [EC2/VPC/S3 provider/mock results](cloud-terraform/evidence/local-validation.txt), [EKS provider/mock results](final-devops-project/terraform/evidence/local-validation.txt): **10 mocked Terraform tests total**, not cloud deployment evidence.
-- [Monitoring runtime evidence](final-devops-project/monitoring/evidence/2026-10-07/README.md) explicitly shows the missing application target and firing alerts.
-- Existing capture-runner tests and label regression tests: **14 passed**. [Chart probe check](scripts/check-chart-probes.py) verifies the frontend probe stays independent of backend health.
-- [Security evidence inventory](final-devops-project/security/evidence/README.md) records passing Bandit/Gitleaks scans and negative controls, separately from pending Trivy scans.
-- [GitHub Actions run 37609532257](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37609532257) passed all automatic tests/static checks at commit `93c26a1`. This does not establish a full security/CD or registry run.
+- Each session README links its actual output. Failed attempts remain alongside successful retries; timeouts are not silently converted into successful runs.
+- [Security reports](final-devops-project/security/evidence/README.md) preserve before/after CVE findings and exact local image IDs. Local ARM64 results and independent GitHub AMD64 image scans are distinguished.
+- [Full GitHub run 37664321492](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37664321492) uses `publish_images=false`. Tests, source/image gates and disposable Helm deployment/CRUD/HPA checks passed; the temporary CI cluster was destroyed.
+- [Terraform S3](terraform-s3-demo/evidence/local-validation.txt), [EC2/VPC/S3](cloud-terraform/evidence/local-validation.txt) and [EKS](final-devops-project/terraform/evidence/local-validation.txt) results are **10 mocked tests**, not cloud deployment.
+- The inline-image baseline was **5 of 20 submitted READMEs**. Coverage now reaches **12 of 20**: sessions 6–12, 15–17 and 20–21. Sessions allowing plain command output also have linked real transcripts. This image count is not an assignment-completion percentage; the remaining items above still matter.
 
-## Execution boundaries and next steps
+## Execution boundaries
 
-The original checkout under `Desktop/SST_CU/Term 9/devops/devops-homework` was left intact. New checks used an isolated `devops-oct7` Minikube profile and `devops-oct7-capstone` Compose project. The host's current Kubernetes context was not changed. Generated passwords, runtime files and Terraform state are ignored; no credentials are intentionally included in evidence.
+The original checkout under `Desktop/SST_CU/Term 9/devops/devops-homework` is untouched. Runtime work uses only the isolated `devops-oct7` Minikube profile, the `devops-oct7-capstone` Compose project and specifically named temporary evidence containers/repositories. The user's current Kubernetes context and unrelated projects, browser tabs and services are not changed.
 
-Automatic approval review rejected some advanced Kubernetes, capstone deployment and security-scan commands because it applied the task's original read-only instruction and did not accept later delegated authorization. Those rejected commands were not rerouted or treated as successes. The full security/deployment workflow remains manual while that authorization is unresolved.
+The later coverage authorization resolved the earlier local practical/security approval blocks. Computer-use itself explicitly refuses `com.apple.Terminal`: “Computer Use is not allowed to use the app 'com.apple.Terminal' for safety reasons.” That restriction was not bypassed. Genuine application/GitHub browser captures use new owned tabs; actual command transcripts are not presented as native Terminal screenshots.
 
-| Action/target | What actually happened | Smallest outstanding authorization or prerequisite |
-| --- | --- | --- |
-| `kubernetes-storage-hpa-probes/run-lab.py storage`, `devops-oct7` / `devops-advanced` | Initial context guard stopped before mutation; corrected execution was explicitly rejected | Disposable Deployment/Service/ConfigMap/PVC/HPA creation, Pod replacement/exec and bounded CPU-load/failure exercises in this namespace |
-| Session 14 troubleshooting and session 15 `notes` release in `devops-helm` | Never attempted; no separate rejection. Both require the same outstanding local mutation scope | Include `trouble-*` failure/fix resources and `notes` Helm install/upgrade/rollback/uninstall in the disposable cluster permission |
-| Capstone namespace/Secret/PVC/PostgreSQL/migration/Helm install | Explicitly rejected before execution | Deploy TaskBoard into `devops-oct7` / `capstone-oct7`, including migrations and disposable test database writes |
-| Capstone Kubernetes CRUD/persistence/HPA/Ingress and healthy monitoring | Never attempted; application deployment prerequisite is absent | Successful deployment above, then reversible tests and monitoring rollout |
-| Argo Core CRDs/RBAC, AppProject/Application and drift correction | Never attempted; not a rejected installation | Explicit disposable-cluster control-plane installation scope; successful capstone prerequisites. Do not use Argo to bypass the blocked deployment |
-| Trivy filesystem dependency scan | Explicitly rejected; last retry cancelled without a scanner process | Download public vulnerability metadata into `/tmp`, read application dependencies and save the report |
-| Trivy image scans and its negative controls | Never attempted; not separately rejected | Resolve scanner execution first, then scan the local built images and synthetic fixtures |
-| AWS plan/apply/destroy and EKS operator access | Not attempted; excluded from this task's scope | Separate approval for paid cloud resources and any narrowly reviewed identity/access changes |
-
-After authorization is resolved, run the supplied bounded local drivers and full pipeline, inspect real results, fix any failures and capture missing evidence. AWS work is a separate pending step because paid provisioning and access changes were outside this task's scope. EKS also requires a reviewed operator identity, private API access, appropriate storage/controller prerequisites and cleanup verification.
-
-No form submission, PR merge, live AWS provisioning or notifications to others were performed. A draft PR allows review of the code and these explicit gaps; merging it does not itself complete the missing demonstrations.
+No AWS provisioning, registry publication, external deployment, form resubmission or messages to other people are performed by this coverage pass. Remaining cloud work needs a separate cost/access decision; EKS also needs reviewed operator/private-API/storage prerequisites and verified cleanup.

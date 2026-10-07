@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = "jaivardhandrao/DevOps-Term-9"
@@ -106,6 +106,16 @@ def remote_check(topic, ref):
         return {"url": topic["url"], "error": str(exc)}
 
 
+def remote_image_check(path, ref):
+    try:
+        raw = fetch(f"https://raw.githubusercontent.com/{REPOSITORY}/{ref}/{quote(path)}")
+        if raw != (ROOT / path).read_bytes():
+            raise ValueError(f"Image differs from remote commit {ref}: {path}")
+        return {"path": path, "http_read": "passed", "commit_bytes_match": True}
+    except (subprocess.CalledProcessError, ValueError) as exc:
+        return {"path": path, "error": str(exc)}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--include-untracked", action="store_true", help="Pre-commit audit of new evidence")
@@ -115,9 +125,18 @@ def main():
         parser.error("--remote-ref requires a full immutable commit SHA")
     report = local_check(args.include_untracked)
     if args.remote_ref:
-        with ThreadPoolExecutor(max_workers=4) as pool:
-            report["remote"] = list(pool.map(lambda topic: remote_check(topic, args.remote_ref), report["submitted_topics"]))
-        report["errors"] += [result["error"] for result in report["remote"] if "error" in result]
+        try:
+            main_ref = json.loads(fetch(f"https://api.github.com/repos/{REPOSITORY}/git/ref/heads/main"))
+            report["remote_main_sha"] = main_ref["object"]["sha"]
+            if report["remote_main_sha"] != args.remote_ref:
+                raise ValueError(f"Remote main is {report['remote_main_sha']}, not requested commit {args.remote_ref}")
+            with ThreadPoolExecutor(max_workers=4) as pool:
+                report["remote"] = list(pool.map(lambda topic: remote_check(topic, args.remote_ref), report["submitted_topics"]))
+                report["remote_images"] = list(pool.map(lambda path: remote_image_check(path, args.remote_ref), report["distinct_inline_image_files"]))
+            report["errors"] += [result["error"] for result in report["remote"] if "error" in result]
+            report["errors"] += [result["error"] for result in report["remote_images"] if "error" in result]
+        except (subprocess.CalledProcessError, ValueError, KeyError) as exc:
+            report["errors"].append(f"Remote main verification failed: {exc}")
     print(json.dumps(report, indent=2, ensure_ascii=False))
     return bool(report["errors"])
 

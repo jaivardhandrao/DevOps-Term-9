@@ -1,0 +1,979 @@
+Run at 2026-10-07T18:01:37.304070+00:00
+Agent-operated local coursework lab. No external cluster or cloud resources used.
+
+$ kubectl config get-contexts devops-oct7 -o name
+devops-oct7
+exit=0
+
+$ kubectl config view --context devops-oct7 --minify -o 'jsonpath={.clusters[0].cluster.server}'
+https://127.0.0.1:55923
+exit=0
+
+$ kubectl --context devops-oct7 get nodes -o wide
+NAME          STATUS   ROLES           AGE     VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION     CONTAINER-RUNTIME
+devops-oct7   Ready    control-plane   7h52m   v1.34.0   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.12.76-linuxkit   containerd://2.3.4
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/mini-project.yaml
+deployment.apps/trouble-web unchanged
+service/trouble-web unchanged
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced rollout status deployment/trouble-web --timeout=180s
+deployment "trouble-web" successfully rolled out
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pods -o wide
+NAME                            READY   STATUS    RESTARTS   AGE     IP             NODE          NOMINATED NODE   READINESS GATES
+advanced-web-685f6dddf8-j54bl   1/1     Running   0          9m11s   10.244.0.69    devops-oct7   <none>           <none>
+advanced-web-685f6dddf8-tmntj   1/1     Running   0          7m45s   10.244.0.73    devops-oct7   <none>           <none>
+trouble-config                  1/1     Running   0          2m53s   10.244.0.98    devops-oct7   <none>           <none>
+trouble-crash                   1/1     Running   0          4m19s   10.244.0.92    devops-oct7   <none>           <none>
+trouble-dns                     1/1     Running   0          2m7s    10.244.0.100   devops-oct7   <none>           <none>
+trouble-image                   1/1     Running   0          3m25s   10.244.0.95    devops-oct7   <none>           <none>
+trouble-mount                   1/1     Running   0          3m11s   10.244.0.97    devops-oct7   <none>           <none>
+trouble-network                 1/1     Running   0          2m5s    10.244.0.101   devops-oct7   <none>           <none>
+trouble-pending                 1/1     Running   0          3m13s   10.244.0.96    devops-oct7   <none>           <none>
+trouble-web-5fdf45f579-jv4fk    1/1     Running   0          4m28s   10.244.0.89    devops-oct7   <none>           <none>
+trouble-web-5fdf45f579-snr8f    1/1     Running   0          4m28s   10.244.0.90    devops-oct7   <none>           <none>
+volume-examples                 1/1     Running   0          7m8s    10.244.0.77    devops-oct7   <none>           <none>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced explain pod.spec.containers.resources
+KIND:       Pod
+VERSION:    v1
+
+FIELD: resources <ResourceRequirements>
+
+
+DESCRIPTION:
+    Compute Resources required by this container. Cannot be updated. More info:
+    https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    ResourceRequirements describes the compute resource requirements.
+    
+FIELDS:
+  claims	<[]ResourceClaim>
+    Claims lists the names of resources, defined in spec.resourceClaims, that
+    are used by this container.
+    
+    This field depends on the DynamicResourceAllocation feature gate.
+    
+    This field is immutable. It can only be set for containers.
+
+  limits	<map[string]Quantity>
+    Limits describes the maximum amount of compute resources allowed. More info:
+    https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+
+  requests	<map[string]Quantity>
+    Requests describes the minimum amount of compute resources required. If
+    Requests is omitted for a container, it defaults to Limits if that is
+    explicitly specified, otherwise to an implementation-defined value. Requests
+    cannot exceed Limits. More info:
+    https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced top pods
+NAME                            CPU(cores)   MEMORY(bytes)   
+advanced-web-685f6dddf8-j54bl   2m           11Mi            
+advanced-web-685f6dddf8-tmntj   2m           11Mi            
+trouble-config                  0m           0Mi             
+trouble-crash                   0m           0Mi             
+trouble-dns                     0m           0Mi             
+trouble-image                   0m           0Mi             
+trouble-mount                   0m           0Mi             
+trouble-network                 9m           12Mi            
+trouble-pending                 0m           0Mi             
+trouble-web-5fdf45f579-jv4fk    1m           11Mi            
+trouble-web-5fdf45f579-snr8f    1m           11Mi            
+volume-examples                 1m           0Mi
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced delete pod trouble-network --ignore-not-found=true --wait=true
+pod "trouble-network" deleted from devops-advanced namespace
+exit=0
+
+CASE: network
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/network-broken.json
+pod/trouble-network created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced wait --for=condition=Ready pod/trouble-network --timeout=120s
+pod/trouble-network condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-network
+NAME              READY   STATUS    RESTARTS   AGE
+trouble-network   1/1     Running   0          4s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced describe pod trouble-network
+Name:             trouble-network
+Namespace:        devops-advanced
+Priority:         0
+Service Account:  default
+Node:             devops-oct7/192.168.49.2
+Start Time:       Wed, 07 Oct 2026 23:32:08 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.102
+IPs:
+  IP:  10.244.0.102
+Containers:
+  demo:
+    Container ID:  containerd://b7af4f82e6273c9f3aa3b28ea912ed0329c9df70524e550c943c93bf41cb9182
+    Image:         python:3.12-alpine
+    Image ID:      docker.io/library/python@sha256:1b668429b3511ab407d8e00648891631b0b1a4d7e15e3ca70f38ab5b91ad4ab4
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      python
+      -m
+      http.server
+      8080
+      --bind
+      127.0.0.1
+    State:          Running
+      Started:      Wed, 07 Oct 2026 23:32:08 +0530
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     100m
+      memory:  64Mi
+    Requests:
+      cpu:        10m
+      memory:     16Mi
+    Startup:      exec [python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080', timeout=2).close()] delay=0s timeout=5s period=2s #success=1 #failure=30
+    Environment:  <none>
+    Mounts:       <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:                      <none>
+QoS Class:                    Burstable
+Node-Selectors:               <none>
+Tolerations:                  node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  4s    default-scheduler  Successfully assigned devops-advanced/trouble-network to devops-oct7
+  Normal  Pulled     4s    kubelet            Container image "python:3.12-alpine" already present on machine
+  Normal  Created    4s    kubelet            Created container: demo
+  Normal  Started    4s    kubelet            Started container demo
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced events --for pod/trouble-network
+LAST SEEN   TYPE     REASON      OBJECT                MESSAGE
+2m40s       Normal   Scheduled   Pod/trouble-network   Successfully assigned devops-advanced/trouble-network to devops-oct7
+2m39s       Normal   Pulled      Pod/trouble-network   Container image "python:3.12-alpine" already present on machine
+2m39s       Normal   Created     Pod/trouble-network   Created container: demo
+2m39s       Normal   Started     Pod/trouble-network   Started container demo
+35s         Normal   Killing     Pod/trouble-network   Stopping container demo
+4s          Normal   Scheduled   Pod/trouble-network   Successfully assigned devops-advanced/trouble-network to devops-oct7
+4s          Normal   Pulled      Pod/trouble-network   Container image "python:3.12-alpine" already present on machine
+4s          Normal   Created     Pod/trouble-network   Created container: demo
+4s          Normal   Started     Pod/trouble-network   Started container demo
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-network -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-network\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"python\",\"-m\",\"http.server\",\"8080\",\"--bind\",\"127.0.0.1\"],\"image\":\"python:3.12-alpine\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"100m\",\"memory\":\"64Mi\"},\"requests\":{\"cpu\":\"10m\",\"memory\":\"16Mi\"}},\"startupProbe\":{\"exec\":{\"command\":[\"python\",\"-c\",\"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080', timeout=2).close()\"]},\"failureThreshold\":30,\"periodSeconds\":2,\"timeoutSeconds\":5}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T18:02:08Z",
+        "generation": 1,
+        "name": "trouble-network",
+        "namespace": "devops-advanced",
+        "resourceVersion": "30283",
+        "uid": "aeabb5e0-0713-43b8-bf43-7548b97ac066"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "python",
+                    "-m",
+                    "http.server",
+                    "8080",
+                    "--bind",
+                    "127.0.0.1"
+                ],
+                "image": "python:3.12-alpine",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "100m",
+                        "memory": "64Mi"
+                    },
+                    "requests": {
+                        "cpu": "10m",
+                        "memory": "16Mi"
+                    }
+                },
+                "startupProbe": {
+                    "exec": {
+                        "command": [
+                            "python",
+                            "-c",
+                            "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080', timeout=2).close()"
+                        ]
+                    },
+                    "failureThreshold": 30,
+                    "periodSeconds": 2,
+                    "successThreshold": 1,
+                    "timeoutSeconds": 5
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T18:02:09Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T18:02:08Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T18:02:12Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T18:02:12Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T18:02:08Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "allocatedResources": {
+                    "cpu": "10m",
+                    "memory": "16Mi"
+                },
+                "containerID": "containerd://b7af4f82e6273c9f3aa3b28ea912ed0329c9df70524e550c943c93bf41cb9182",
+                "image": "docker.io/library/python:3.12-alpine",
+                "imageID": "docker.io/library/python@sha256:1b668429b3511ab407d8e00648891631b0b1a4d7e15e3ca70f38ab5b91ad4ab4",
+                "lastState": {},
+                "name": "demo",
+                "ready": true,
+                "resources": {
+                    "limits": {
+                        "cpu": "100m",
+                        "memory": "64Mi"
+                    },
+                    "requests": {
+                        "cpu": "10m",
+                        "memory": "16Mi"
+                    }
+                },
+                "restartCount": 0,
+                "started": true,
+                "state": {
+                    "running": {
+                        "startedAt": "2026-10-07T18:02:08Z"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 0,
+                        "supplementalGroups": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            6,
+                            10,
+                            11,
+                            20,
+                            26,
+                            27
+                        ],
+                        "uid": 0
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.0.102",
+        "podIPs": [
+            {
+                "ip": "10.244.0.102"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T18:02:08Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced exec volume-examples -- wget -T 3 -O- http://10.244.0.102:8080
+Connecting to 10.244.0.102:8080 (10.244.0.102:8080)
+wget: can't connect to remote host (10.244.0.102): Connection refused
+command terminated with exit code 1
+exit=1
+
+$ kubectl --context devops-oct7 -n devops-advanced exec trouble-network -- python -c 'import urllib.request;print(urllib.request.urlopen('"'"'http://127.0.0.1:8080'"'"').status)'
+200
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced delete pod trouble-network --wait=true
+pod "trouble-network" deleted from devops-advanced namespace
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/scenarios/network-fixed.json
+pod/trouble-network created
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced wait --for=condition=Ready pod/trouble-network --timeout=120s
+pod/trouble-network condition met
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-network
+NAME              READY   STATUS    RESTARTS   AGE
+trouble-network   1/1     Running   0          6s
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced logs trouble-network
+127.0.0.1 - - [07/Oct/2026 18:02:49] "GET / HTTP/1.1" 200 -
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pod trouble-network -o json
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"name\":\"trouble-network\",\"namespace\":\"devops-advanced\"},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"python\",\"-m\",\"http.server\",\"8080\",\"--bind\",\"0.0.0.0\"],\"image\":\"python:3.12-alpine\",\"name\":\"demo\",\"resources\":{\"limits\":{\"cpu\":\"100m\",\"memory\":\"64Mi\"},\"requests\":{\"cpu\":\"10m\",\"memory\":\"16Mi\"}},\"startupProbe\":{\"exec\":{\"command\":[\"python\",\"-c\",\"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080', timeout=2).close()\"]},\"failureThreshold\":30,\"periodSeconds\":2,\"timeoutSeconds\":5}}]}}\n"
+        },
+        "creationTimestamp": "2026-10-07T18:02:43Z",
+        "generation": 1,
+        "name": "trouble-network",
+        "namespace": "devops-advanced",
+        "resourceVersion": "30335",
+        "uid": "71ae884d-d140-43d8-8c55-ee07d369e83d"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "python",
+                    "-m",
+                    "http.server",
+                    "8080",
+                    "--bind",
+                    "0.0.0.0"
+                ],
+                "image": "python:3.12-alpine",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "demo",
+                "resources": {
+                    "limits": {
+                        "cpu": "100m",
+                        "memory": "64Mi"
+                    },
+                    "requests": {
+                        "cpu": "10m",
+                        "memory": "16Mi"
+                    }
+                },
+                "startupProbe": {
+                    "exec": {
+                        "command": [
+                            "python",
+                            "-c",
+                            "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080', timeout=2).close()"
+                        ]
+                    },
+                    "failureThreshold": 30,
+                    "periodSeconds": 2,
+                    "successThreshold": 1,
+                    "timeoutSeconds": 5
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "devops-oct7",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T18:02:44Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T18:02:43Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T18:02:49Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T18:02:49Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-07T18:02:43Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "allocatedResources": {
+                    "cpu": "10m",
+                    "memory": "16Mi"
+                },
+                "containerID": "containerd://27155b195f49df83a86ac5a9f7be974d44cf7718534db965236c55b779ae9873",
+                "image": "docker.io/library/python:3.12-alpine",
+                "imageID": "docker.io/library/python@sha256:1b668429b3511ab407d8e00648891631b0b1a4d7e15e3ca70f38ab5b91ad4ab4",
+                "lastState": {},
+                "name": "demo",
+                "ready": true,
+                "resources": {
+                    "limits": {
+                        "cpu": "100m",
+                        "memory": "64Mi"
+                    },
+                    "requests": {
+                        "cpu": "10m",
+                        "memory": "16Mi"
+                    }
+                },
+                "restartCount": 0,
+                "started": true,
+                "state": {
+                    "running": {
+                        "startedAt": "2026-10-07T18:02:44Z"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 0,
+                        "supplementalGroups": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            6,
+                            10,
+                            11,
+                            20,
+                            26,
+                            27
+                        ],
+                        "uid": 0
+                    }
+                }
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.0.103",
+        "podIPs": [
+            {
+                "ip": "10.244.0.103"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-07T18:02:43Z"
+    }
+}
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced exec volume-examples -- wget -T 3 -O- http://10.244.0.103:8080
+Connecting to 10.244.0.103:8080 (10.244.0.103:8080)
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Directory listing for /</title>
+</head>
+<body>
+<h1>Directory listing for /</h1>
+<hr>
+<ul>
+<li><a href="bin/">bin/</a></li>
+<li><a href="dev/">dev/</a></li>
+<li><a href="etc/">etc/</a></li>
+<li><a href="home/">home/</a></li>
+<li><a href="lib/">lib/</a></li>
+<li><a href="media/">media/</a></li>
+<li><a href="mnt/">mnt/</a></li>
+<li><a href="opt/">opt/</a></li>
+<li><a href="proc/">proc/</a></li>
+<li><a href="root/">root/</a></li>
+<li><a href="run/">run/</a></li>
+<li><a href="sbin/">sbin/</a></li>
+<li><a href="srv/">srv/</a></li>
+<li><a href="sys/">sys/</a></li>
+<li><a href="tmp/">tmp/</a></li>
+<li><a href="usr/">usr/</a></li>
+<li><a href="var/">var/</a></li>
+</ul>
+<hr>
+</body>
+</html>
+writing to stdout
+-                    100% |********************************|   760  0:00:00 ETA
+written to stdout
+exit=0
+
+CASE: Service selector mini-project
+
+$ kubectl --context devops-oct7 -n devops-advanced patch service trouble-web --type=merge -p '{"spec":{"selector":{"app":"wrong-app"}}}'
+service/trouble-web patched
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get pods -l app=trouble-web --show-labels
+NAME                           READY   STATUS    RESTARTS   AGE     LABELS
+trouble-web-5fdf45f579-jv4fk   1/1     Running   0          5m40s   app=trouble-web,pod-template-hash=5fdf45f579
+trouble-web-5fdf45f579-snr8f   1/1     Running   0          5m40s   app=trouble-web,pod-template-hash=5fdf45f579
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced describe service trouble-web
+Name:                     trouble-web
+Namespace:                devops-advanced
+Labels:                   <none>
+Annotations:              <none>
+Selector:                 app=wrong-app
+Type:                     ClusterIP
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.99.236.131
+IPs:                      10.99.236.131
+Port:                     <unset>  80/TCP
+TargetPort:               http/TCP
+Endpoints:                
+Session Affinity:         None
+Internal Traffic Policy:  Cluster
+Events:                   <none>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get endpointslices -l kubernetes.io/service-name=trouble-web -o yaml
+apiVersion: v1
+items:
+- addressType: IPv4
+  apiVersion: discovery.k8s.io/v1
+  endpoints: null
+  kind: EndpointSlice
+  metadata:
+    creationTimestamp: "2026-10-07T17:57:09Z"
+    generateName: trouble-web-
+    generation: 6
+    labels:
+      endpointslice.kubernetes.io/managed-by: endpointslice-controller.k8s.io
+      kubernetes.io/service-name: trouble-web
+    name: trouble-web-xf6n6
+    namespace: devops-advanced
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Service
+      name: trouble-web
+      uid: 5fc2b80b-0f87-42ee-ba4d-7ba46e12670b
+    resourceVersion: "30339"
+    uid: 336633df-ba8f-4876-942c-1aaee170ecaa
+  ports: null
+kind: List
+metadata:
+  resourceVersion: ""
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced exec volume-examples -- wget -T 3 -O- http://trouble-web
+Connecting to trouble-web (10.99.236.131:80)
+wget: can't connect to remote host (10.99.236.131): Connection refused
+command terminated with exit code 1
+exit=1
+
+$ kubectl --context devops-oct7 -n devops-advanced apply -f /Users/jaivardhandrao/Documents/Codex/2026-10-07/task/devops-assignment/kubernetes-troubleshooting/mini-project.yaml
+deployment.apps/trouble-web unchanged
+service/trouble-web configured
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get endpointslices -l kubernetes.io/service-name=trouble-web -o yaml
+apiVersion: v1
+items:
+- addressType: IPv4
+  apiVersion: discovery.k8s.io/v1
+  endpoints:
+  - addresses:
+    - 10.244.0.89
+    conditions:
+      ready: true
+      serving: true
+      terminating: false
+    nodeName: devops-oct7
+    targetRef:
+      kind: Pod
+      name: trouble-web-5fdf45f579-jv4fk
+      namespace: devops-advanced
+      uid: f9305be9-ab95-4c7e-a39f-7b4d69c60b16
+  - addresses:
+    - 10.244.0.90
+    conditions:
+      ready: true
+      serving: true
+      terminating: false
+    nodeName: devops-oct7
+    targetRef:
+      kind: Pod
+      name: trouble-web-5fdf45f579-snr8f
+      namespace: devops-advanced
+      uid: 87a3708a-08f1-4b6d-b50c-300ff05b4f0c
+  kind: EndpointSlice
+  metadata:
+    annotations:
+      endpoints.kubernetes.io/last-change-trigger-time: "2026-10-07T17:57:12Z"
+    creationTimestamp: "2026-10-07T17:57:09Z"
+    generateName: trouble-web-
+    generation: 7
+    labels:
+      endpointslice.kubernetes.io/managed-by: endpointslice-controller.k8s.io
+      kubernetes.io/service-name: trouble-web
+    name: trouble-web-xf6n6
+    namespace: devops-advanced
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Service
+      name: trouble-web
+      uid: 5fc2b80b-0f87-42ee-ba4d-7ba46e12670b
+    resourceVersion: "30342"
+    uid: 336633df-ba8f-4876-942c-1aaee170ecaa
+  ports:
+  - name: ""
+    port: 80
+    protocol: TCP
+kind: List
+metadata:
+  resourceVersion: ""
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced exec volume-examples -- wget -T 3 -O- http://trouble-web
+Connecting to trouble-web (10.99.236.131:80)
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+writing to stdout
+-                    100% |********************************|   615  0:00:00 ETA
+written to stdout
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced exec deploy/trouble-web -- sh -c 'wget -q -O- http://127.0.0.1'
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced logs deployment/trouble-web --tail=8
+Found 2 pods, using pod/trouble-web-5fdf45f579-jv4fk
+10.244.0.1 - - [07/Oct/2026:18:01:52 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.244.0.1 - - [07/Oct/2026:18:02:02 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.244.0.1 - - [07/Oct/2026:18:02:12 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.244.0.1 - - [07/Oct/2026:18:02:22 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.244.0.1 - - [07/Oct/2026:18:02:32 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.244.0.1 - - [07/Oct/2026:18:02:42 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.244.0.1 - - [07/Oct/2026:18:02:52 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+127.0.0.1 - - [07/Oct/2026:18:02:54 +0000] "GET / HTTP/1.1" 200 615 "-" "Wget" "-"
+exit=0
+
+$ kubectl --context devops-oct7 -n devops-advanced get events --sort-by=.lastTimestamp
+LAST SEEN   TYPE      REASON                         OBJECT                                 MESSAGE
+11m         Normal    Provisioning                   persistentvolumeclaim/advanced-data    External provisioner is provisioning volume for claim "devops-advanced/advanced-data"
+11m         Normal    ProvisioningSucceeded          persistentvolumeclaim/advanced-data    Successfully provisioned volume pvc-fb17e93a-c426-4174-9182-7319d30c72e0
+11m         Normal    ExternalProvisioning           persistentvolumeclaim/advanced-data    Waiting for a volume to be created either by the external provisioner 'k8s.io/minikube-hostpath' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
+10m         Normal    SuccessfulCreate               replicaset/advanced-web-685f6dddf8     Created pod: advanced-web-685f6dddf8-7chk8
+10m         Normal    Scheduled                      pod/advanced-web-685f6dddf8-7chk8      Successfully assigned devops-advanced/advanced-web-685f6dddf8-7chk8 to devops-oct7
+10m         Normal    Scheduled                      pod/advanced-web-685f6dddf8-j54bl      Successfully assigned devops-advanced/advanced-web-685f6dddf8-j54bl to devops-oct7
+10m         Normal    ScalingReplicaSet              deployment/advanced-web                Scaled up replica set advanced-web-685f6dddf8 from 0 to 2
+10m         Normal    SuccessfulCreate               replicaset/advanced-web-685f6dddf8     Created pod: advanced-web-685f6dddf8-j54bl
+10m         Normal    Pulling                        pod/advanced-web-685f6dddf8-j54bl      Pulling image "python:3.12-alpine"
+10m         Warning   Failed                         pod/advanced-web-685f6dddf8-7chk8      Failed to pull image "python:3.12-alpine": failed to pull and unpack image "docker.io/library/python:3.12-alpine": failed to resolve reference "docker.io/library/python:3.12-alpine": failed to do request: Head "https://registry-1.docker.io/v2/library/python/manifests/3.12-alpine": dial tcp: lookup registry-1.docker.io on 192.168.65.254:53: server misbehaving
+10m         Normal    BackOff                        pod/advanced-web-685f6dddf8-7chk8      Back-off pulling image "python:3.12-alpine"
+10m         Warning   Failed                         pod/advanced-web-685f6dddf8-7chk8      Error: ImagePullBackOff
+10m         Normal    Pulling                        pod/advanced-web-685f6dddf8-7chk8      Pulling image "python:3.12-alpine"
+9m57s       Normal    Started                        pod/advanced-web-685f6dddf8-j54bl      Started container web
+9m57s       Normal    Pulled                         pod/advanced-web-685f6dddf8-j54bl      Successfully pulled image "python:3.12-alpine" in 19.594s (30.008s including waiting). Image size: 21423636 bytes.
+9m57s       Normal    Created                        pod/advanced-web-685f6dddf8-j54bl      Created container: web
+9m28s       Warning   FailedGetResourceMetric        horizontalpodautoscaler/advanced-web   failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+9m28s       Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/advanced-web   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+9m17s       Warning   Failed                         pod/advanced-web-685f6dddf8-7chk8      Failed to pull image "python:3.12-alpine": failed to pull and unpack image "docker.io/library/python:3.12-alpine": failed to resolve reference "docker.io/library/python:3.12-alpine": failed to authorize: failed to fetch anonymous token: Get "https://auth.docker.io/token?scope=%5BREDACTED%5D&service=%5BREDACTED%5D": dial tcp: lookup auth.docker.io on 192.168.65.254:53: server misbehaving
+9m17s       Warning   Failed                         pod/advanced-web-685f6dddf8-7chk8      Error: ErrImagePull
+9m5s        Normal    Started                        pod/advanced-web-685f6dddf8-7chk8      Started container web
+9m5s        Normal    Created                        pod/advanced-web-685f6dddf8-7chk8      Created container: web
+9m5s        Normal    Pulled                         pod/advanced-web-685f6dddf8-7chk8      Container image "python:3.12-alpine" already present on machine
+9m2s        Normal    Scheduled                      pod/advanced-web-685f6dddf8-tmntj      Successfully assigned devops-advanced/advanced-web-685f6dddf8-tmntj to devops-oct7
+9m2s        Normal    SuccessfulCreate               replicaset/advanced-web-685f6dddf8     Created pod: advanced-web-685f6dddf8-tmntj
+9m2s        Normal    Started                        pod/advanced-web-685f6dddf8-tmntj      Started container web
+9m2s        Normal    Created                        pod/advanced-web-685f6dddf8-tmntj      Created container: web
+9m2s        Normal    Pulled                         pod/advanced-web-685f6dddf8-tmntj      Container image "python:3.12-alpine" already present on machine
+9m1s        Normal    Killing                        pod/advanced-web-685f6dddf8-7chk8      Stopping container web
+8m28s       Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/advanced-web   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+8m28s       Warning   FailedGetResourceMetric        horizontalpodautoscaler/advanced-web   failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+8m25s       Normal    Scheduled                      pod/volume-examples                    Successfully assigned devops-advanced/volume-examples to devops-oct7
+8m24s       Normal    Pulling                        pod/volume-examples                    Pulling image "busybox:1.36.1"
+7m37s       Normal    Pulled                         pod/volume-examples                    Successfully pulled image "busybox:1.36.1" in 14.151s (46.819s including waiting). Image size: 1906887 bytes.
+7m37s       Normal    Created                        pod/volume-examples                    Created container: reader
+7m36s       Normal    Started                        pod/volume-examples                    Started container reader
+7m35s       Normal    Created                        pod/advanced-load-g72lm                Created container: load
+7m35s       Normal    Pulled                         pod/advanced-load-g72lm                Container image "busybox:1.36.1" already present on machine
+7m35s       Normal    Started                        pod/advanced-load-g72lm                Started container load
+7m35s       Normal    Scheduled                      pod/advanced-load-g72lm                Successfully assigned devops-advanced/advanced-load-g72lm to devops-oct7
+7m35s       Normal    SuccessfulCreate               job/advanced-load                      Created pod: advanced-load-g72lm
+7m12s       Normal    SuccessfulCreate               replicaset/advanced-web-685f6dddf8     Created pod: advanced-web-685f6dddf8-zt627
+7m12s       Normal    Started                        pod/advanced-web-685f6dddf8-8qf45      Started container web
+7m12s       Normal    Started                        pod/advanced-web-685f6dddf8-zt627      Started container web
+7m12s       Normal    Pulled                         pod/advanced-web-685f6dddf8-zt627      Container image "python:3.12-alpine" already present on machine
+7m12s       Normal    Scheduled                      pod/advanced-web-685f6dddf8-zt627      Successfully assigned devops-advanced/advanced-web-685f6dddf8-zt627 to devops-oct7
+7m12s       Normal    Created                        pod/advanced-web-685f6dddf8-8qf45      Created container: web
+7m12s       Normal    Started                        pod/advanced-web-685f6dddf8-x5jfq      Started container web
+7m12s       Normal    Pulled                         pod/advanced-web-685f6dddf8-8qf45      Container image "python:3.12-alpine" already present on machine
+7m12s       Normal    SuccessfulCreate               replicaset/advanced-web-685f6dddf8     Created pod: advanced-web-685f6dddf8-8qf45
+7m12s       Normal    SuccessfulCreate               replicaset/advanced-web-685f6dddf8     Created pod: advanced-web-685f6dddf8-x5jfq
+7m12s       Normal    Created                        pod/advanced-web-685f6dddf8-x5jfq      Created container: web
+7m12s       Normal    Pulled                         pod/advanced-web-685f6dddf8-x5jfq      Container image "python:3.12-alpine" already present on machine
+7m12s       Normal    ScalingReplicaSet              deployment/advanced-web                Scaled up replica set advanced-web-685f6dddf8 from 2 to 5
+7m12s       Normal    Scheduled                      pod/advanced-web-685f6dddf8-x5jfq      Successfully assigned devops-advanced/advanced-web-685f6dddf8-x5jfq to devops-oct7
+7m12s       Normal    SuccessfulRescale              horizontalpodautoscaler/advanced-web   New size: 5; reason: cpu resource utilization (percentage of request) above target
+7m12s       Normal    Scheduled                      pod/advanced-web-685f6dddf8-8qf45      Successfully assigned devops-advanced/advanced-web-685f6dddf8-8qf45 to devops-oct7
+7m12s       Normal    Created                        pod/advanced-web-685f6dddf8-zt627      Created container: web
+6m45s       Normal    Killing                        pod/advanced-load-g72lm                Stopping container load
+6m34s       Warning   Unhealthy                      pod/advanced-web-685f6dddf8-8qf45      Readiness probe failed: HTTP probe failed with statuscode: 503
+5m45s       Normal    Scheduled                      pod/trouble-web-5fdf45f579-snr8f       Successfully assigned devops-advanced/trouble-web-5fdf45f579-snr8f to devops-oct7
+5m45s       Normal    Scheduled                      pod/trouble-web-5fdf45f579-jv4fk       Successfully assigned devops-advanced/trouble-web-5fdf45f579-jv4fk to devops-oct7
+5m45s       Normal    ScalingReplicaSet              deployment/trouble-web                 Scaled up replica set trouble-web-5fdf45f579 from 0 to 2
+5m45s       Normal    SuccessfulCreate               replicaset/trouble-web-5fdf45f579      Created pod: trouble-web-5fdf45f579-jv4fk
+5m45s       Normal    SuccessfulCreate               replicaset/trouble-web-5fdf45f579      Created pod: trouble-web-5fdf45f579-snr8f
+5m44s       Normal    Pulled                         pod/trouble-web-5fdf45f579-jv4fk       Container image "nginx:1.27-alpine" already present on machine
+5m44s       Normal    Created                        pod/trouble-web-5fdf45f579-jv4fk       Created container: nginx
+5m43s       Normal    Pulled                         pod/trouble-web-5fdf45f579-snr8f       Container image "nginx:1.27-alpine" already present on machine
+5m43s       Normal    Created                        pod/trouble-web-5fdf45f579-snr8f       Created container: nginx
+5m43s       Warning   Unhealthy                      pod/trouble-web-5fdf45f579-jv4fk       Readiness probe failed: Get "http://10.244.0.89:80/": dial tcp 10.244.0.89:80: connect: connection refused
+5m43s       Normal    Started                        pod/trouble-web-5fdf45f579-jv4fk       Started container nginx
+5m43s       Normal    Started                        pod/trouble-web-5fdf45f579-snr8f       Started container nginx
+5m43s       Warning   Unhealthy                      pod/trouble-web-5fdf45f579-snr8f       Readiness probe failed: Get "http://10.244.0.90:80/": dial tcp 10.244.0.90:80: connect: connection refused
+5m42s       Normal    Scheduled                      pod/trouble-crash                      Successfully assigned devops-advanced/trouble-crash to devops-oct7
+5m40s       Normal    Pulled                         pod/trouble-crash                      Container image "busybox:1.36.1" already present on machine
+5m40s       Normal    Created                        pod/trouble-crash                      Created container: demo
+5m39s       Normal    Started                        pod/trouble-crash                      Started container demo
+5m38s       Warning   BackOff                        pod/trouble-crash                      Back-off restarting failed container demo in pod trouble-crash_devops-advanced(6804e10a-5896-475e-bb6b-5fbeff6b6f06)
+5m36s       Normal    Scheduled                      pod/trouble-crash                      Successfully assigned devops-advanced/trouble-crash to devops-oct7
+5m35s       Normal    Started                        pod/trouble-crash                      Started container demo
+5m35s       Normal    Pulled                         pod/trouble-crash                      Container image "busybox:1.36.1" already present on machine
+5m35s       Normal    Created                        pod/trouble-crash                      Created container: demo
+5m34s       Normal    Scheduled                      pod/trouble-image                      Successfully assigned devops-advanced/trouble-image to devops-oct7
+5m29s       Warning   Failed                         pod/trouble-image                      Failed to pull image "busybox:devops-intentionally-missing": rpc error: code = NotFound desc = failed to pull and unpack image "docker.io/library/busybox:devops-intentionally-missing": failed to resolve reference "docker.io/library/busybox:devops-intentionally-missing": docker.io/library/busybox:devops-intentionally-missing: not found
+5m17s       Normal    Pulling                        pod/trouble-image                      Pulling image "busybox:devops-intentionally-missing"
+5m8s        Warning   Failed                         pod/trouble-image                      Failed to pull image "busybox:devops-intentionally-missing": failed to pull and unpack image "docker.io/library/busybox:devops-intentionally-missing": failed to resolve reference "docker.io/library/busybox:devops-intentionally-missing": failed to authorize: failed to fetch anonymous token: Get "https://auth.docker.io/token?scope=%5BREDACTED%5D&service=%5BREDACTED%5D": dial tcp: lookup auth.docker.io on 192.168.65.254:53: server misbehaving
+5m8s        Warning   Failed                         pod/trouble-image                      Error: ErrImagePull
+4m55s       Normal    BackOff                        pod/trouble-image                      Back-off pulling image "busybox:devops-intentionally-missing"
+4m55s       Warning   Failed                         pod/trouble-image                      Error: ImagePullBackOff
+4m42s       Normal    Scheduled                      pod/trouble-image                      Successfully assigned devops-advanced/trouble-image to devops-oct7
+4m41s       Normal    Pulled                         pod/trouble-image                      Container image "busybox:1.36.1" already present on machine
+4m41s       Normal    Created                        pod/trouble-image                      Created container: demo
+4m41s       Normal    Started                        pod/trouble-image                      Started container demo
+4m40s       Warning   FailedScheduling               pod/trouble-pending                    0/1 nodes are available: 1 node(s) didn't match Pod's node affinity/selector. no new claims to deallocate, preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+4m30s       Normal    Scheduled                      pod/trouble-pending                    Successfully assigned devops-advanced/trouble-pending to devops-oct7
+4m29s       Normal    Pulled                         pod/trouble-pending                    Container image "busybox:1.36.1" already present on machine
+4m29s       Normal    Created                        pod/trouble-pending                    Created container: demo
+4m28s       Normal    Started                        pod/trouble-pending                    Started container demo
+4m28s       Normal    Scheduled                      pod/trouble-mount                      Successfully assigned devops-advanced/trouble-mount to devops-oct7
+4m20s       Warning   FailedMount                    pod/trouble-mount                      MountVolume.SetUp failed for volume "missing" : configmap "trouble-missing-volume" not found
+4m12s       Normal    Pulled                         pod/trouble-mount                      Container image "busybox:1.36.1" already present on machine
+4m11s       Normal    Created                        pod/trouble-mount                      Created container: demo
+4m11s       Normal    Started                        pod/trouble-mount                      Started container demo
+4m10s       Normal    Scheduled                      pod/trouble-config                     Successfully assigned devops-advanced/trouble-config to devops-oct7
+4m9s        Warning   Failed                         pod/trouble-config                     Error: configmap "trouble-missing-env" not found
+3m57s       Normal    Created                        pod/trouble-config                     Created container: demo
+3m57s       Normal    Pulled                         pod/trouble-config                     Container image "busybox:1.36.1" already present on machine
+3m56s       Normal    Started                        pod/trouble-config                     Started container demo
+3m56s       Normal    Scheduled                      pod/trouble-dns                        Successfully assigned devops-advanced/trouble-dns to devops-oct7
+3m55s       Normal    Created                        pod/trouble-dns                        Created container: demo
+3m55s       Normal    Pulled                         pod/trouble-dns                        Container image "busybox:1.36.1" already present on machine
+3m55s       Normal    Started                        pod/trouble-dns                        Started container demo
+3m54s       Normal    Killing                        pod/trouble-dns                        Stopping container demo
+3m27s       Normal    ScalingReplicaSet              deployment/advanced-web                Scaled down replica set advanced-web-685f6dddf8 from 5 to 2
+3m27s       Normal    Killing                        pod/advanced-web-685f6dddf8-8qf45      Stopping container web
+3m27s       Normal    Killing                        pod/advanced-web-685f6dddf8-x5jfq      Stopping container web
+3m27s       Normal    Killing                        pod/advanced-web-685f6dddf8-zt627      Stopping container web
+3m27s       Normal    SuccessfulDelete               replicaset/advanced-web-685f6dddf8     Deleted pod: advanced-web-685f6dddf8-zt627
+3m27s       Normal    SuccessfulDelete               replicaset/advanced-web-685f6dddf8     Deleted pod: advanced-web-685f6dddf8-8qf45
+3m27s       Normal    SuccessfulDelete               replicaset/advanced-web-685f6dddf8     Deleted pod: advanced-web-685f6dddf8-x5jfq
+3m27s       Normal    SuccessfulRescale              horizontalpodautoscaler/advanced-web   New size: 2; reason: All metrics below target
+3m24s       Normal    Scheduled                      pod/trouble-dns                        Successfully assigned devops-advanced/trouble-dns to devops-oct7
+3m23s       Normal    Created                        pod/trouble-dns                        Created container: demo
+3m23s       Normal    Pulled                         pod/trouble-dns                        Container image "busybox:1.36.1" already present on machine
+3m22s       Normal    Scheduled                      pod/trouble-network                    Successfully assigned devops-advanced/trouble-network to devops-oct7
+3m22s       Normal    Started                        pod/trouble-dns                        Started container demo
+3m21s       Normal    Started                        pod/trouble-network                    Started container demo
+3m21s       Normal    Pulled                         pod/trouble-network                    Container image "python:3.12-alpine" already present on machine
+3m21s       Normal    Created                        pod/trouble-network                    Created container: demo
+77s         Normal    Killing                        pod/trouble-network                    Stopping container demo
+46s         Normal    Started                        pod/trouble-network                    Started container demo
+46s         Normal    Scheduled                      pod/trouble-network                    Successfully assigned devops-advanced/trouble-network to devops-oct7
+46s         Normal    Pulled                         pod/trouble-network                    Container image "python:3.12-alpine" already present on machine
+46s         Normal    Created                        pod/trouble-network                    Created container: demo
+41s         Normal    Killing                        pod/trouble-network                    Stopping container demo
+11s         Normal    Scheduled                      pod/trouble-network                    Successfully assigned devops-advanced/trouble-network to devops-oct7
+11s         Normal    Pulled                         pod/trouble-network                    Container image "python:3.12-alpine" already present on machine
+11s         Normal    Created                        pod/trouble-network                    Created container: demo
+10s         Normal    Started                        pod/trouble-network                    Started container demo
+exit=0
+
+Completed all assertions for troubleshooting-tail

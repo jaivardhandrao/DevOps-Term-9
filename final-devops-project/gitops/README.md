@@ -1,12 +1,12 @@
 # GitOps reconciliation with Argo CD Core
 
-The desired state is the [TaskBoard Helm chart](../helm/taskboard/). [application.yaml](application.yaml) selects the actual coursework repository branch `homework/october-7-completion`, namespace `capstone-oct7`, and locally loaded images. [project.yaml](project.yaml) restricts source repository, destination and resource kinds. It cannot deploy cluster-scoped resources.
+The desired state is the [TaskBoard Helm chart](../helm/taskboard/). [application.yaml](application.yaml) selects the merged coursework repository branch `main`, namespace `capstone-oct7`, and locally loaded images. [project.yaml](project.yaml) restricts source repository, destination and resource kinds. It cannot deploy cluster-scoped resources.
 
 Argo CD Core is pinned to **v3.5.4**, verified through the official release API on October 7, 2026. Core runs the application controller, repo-server and Redis without an API server/UI. ApplicationSet is scaled to zero because this demo has one Application. The installation includes CRDs and control-plane permissions; use only the newly created isolated cluster. Never install this coursework control plane into a shared or production cluster.
 
 ## Prerequisites
 
-1. The coursework branch and chart have actually been pushed to GitHub.
+1. The chart has actually been pushed to the coursework repository’s `main` branch.
 2. The cluster is the disposable `devops-oct7` context.
 3. Namespaces `capstone-oct7` and `monitoring-oct7` exist.
 4. App images tagged `local` have been loaded into that cluster.
@@ -43,9 +43,13 @@ Record the deliberate drift, Argo's comparison/sync state and restored `APP_ENV=
 
 The branch is intentionally mutable for this exercise. For a release, pin `targetRevision` and image tags/digests to reviewed immutable values. Credentials and persisted data are external state; never place them in the public repository.
 
-## Verification status
+## Verified runtime evidence
 
-The definitions are supplied here. Runtime claims belong in captured evidence after GitHub publication and controller reconciliation. Until that evidence exists, GitOps runtime verification is pending.
+On October 7, Argo CD Core reconciled `main` at commit `a21851154ac1bf984ab7c7a0304073a19faac27d` and reported **Synced / Healthy**. A deliberately changed `APP_ENV=intentional-drift` was observed and automatically restored to `coursework`. See [initial reconciliation](evidence/2026-10-07/initial-reconciliation.json) and [the self-healing timeline](evidence/2026-10-07/drift-self-heal.json).
+
+The first controller comparison exposed an installation namespace bug: the upstream ClusterRoleBinding names its service-account subject namespace `argocd`, and the overlay’s namespace transform did not rewrite that explicit field. The overlay now patches the subject to `monitoring-oct7`. No extra resource kinds or permissions were added beyond the pinned Core installation. After the correction, the controller could compare and reconcile live state. Backend HPA can briefly report missing CPU samples immediately after rollout; it became healthy once metrics-server had sampled the ready Pod.
+
+The runtime uses the locally loaded, patched images recorded in [runtime image evidence](../kubernetes/evidence/2026-10-07/patched-runtime-images.json). Local tags are deliberately mutable for the lab; the evidence records config IDs and maps them to the build’s OCI index and scan report. A production deployment should use immutable image digests.
 
 ## References
 

@@ -1,0 +1,1468 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.75.0"
+  },
+  "ReportID": "01a1178c-4a0b-7c4c-ad76-b7aa44b52673",
+  "CreatedAt": "2026-10-07T18:07:12.395806937Z",
+  "ArtifactName": "final-devops-project/application",
+  "ArtifactType": "filesystem",
+  "Results": [
+    {
+      "Target": "backend/requirements-dev.txt",
+      "Class": "lang-pkgs",
+      "Type": "pip",
+      "Packages": [
+        {
+          "Name": "Pygments",
+          "Identifier": {
+            "PURL": "pkg:pypi/pygments@2.21.0",
+            "UID": "b847c8cf57f24da0"
+          },
+          "Version": "2.21.0",
+          "Licenses": [
+            "BSD-2-Clause"
+          ],
+          "Locations": [
+            {
+              "StartLine": 9,
+              "EndLine": 9
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "certifi",
+          "Identifier": {
+            "PURL": "pkg:pypi/certifi@2026.7.22",
+            "UID": "8746bd4c114083e4"
+          },
+          "Version": "2026.7.22",
+          "Locations": [
+            {
+              "StartLine": 4,
+              "EndLine": 4
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "httpcore",
+          "Identifier": {
+            "PURL": "pkg:pypi/httpcore@1.0.9",
+            "UID": "d59efd79e59b5f1"
+          },
+          "Version": "1.0.9",
+          "Locations": [
+            {
+              "StartLine": 5,
+              "EndLine": 5
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "httpx",
+          "Identifier": {
+            "PURL": "pkg:pypi/httpx@0.28.1",
+            "UID": "8fdd81f92eb41614"
+          },
+          "Version": "0.28.1",
+          "Locations": [
+            {
+              "StartLine": 3,
+              "EndLine": 3
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "iniconfig",
+          "Identifier": {
+            "PURL": "pkg:pypi/iniconfig@2.3.1",
+            "UID": "5a1137262165b10b"
+          },
+          "Version": "2.3.1",
+          "Locations": [
+            {
+              "StartLine": 6,
+              "EndLine": 6
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "packaging",
+          "Identifier": {
+            "PURL": "pkg:pypi/packaging@26.3",
+            "UID": "9503e2b7d4398e1a"
+          },
+          "Version": "26.3",
+          "Locations": [
+            {
+              "StartLine": 7,
+              "EndLine": 7
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "pluggy",
+          "Identifier": {
+            "PURL": "pkg:pypi/pluggy@1.6.0",
+            "UID": "67df7fb169b8d02d"
+          },
+          "Version": "1.6.0",
+          "Locations": [
+            {
+              "StartLine": 8,
+              "EndLine": 8
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "pytest",
+          "Identifier": {
+            "PURL": "pkg:pypi/pytest@9.0.2",
+            "UID": "c00be1e8393855ee"
+          },
+          "Version": "9.0.2",
+          "Locations": [
+            {
+              "StartLine": 2,
+              "EndLine": 2
+            }
+          ],
+          "AnalyzedBy": "pip"
+        }
+      ]
+    },
+    {
+      "Target": "backend/requirements.txt",
+      "Class": "lang-pkgs",
+      "Type": "pip",
+      "Packages": [
+        {
+          "Name": "Mako",
+          "Identifier": {
+            "PURL": "pkg:pypi/mako@1.4.3",
+            "UID": "916c15dbd725c18e"
+          },
+          "Version": "1.4.3",
+          "Locations": [
+            {
+              "StartLine": 11,
+              "EndLine": 11
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "MarkupSafe",
+          "Identifier": {
+            "PURL": "pkg:pypi/markupsafe@3.0.4",
+            "UID": "ed0e321c28d0717"
+          },
+          "Version": "3.0.4",
+          "Locations": [
+            {
+              "StartLine": 12,
+              "EndLine": 12
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "SQLAlchemy",
+          "Identifier": {
+            "PURL": "pkg:pypi/sqlalchemy@2.0.48",
+            "UID": "9bf5a8c66f24b9e6"
+          },
+          "Version": "2.0.48",
+          "Locations": [
+            {
+              "StartLine": 18,
+              "EndLine": 18
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "alembic",
+          "Identifier": {
+            "PURL": "pkg:pypi/alembic@1.18.4",
+            "UID": "d14cb3249277c2c6"
+          },
+          "Version": "1.18.4",
+          "Locations": [
+            {
+              "StartLine": 2,
+              "EndLine": 2
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "annotated-doc",
+          "Identifier": {
+            "PURL": "pkg:pypi/annotated-doc@0.0.5",
+            "UID": "6efd6c50478a01a0"
+          },
+          "Version": "0.0.5",
+          "Locations": [
+            {
+              "StartLine": 3,
+              "EndLine": 3
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "annotated-types",
+          "Identifier": {
+            "PURL": "pkg:pypi/annotated-types@0.8.0",
+            "UID": "bbef145d2394fca0"
+          },
+          "Version": "0.8.0",
+          "Locations": [
+            {
+              "StartLine": 4,
+              "EndLine": 4
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "anyio",
+          "Identifier": {
+            "PURL": "pkg:pypi/anyio@4.15.1",
+            "UID": "5ee9e691578b2b51"
+          },
+          "Version": "4.15.1",
+          "Locations": [
+            {
+              "StartLine": 5,
+              "EndLine": 5
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "click",
+          "Identifier": {
+            "PURL": "pkg:pypi/click@8.5.0",
+            "UID": "2089c891be76af08"
+          },
+          "Version": "8.5.0",
+          "Locations": [
+            {
+              "StartLine": 6,
+              "EndLine": 6
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "fastapi",
+          "Identifier": {
+            "PURL": "pkg:pypi/fastapi@0.135.1",
+            "UID": "40a53a560106c7a7"
+          },
+          "Version": "0.135.1",
+          "Locations": [
+            {
+              "StartLine": 7,
+              "EndLine": 7
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "greenlet",
+          "Identifier": {
+            "PURL": "pkg:pypi/greenlet@3.5.6",
+            "UID": "88abefb5a76d4a4c"
+          },
+          "Version": "3.5.6",
+          "Locations": [
+            {
+              "StartLine": 8,
+              "EndLine": 8
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "h11",
+          "Identifier": {
+            "PURL": "pkg:pypi/h11@0.16.0",
+            "UID": "bb314cf63cbecac0"
+          },
+          "Version": "0.16.0",
+          "Locations": [
+            {
+              "StartLine": 9,
+              "EndLine": 9
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "idna",
+          "Identifier": {
+            "PURL": "pkg:pypi/idna@3.20",
+            "UID": "ee106ec7aab7632f"
+          },
+          "Version": "3.20",
+          "Locations": [
+            {
+              "StartLine": 10,
+              "EndLine": 10
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "prometheus-client",
+          "Identifier": {
+            "PURL": "pkg:pypi/prometheus-client@0.24.1",
+            "UID": "64e6e89ace943590"
+          },
+          "Version": "0.24.1",
+          "Locations": [
+            {
+              "StartLine": 13,
+              "EndLine": 13
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "psycopg",
+          "Identifier": {
+            "PURL": "pkg:pypi/psycopg@3.3.3",
+            "UID": "ea97ad5f4731b4cf"
+          },
+          "Version": "3.3.3",
+          "Locations": [
+            {
+              "StartLine": 14,
+              "EndLine": 14
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "psycopg-binary",
+          "Identifier": {
+            "PURL": "pkg:pypi/psycopg-binary@3.3.3",
+            "UID": "e25d60c7b605dd87"
+          },
+          "Version": "3.3.3",
+          "Locations": [
+            {
+              "StartLine": 15,
+              "EndLine": 15
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "pydantic",
+          "Identifier": {
+            "PURL": "pkg:pypi/pydantic@2.13.5",
+            "UID": "f5bcf51dfc91c5c1"
+          },
+          "Version": "2.13.5",
+          "Locations": [
+            {
+              "StartLine": 16,
+              "EndLine": 16
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "pydantic_core",
+          "Identifier": {
+            "PURL": "pkg:pypi/pydantic-core@2.46.5",
+            "UID": "d6e85e95ebedd554"
+          },
+          "Version": "2.46.5",
+          "Locations": [
+            {
+              "StartLine": 17,
+              "EndLine": 17
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "starlette",
+          "Identifier": {
+            "PURL": "pkg:pypi/starlette@1.7.0",
+            "UID": "aec4c9c64b01ee10"
+          },
+          "Version": "1.7.0",
+          "Locations": [
+            {
+              "StartLine": 19,
+              "EndLine": 19
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "typing-inspection",
+          "Identifier": {
+            "PURL": "pkg:pypi/typing-inspection@0.4.4",
+            "UID": "156720a4218f7b17"
+          },
+          "Version": "0.4.4",
+          "Locations": [
+            {
+              "StartLine": 20,
+              "EndLine": 20
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "typing_extensions",
+          "Identifier": {
+            "PURL": "pkg:pypi/typing-extensions@4.16.0",
+            "UID": "33e69b29a3d812dc"
+          },
+          "Version": "4.16.0",
+          "Locations": [
+            {
+              "StartLine": 21,
+              "EndLine": 21
+            }
+          ],
+          "AnalyzedBy": "pip"
+        },
+        {
+          "Name": "uvicorn",
+          "Identifier": {
+            "PURL": "pkg:pypi/uvicorn@0.42.0",
+            "UID": "14802fe3b57b2144"
+          },
+          "Version": "0.42.0",
+          "Locations": [
+            {
+              "StartLine": 22,
+              "EndLine": 22
+            }
+          ],
+          "AnalyzedBy": "pip"
+        }
+      ]
+    },
+    {
+      "Target": "frontend/package-lock.json",
+      "Class": "lang-pkgs",
+      "Type": "npm",
+      "Packages": [
+        {
+          "ID": "react@19.3.0",
+          "Name": "react",
+          "Identifier": {
+            "PURL": "pkg:npm/react@19.3.0",
+            "UID": "8565f0c2140c31cc"
+          },
+          "Version": "19.3.0",
+          "Licenses": [
+            "MIT"
+          ],
+          "Relationship": "direct",
+          "Locations": [
+            {
+              "StartLine": 662,
+              "EndLine": 670
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "react-dom@19.3.0",
+          "Name": "react-dom",
+          "Identifier": {
+            "PURL": "pkg:npm/react-dom@19.3.0",
+            "UID": "f7cc05a30258c0ba"
+          },
+          "Version": "19.3.0",
+          "Licenses": [
+            "MIT"
+          ],
+          "Relationship": "direct",
+          "DependsOn": [
+            "react@19.3.0",
+            "scheduler@0.28.0"
+          ],
+          "Locations": [
+            {
+              "StartLine": 671,
+              "EndLine": 682
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "vite@8.3.3",
+          "Name": "vite",
+          "Identifier": {
+            "PURL": "pkg:npm/vite@8.3.3",
+            "UID": "9aafd6f0bc5fb70a"
+          },
+          "Version": "8.3.3",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Relationship": "direct",
+          "DependsOn": [
+            "fsevents@2.3.3",
+            "lightningcss@1.33.0",
+            "picomatch@4.0.7",
+            "postcss@8.5.29",
+            "rolldown@1.2.12",
+            "tinyglobby@0.2.17"
+          ],
+          "Locations": [
+            {
+              "StartLine": 750,
+              "EndLine": 827
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@oxc-project/types@0.152.0",
+          "Name": "@oxc-project/types",
+          "Identifier": {
+            "PURL": "pkg:npm/%40oxc-project/types@0.152.0",
+            "UID": "3e04b0d55d9c60ac"
+          },
+          "Version": "0.152.0",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 18,
+              "EndLine": 27
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-android-arm-eabi@1.2.12",
+          "Name": "@rolldown/binding-android-arm-eabi",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-android-arm-eabi@1.2.12",
+            "UID": "c5e5e4ca3d50ee94"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 28,
+              "EndLine": 44
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-android-arm64@1.2.12",
+          "Name": "@rolldown/binding-android-arm64",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-android-arm64@1.2.12",
+            "UID": "5765827ac8b5343a"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 45,
+              "EndLine": 61
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-darwin-arm64@1.2.12",
+          "Name": "@rolldown/binding-darwin-arm64",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-darwin-arm64@1.2.12",
+            "UID": "761fad8d9e704442"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 62,
+              "EndLine": 78
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-darwin-x64@1.2.12",
+          "Name": "@rolldown/binding-darwin-x64",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-darwin-x64@1.2.12",
+            "UID": "99f77f663091066e"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 79,
+              "EndLine": 95
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-freebsd-x64@1.2.12",
+          "Name": "@rolldown/binding-freebsd-x64",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-freebsd-x64@1.2.12",
+            "UID": "bcbe221c70329d8f"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 96,
+              "EndLine": 112
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-linux-arm-gnueabihf@1.2.12",
+          "Name": "@rolldown/binding-linux-arm-gnueabihf",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-linux-arm-gnueabihf@1.2.12",
+            "UID": "7fdd263e5b3d945f"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 113,
+              "EndLine": 129
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-linux-arm64-gnu@1.2.12",
+          "Name": "@rolldown/binding-linux-arm64-gnu",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-linux-arm64-gnu@1.2.12",
+            "UID": "2388296aa5d38b38"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 130,
+              "EndLine": 146
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-linux-arm64-musl@1.2.12",
+          "Name": "@rolldown/binding-linux-arm64-musl",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-linux-arm64-musl@1.2.12",
+            "UID": "e3725f701948a577"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 147,
+              "EndLine": 163
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-linux-ppc64-gnu@1.2.12",
+          "Name": "@rolldown/binding-linux-ppc64-gnu",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-linux-ppc64-gnu@1.2.12",
+            "UID": "158183a83f87be11"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 164,
+              "EndLine": 180
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-linux-s390x-gnu@1.2.12",
+          "Name": "@rolldown/binding-linux-s390x-gnu",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-linux-s390x-gnu@1.2.12",
+            "UID": "aeecb7091545dbd9"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 181,
+              "EndLine": 197
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-linux-x64-gnu@1.2.12",
+          "Name": "@rolldown/binding-linux-x64-gnu",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-linux-x64-gnu@1.2.12",
+            "UID": "2895b64bd46c8a1e"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 198,
+              "EndLine": 214
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-linux-x64-musl@1.2.12",
+          "Name": "@rolldown/binding-linux-x64-musl",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-linux-x64-musl@1.2.12",
+            "UID": "f27a4ad3fb9e1b9e"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 215,
+              "EndLine": 231
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-openharmony-arm64@1.2.12",
+          "Name": "@rolldown/binding-openharmony-arm64",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-openharmony-arm64@1.2.12",
+            "UID": "6e9ad6b64504e045"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 232,
+              "EndLine": 248
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-win32-arm64-msvc@1.2.12",
+          "Name": "@rolldown/binding-win32-arm64-msvc",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-win32-arm64-msvc@1.2.12",
+            "UID": "256865708dca1659"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 249,
+              "EndLine": 265
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/binding-win32-x64-msvc@1.2.12",
+          "Name": "@rolldown/binding-win32-x64-msvc",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/binding-win32-x64-msvc@1.2.12",
+            "UID": "1e074e9c00452d8c"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 266,
+              "EndLine": 282
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "@rolldown/pluginutils@1.0.1",
+          "Name": "@rolldown/pluginutils",
+          "Identifier": {
+            "PURL": "pkg:npm/%40rolldown/pluginutils@1.0.1",
+            "UID": "2e9349e08d743c6d"
+          },
+          "Version": "1.0.1",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 283,
+              "EndLine": 289
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "detect-libc@2.1.2",
+          "Name": "detect-libc",
+          "Identifier": {
+            "PURL": "pkg:npm/detect-libc@2.1.2",
+            "UID": "3e80ec452deb7c01"
+          },
+          "Version": "2.1.2",
+          "Dev": true,
+          "Licenses": [
+            "Apache-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 290,
+              "EndLine": 299
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "fdir@6.5.0",
+          "Name": "fdir",
+          "Identifier": {
+            "PURL": "pkg:npm/fdir@6.5.0",
+            "UID": "3b30501e5292c33c"
+          },
+          "Version": "6.5.0",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "picomatch@4.0.7"
+          ],
+          "Locations": [
+            {
+              "StartLine": 300,
+              "EndLine": 317
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "fsevents@2.3.3",
+          "Name": "fsevents",
+          "Identifier": {
+            "PURL": "pkg:npm/fsevents@2.3.3",
+            "UID": "be49ae2c92863261"
+          },
+          "Version": "2.3.3",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 318,
+              "EndLine": 332
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss@1.33.0",
+          "Name": "lightningcss",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss@1.33.0",
+            "UID": "e8457b14b9a4c3d8"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "detect-libc@2.1.2",
+            "lightningcss-android-arm64@1.33.0",
+            "lightningcss-darwin-arm64@1.33.0",
+            "lightningcss-darwin-x64@1.33.0",
+            "lightningcss-freebsd-x64@1.33.0",
+            "lightningcss-linux-arm-gnueabihf@1.33.0",
+            "lightningcss-linux-arm64-gnu@1.33.0",
+            "lightningcss-linux-arm64-musl@1.33.0",
+            "lightningcss-linux-x64-gnu@1.33.0",
+            "lightningcss-linux-x64-musl@1.33.0",
+            "lightningcss-win32-arm64-msvc@1.33.0",
+            "lightningcss-win32-x64-msvc@1.33.0"
+          ],
+          "Locations": [
+            {
+              "StartLine": 333,
+              "EndLine": 362
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss-android-arm64@1.33.0",
+          "Name": "lightningcss-android-arm64",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss-android-arm64@1.33.0",
+            "UID": "4dc75d04bd4554a2"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 363,
+              "EndLine": 383
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss-darwin-arm64@1.33.0",
+          "Name": "lightningcss-darwin-arm64",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss-darwin-arm64@1.33.0",
+            "UID": "43ca9538485805d6"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 384,
+              "EndLine": 404
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss-darwin-x64@1.33.0",
+          "Name": "lightningcss-darwin-x64",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss-darwin-x64@1.33.0",
+            "UID": "b732304973f8dee0"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 405,
+              "EndLine": 425
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss-freebsd-x64@1.33.0",
+          "Name": "lightningcss-freebsd-x64",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss-freebsd-x64@1.33.0",
+            "UID": "2b12da7b461c32e6"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 426,
+              "EndLine": 446
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss-linux-arm-gnueabihf@1.33.0",
+          "Name": "lightningcss-linux-arm-gnueabihf",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss-linux-arm-gnueabihf@1.33.0",
+            "UID": "c2f7dfac76f7f035"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 447,
+              "EndLine": 467
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss-linux-arm64-gnu@1.33.0",
+          "Name": "lightningcss-linux-arm64-gnu",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss-linux-arm64-gnu@1.33.0",
+            "UID": "c53f4f4f786a2775"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 468,
+              "EndLine": 488
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss-linux-arm64-musl@1.33.0",
+          "Name": "lightningcss-linux-arm64-musl",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss-linux-arm64-musl@1.33.0",
+            "UID": "60f767a38fe90ecc"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 489,
+              "EndLine": 509
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss-linux-x64-gnu@1.33.0",
+          "Name": "lightningcss-linux-x64-gnu",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss-linux-x64-gnu@1.33.0",
+            "UID": "7687d32a543914a7"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 510,
+              "EndLine": 530
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss-linux-x64-musl@1.33.0",
+          "Name": "lightningcss-linux-x64-musl",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss-linux-x64-musl@1.33.0",
+            "UID": "daaf93db290ddb08"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 531,
+              "EndLine": 551
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss-win32-arm64-msvc@1.33.0",
+          "Name": "lightningcss-win32-arm64-msvc",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss-win32-arm64-msvc@1.33.0",
+            "UID": "69a42218c346f73"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 552,
+              "EndLine": 572
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "lightningcss-win32-x64-msvc@1.33.0",
+          "Name": "lightningcss-win32-x64-msvc",
+          "Identifier": {
+            "PURL": "pkg:npm/lightningcss-win32-x64-msvc@1.33.0",
+            "UID": "55a765c20be42611"
+          },
+          "Version": "1.33.0",
+          "Dev": true,
+          "Licenses": [
+            "MPL-2.0"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 573,
+              "EndLine": 593
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "nanoid@3.3.20",
+          "Name": "nanoid",
+          "Identifier": {
+            "PURL": "pkg:npm/nanoid@3.3.20",
+            "UID": "d736a4cd097148bf"
+          },
+          "Version": "3.3.20",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 594,
+              "EndLine": 612
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "picocolors@1.1.1",
+          "Name": "picocolors",
+          "Identifier": {
+            "PURL": "pkg:npm/picocolors@1.1.1",
+            "UID": "2b42414d0babbba4"
+          },
+          "Version": "1.1.1",
+          "Dev": true,
+          "Licenses": [
+            "ISC"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 613,
+              "EndLine": 619
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "picomatch@4.0.7",
+          "Name": "picomatch",
+          "Identifier": {
+            "PURL": "pkg:npm/picomatch@4.0.7",
+            "UID": "7555deb26121bf01"
+          },
+          "Version": "4.0.7",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 620,
+              "EndLine": 632
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "postcss@8.5.29",
+          "Name": "postcss",
+          "Identifier": {
+            "PURL": "pkg:npm/postcss@8.5.29",
+            "UID": "fe55abc24576585e"
+          },
+          "Version": "8.5.29",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "nanoid@3.3.20",
+            "picocolors@1.1.1",
+            "source-map-js@1.2.2"
+          ],
+          "Locations": [
+            {
+              "StartLine": 633,
+              "EndLine": 661
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "rolldown@1.2.12",
+          "Name": "rolldown",
+          "Identifier": {
+            "PURL": "pkg:npm/rolldown@1.2.12",
+            "UID": "ecb76e004e8a838a"
+          },
+          "Version": "1.2.12",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "@oxc-project/types@0.152.0",
+            "@rolldown/binding-android-arm-eabi@1.2.12",
+            "@rolldown/binding-android-arm64@1.2.12",
+            "@rolldown/binding-darwin-arm64@1.2.12",
+            "@rolldown/binding-darwin-x64@1.2.12",
+            "@rolldown/binding-freebsd-x64@1.2.12",
+            "@rolldown/binding-linux-arm-gnueabihf@1.2.12",
+            "@rolldown/binding-linux-arm64-gnu@1.2.12",
+            "@rolldown/binding-linux-arm64-musl@1.2.12",
+            "@rolldown/binding-linux-ppc64-gnu@1.2.12",
+            "@rolldown/binding-linux-s390x-gnu@1.2.12",
+            "@rolldown/binding-linux-x64-gnu@1.2.12",
+            "@rolldown/binding-linux-x64-musl@1.2.12",
+            "@rolldown/binding-openharmony-arm64@1.2.12",
+            "@rolldown/binding-win32-arm64-msvc@1.2.12",
+            "@rolldown/binding-win32-x64-msvc@1.2.12",
+            "@rolldown/pluginutils@1.0.1"
+          ],
+          "Locations": [
+            {
+              "StartLine": 683,
+              "EndLine": 716
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "scheduler@0.28.0",
+          "Name": "scheduler",
+          "Identifier": {
+            "PURL": "pkg:npm/scheduler@0.28.0",
+            "UID": "df561f82af43bad3"
+          },
+          "Version": "0.28.0",
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 717,
+              "EndLine": 722
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "source-map-js@1.2.2",
+          "Name": "source-map-js",
+          "Identifier": {
+            "PURL": "pkg:npm/source-map-js@1.2.2",
+            "UID": "87222cb0a4762481"
+          },
+          "Version": "1.2.2",
+          "Dev": true,
+          "Licenses": [
+            "BSD-3-Clause"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "Locations": [
+            {
+              "StartLine": 723,
+              "EndLine": 732
+            }
+          ],
+          "AnalyzedBy": "npm"
+        },
+        {
+          "ID": "tinyglobby@0.2.17",
+          "Name": "tinyglobby",
+          "Identifier": {
+            "PURL": "pkg:npm/tinyglobby@0.2.17",
+            "UID": "bef02d99402db1e8"
+          },
+          "Version": "0.2.17",
+          "Dev": true,
+          "Licenses": [
+            "MIT"
+          ],
+          "Indirect": true,
+          "Relationship": "indirect",
+          "DependsOn": [
+            "fdir@6.5.0",
+            "picomatch@4.0.7"
+          ],
+          "Locations": [
+            {
+              "StartLine": 733,
+              "EndLine": 749
+            }
+          ],
+          "AnalyzedBy": "npm"
+        }
+      ]
+    }
+  ]
+}

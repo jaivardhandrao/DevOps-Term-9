@@ -20,7 +20,7 @@ flowchart LR
   Approval --> Registry[Push same images to GHCR]
 ```
 
-Continuous integration validates each proposed change through tests and builds. Continuous delivery makes verified artifacts available for release. Continuous deployment automatically installs a verified version into a target environment. Here CD is configured to use a disposable kind cluster inside the GitHub runner; its execution remains pending. Registry publication is an optional, explicit manual action after all validation succeeds; deployment to a persistent or cloud cluster is not automated.
+Continuous integration validates each proposed change through tests and builds. Continuous delivery makes verified artifacts available for release. Continuous deployment automatically installs a verified version into a target environment. Here CD is configured to use a disposable kind cluster inside the GitHub runner; its actual successful execution is recorded below. Registry publication is an optional, explicit manual action after all validation succeeds; deployment to a persistent or cloud cluster is not automated.
 
 ## GitHub Actions concepts
 
@@ -39,7 +39,7 @@ When executed, the Helm deployment uses an explicitly created `taskboard-ci` clu
 
 ## Run and inspect
 
-1. Open or update the pull request. Read the [automatic tests/static checks](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/assignment-checks.yml). The [full pipeline](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/final-project.yml) runs by manual dispatch after its current code and image fixes are pushed.
+1. Open or update the pull request. Read the [automatic tests/static checks](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/assignment-checks.yml). The [full pipeline](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/final-project.yml) runs by manual dispatch; the verified full run is linked below.
 2. Open each job to inspect its commands and exit codes. Download the named artifacts for test/scan/deployment output.
 3. A red test or security gate must block downstream images/deployment. `security/test-gates.sh` verifies intentional unsafe fixtures are rejected without committing them.
 4. Capture a screenshot of the actual successful run only after all required jobs pass. Automatic PR checks do not demonstrate security or CD; those are verified by the separate full run.
@@ -59,3 +59,15 @@ The real [GitHub run 37609532257](https://github.com/jaivardhandrao/DevOps-Term-
 The job view lists the executed unit tests, frontend production build, Kubernetes reference checks, and offline Helm checks.
 
 ![Actual completed checks job and its steps](../evidence/october-7/screenshots/github-actions-job-112753122569.jpg)
+
+## Full security and disposable deployment run
+
+The [full run 37664321492](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37664321492) succeeded on `a218511`: tests/build, source security, both AMD64 image builds/scans, and disposable kind/Helm CD all passed. The GHCR publication job was **skipped**. [Preserved real scan reports, API smoke output, Helm/resources/HPA output and job record](../final-devops-project/security/evidence/github-run-37664321492/README.md) show the exact scope. The test cluster was deleted after verification.
+
+The browser capture below shows the actual full run's **Success** result, five completed jobs and skipped publication. Its expanded command output is preserved in the linked artifacts, not shown in this logged-out view.
+
+![Actual successful full CI and disposable CD run, publication skipped](../evidence/october-7/screenshots/full-pipeline-37664321492-overview.jpg)
+
+The deployment job shows successful cluster creation, deployment of the scanned images, UI/API verification, evidence upload and cluster cleanup. Failure diagnostics were skipped because the job passed.
+
+![Actual successful disposable kind deployment and cleanup steps](../evidence/october-7/screenshots/full-pipeline-37664321492-deployment.jpg)

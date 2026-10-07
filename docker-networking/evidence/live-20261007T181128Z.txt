@@ -1,0 +1,85 @@
+Jaivardhan D. Rao | 24BCS10117 | LIVE docker-networking coursework
+Started UTC: 2026-10-07T18:11:28.046528+00:00
+Only new task-owned resources are used; no saved output is replayed.
+
+$ docker network create --label devops.coursework.run=term9-evidence-f5aec25e88 term9-evidence-f5aec25e88-front
+39f195f6f40598f070cfdd6328e8e189652596dfcb582998f79022e3518f4196
+[exit 0]
+
+$ docker network create --label devops.coursework.run=term9-evidence-f5aec25e88 term9-evidence-f5aec25e88-app
+f1ce8570645b4b5c7ecc85d86941fcff6331d26ddf2ab7dc89020b1714f06cb0
+[exit 0]
+
+$ docker network create --label devops.coursework.run=term9-evidence-f5aec25e88 term9-evidence-f5aec25e88-db
+3c38e8ee6828c431570140777e54e1e78ef4ecb9ef2a4ac129264db8e3d5060e
+[exit 0]
+
+$ docker run --name term9-evidence-f5aec25e88-frontend --label devops.coursework.run=term9-evidence-f5aec25e88 -d --network term9-evidence-f5aec25e88-front alpine:3.20 sleep 3600
+b21631a1d90bcef60b7e4b9560ae493dd26dc67dbd8e7905a4dd55519ff62c2c
+[exit 0]
+
+$ docker network connect term9-evidence-f5aec25e88-app term9-evidence-f5aec25e88-frontend
+[exit 0]
+
+$ docker run --name term9-evidence-f5aec25e88-backend --label devops.coursework.run=term9-evidence-f5aec25e88 -d --network term9-evidence-f5aec25e88-app --network-alias backend nginx:1.27-alpine sh -c 'printf '"'"'Hello from the backend container\n'"'"' >/usr/share/nginx/html/index.html; exec nginx -g '"'"'daemon off;'"'"''
+Unable to find image 'nginx:1.27-alpine' locally
+1.27-alpine: Pulling from library/nginx
+Digest: sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+Status: Downloaded newer image for nginx:1.27-alpine
+76a7aa5b0999ddc37a1b7e3790c2e915edec67eb6a0472c0fc00639b3b9275f1
+[exit 0]
+
+$ docker network connect term9-evidence-f5aec25e88-db term9-evidence-f5aec25e88-backend
+[exit 0]
+
+$ docker run --name term9-evidence-f5aec25e88-database --label devops.coursework.run=term9-evidence-f5aec25e88 -d --network term9-evidence-f5aec25e88-db --network-alias database --tmpfs /var/lib/mysql -e MYSQL_RANDOM_ROOT_PASSWORD=yes mysql:8.4
+0457c1c64d7891e634632b8d3fead0940b7b455d39885b17eeacf75ca032c317
+[exit 0]
+
+$ docker exec term9-evidence-f5aec25e88-frontend wget -qO- http://backend:80
+Hello from the backend container
+[exit 0]
+
+$ docker exec term9-evidence-f5aec25e88-backend nc -zvw 2 database 3306
+database (172.22.0.3:3306) open
+[exit 0]
+
+$ docker exec term9-evidence-f5aec25e88-frontend sh -c 'if nslookup database >/dev/null 2>&1; then echo '"'"'Unexpected database visibility'"'"'; exit 1; else echo '"'"'PASS: frontend has no direct database DNS route'"'"'; fi'
+PASS: frontend has no direct database DNS route
+[exit 0]
+
+$ docker inspect term9-evidence-f5aec25e88-database --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
+172.22.0.3
+[exit 0]
+
+$ docker exec term9-evidence-f5aec25e88-frontend sh -c 'if nc -z -w 2 "$1" 3306; then echo '"'"'Unexpected direct database access'"'"'; exit 1; else echo '"'"'PASS: frontend TCP access to the database IP is blocked'"'"'; fi' sh 172.22.0.3
+PASS: frontend TCP access to the database IP is blocked
+[exit 0]
+
+$ docker inspect term9-evidence-f5aec25e88-backend --format '{{range $name, $config := .NetworkSettings.Networks}}{{$name}}{{println}}{{end}}'
+term9-evidence-f5aec25e88-app
+term9-evidence-f5aec25e88-db
+[exit 0]
+
+$ docker run --name term9-evidence-f5aec25e88-bind --label devops.coursework.run=term9-evidence-f5aec25e88 -d -p 127.0.0.1:0:80 --mount type=bind,src=/var/folders/3g/t9h7yhrn30lbs8ywyk7b5lpc0000gn/T/term9-evidence-f5aec25e88-k56xj23i/site,dst=/usr/share/nginx/html,readonly nginx:1.27-alpine
+848a47efb50f002283a085ae14226124cb36e1a2a0cfc1bdb6beac52e45ca7b0
+[exit 0]
+
+$ docker port term9-evidence-f5aec25e88-bind 80/tcp
+127.0.0.1:55017
+[exit 0]
+
+$ curl -fsS http://127.0.0.1:55017
+<h1>Hello students</h1>
+[exit 0]
+
+$ docker inspect term9-evidence-f5aec25e88-bind --format '{{.Id}} {{.RestartCount}}'
+848a47efb50f002283a085ae14226124cb36e1a2a0cfc1bdb6beac52e45ca7b0 0
+[exit 0]
+
+$ curl -fsS http://127.0.0.1:55017
+<h1>Hello students - upd
+[exit 0]
+
+FAILED: 
+Cleanup finished for this run's exact container/network/image names and scratch directory.
