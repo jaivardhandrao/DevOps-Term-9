@@ -1,0 +1,18 @@
+{
+  "verified_at_utc": "2026-10-07T18:03:56.145618+00:00",
+  "public_source": "https://raw.githubusercontent.com/docker-library/python/master/3.12/alpine3.24/Dockerfile",
+  "reports": [
+    {
+      "report": "backend-image.json",
+      "raw_sha256": "2832a2ffe6733ebe1493464803baa2abf3addbd4295eb32dd035aa0c1134de26",
+      "published_sha256": "727c6a66897b8070e1e3867dadede12146fa8c4bbed99381fd6540bec451a58d",
+      "change": "Only the verified public CPython GPG fingerprint in ImageConfig Env/history is replaced by an omission marker. Results and image ID are unchanged."
+    },
+    {
+      "report": "backend-image-before.json",
+      "raw_sha256": "7aa54e096969d1b932a1e5ae459c849bd82cf3df2bb12cfdb1ac0f010a9a099a",
+      "published_sha256": "f526fa927404e7dc6ad0f4fe1229d5eb5fdc5956f0d2f1207748907294ae5b92",
+      "change": "Only the verified public CPython GPG fingerprint in ImageConfig Env/history is replaced by an omission marker. Results and image ID are unchanged."
+    }
+  ]
+}

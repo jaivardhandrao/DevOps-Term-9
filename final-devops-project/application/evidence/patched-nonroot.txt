@@ -1,0 +1,4 @@
+[taskboard-backend:local] image=sha256:872f422299f6cdce80a5a2e74d0bc89243d6c5719527b9c9ebac2838afb39af0 configured_user=10001:10001
+[taskboard-frontend:local] image=sha256:7026b798efbe9b09bb301a97f208c355534280f7f9884a8ce558e07acc298897 configured_user=101:101
+uid=10001(taskboard) gid=10001(taskboard) groups=10001(taskboard)
+uid=101(nginx) gid=101(nginx) groups=101(nginx)

@@ -1,7 +1,7 @@
 name: Final project CI and disposable CD
 
 on:
-  # Full scans/deployment remain manual until execution approval is resolved.
+  # Explicit manual execution; publishing additionally requires its own confirmation.
   workflow_dispatch:
     inputs:
       publish_images:
@@ -86,7 +86,7 @@ jobs:
       - name: SAST gate (medium and high findings)
         run: bandit -r "$PROJECT/application/backend/app" --severity-level medium --format json --output evidence/security/sast.json
       - name: Dependency gate (HIGH and CRITICAL)
-        run: trivy fs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --output evidence/security/sca.json "$PROJECT/application"
+        run: trivy fs --include-dev-deps --file-patterns 'pip:requirements.*\.txt$' --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --output evidence/security/sca.json "$PROJECT/application"
       - name: Secret gate (entire checked-out tree, redacted)
         run: gitleaks dir . --config "$PROJECT/security/gitleaks.toml" --redact=100 --report-format json --report-path evidence/security/secrets.json
       - name: Prove gates reject negative controls
@@ -158,6 +158,13 @@ jobs:
       - name: Create isolated cluster and deploy exact scanned images
         run: |
           kind create cluster --name taskboard-ci --image kindest/node:v1.34.11@sha256:44e222ee2132dab25ff87301682f89eb82c7880ea3a1bf543bfe9708fd08d67d --wait 120s
+          kubectl apply -f "$PROJECT/security/ci/metrics-server-v0.9.0.yaml"
+          # kind's disposable kubelet uses a self-signed certificate. This flag is
+          # restricted to this job's new local cluster, never a production target.
+          kubectl -n kube-system patch deployment metrics-server --type=json \
+            -p '[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+          kubectl -n kube-system rollout status deployment/metrics-server --timeout=180s
+          kubectl wait --for=condition=Available apiservice/v1beta1.metrics.k8s.io --timeout=180s
           for component in backend frontend; do
             gunzip -c "evidence/images/$component.tar.gz" | docker load
             kind load docker-image "taskboard-$component:$GITHUB_SHA" --name taskboard-ci
@@ -179,6 +186,9 @@ jobs:
           forward_pid=$!
           trap 'kill "$forward_pid" 2>/dev/null || true' EXIT
           python3 "$PROJECT/security/smoke-deployment.py" http://127.0.0.1:18080 | tee evidence/deployment/smoke.txt
+          kubectl -n taskboard-ci wait --for=condition=ScalingActive hpa/backend --timeout=180s
+          kubectl -n taskboard-ci get hpa -o wide > evidence/deployment/hpa.txt
+          kubectl -n taskboard-ci top pods > evidence/deployment/pod-metrics.txt
           kubectl -n taskboard-ci get pods,services,pvc -o wide > evidence/deployment/resources.txt
           helm list --namespace taskboard-ci > evidence/deployment/helm.txt
       - name: Capture failure diagnostics without Secrets
@@ -187,6 +197,7 @@ jobs:
           mkdir -p evidence/deployment
           kubectl -n taskboard-ci get pods,services,pvc -o wide > evidence/deployment/resources.txt 2>&1 || true
           kubectl -n taskboard-ci get events --sort-by=.lastTimestamp > evidence/deployment/events.txt 2>&1 || true
+          kubectl -n kube-system get deployment metrics-server -o wide > evidence/deployment/metrics-server.txt 2>&1 || true
       - name: Upload deployment evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

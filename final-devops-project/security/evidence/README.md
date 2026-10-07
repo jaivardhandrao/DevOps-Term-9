@@ -11,21 +11,38 @@ Evidence is separated into observed checks and pending execution. No security sc
 | Bandit installation | Version 1.9.4 installed in an isolated temporary environment |
 | Bandit SAST | Exit 0; 155 application lines scanned, zero findings, zero errors; [JSON report](sast.json) |
 | Gitleaks current-tree scan | Exit 0; no leaks found; [redacted JSON report](secrets.json) |
-| Trivy SCA | Specifically blocked before execution; no report exists |
-| Trivy container scans | Never attempted; no image vulnerability result is claimed |
-| Deliberate failing gate examples | SAST and secret negative controls both exit 1 as required; [observed output](local-negative-controls.txt). Trivy controls not attempted |
+| Trivy SCA | Exit 0; runtime Python (21), test Python (8), and npm including development dependencies (43) have zero HIGH/CRITICAL findings; [JSON](sca.json) |
+| Trivy backend image | Exit 0 after remediation; 38 OS and 22 Python packages, zero HIGH/CRITICAL findings; [JSON](backend-image.json) |
+| Trivy frontend image | Exit 0 after remediation; 70 OS packages, zero HIGH/CRITICAL findings; [JSON](frontend-image.json) |
+| Deliberate failing gate examples | All controls passed: Bandit finding exit 1, Gitleaks/Trivy finding exit 42, expected rule/package verified in JSON; [actual output](negative-controls.txt) |
 | Automatic tests/static checks | Initial PR runs failed on GNU `mktemp` portability; fixed with an explicit X template. [GitHub run 37609532257](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37609532257) passed on commit `93c26a1`: 14 regression tests, backend/frontend tests, frontend build, Kubernetes references and Helm rendering/probe/order checks |
-| Full security/deployment pipeline | Manual dispatch only; scans/deployment remain pending execution approval |
+| Full security/deployment pipeline | Manual dispatch only; local gates now pass, new GitHub full run pending |
 | GHCR publication | Not performed; intentionally requires explicit manual authorization |
 | Persistent/cloud Kubernetes deployment | Not performed by this workflow |
 
-The Trivy dependency scan was not executed during this validation attempt because execution approval was unavailable; the last retry was cancelled without starting a scanner process. No empty or fabricated report has been substituted. The workflow still fails closed: scanner errors or blocked findings prevent images from reaching the deployment job.
+## Image findings and remediation
 
-## Scan execution boundaries
+The first actual image gates failed. Their findings are retained in the before reports:
 
-Only the Trivy **filesystem dependency scan** was explicitly rejected by execution review. It would download public vulnerability metadata into `/tmp/devops-ci-tools/trivy-cache`, read `final-devops-project/application`, and write `evidence/sca.json`. The minimum outstanding approval for that check is those three actions; it requires no cloud credentials, deployment or registry publication.
+| Image | Before remediation | Remediation | After remediation |
+|---|---|---|---|
+| Backend | [44 HIGH package/advisory matches, 8 distinct CVEs](backend-image-before.json), Debian 13.7; no Python findings | Compatible Python 3.12 Alpine base, OS package updates, retained UID/GID 10001, rebuild and application tests | [Zero HIGH/CRITICAL matches](backend-image.json); Alpine 3.24.2, 38 OS + 22 Python packages |
+| Frontend | [42 HIGH package/advisory matches, 30 distinct CVEs](frontend-image-before.json), including curl/OpenSSL/expat | OS package updates as build-time root, restored runtime UID 101, rebuild and Nginx validation | [Zero HIGH/CRITICAL matches](frontend-image.json); 70 OS packages |
 
-Container scans and the Trivy negative controls were not attempted after that rejection. They are pending, not separately reported as rejected. Independent offline Bandit and Gitleaks scans subsequently completed, and the `local` negative-control mode exercised only those two scanners. The full CI workflow remains manual; the PR workflow contains no scanners or deployment action.
+Actual scanned image IDs:
+
+- Backend: `sha256:872f422299f6cdce80a5a2e74d0bc89243d6c5719527b9c9ebac2838afb39af0`
+- Frontend: `sha256:7026b798efbe9b09bb301a97f208c355534280f7f9884a8ce558e07acc298897`
+
+The frontend report retains the base image's Alpine 3.23.4 OS metadata while listing the upgraded package versions. No CVE was excluded, no severity threshold was reduced, and unfixed findings remain blocking. These are local ARM64 image results; the GitHub runner independently builds/scans AMD64 images.
+
+## Execution and evidence limits
+
+The dependency/image scans and full negative controls actually ran on 7 October 2026 under the later coverage authorization. The earlier execution block is resolved for these local checks. The negative controls use distinct finding exit codes and parse the intended findings, so operational errors cannot be mistaken for detections.
+
+The published backend image reports omit **only** the public CPython signing-key fingerprint from Docker image metadata. Gitleaks flagged that public fingerprint as a generic key; its value was verified against the [official Python Dockerfile](https://raw.githubusercontent.com/docker-library/python/master/3.12/alpine3.24/Dockerfile). No secret-rule exception was added. CVE results, packages and image IDs are unchanged; [report provenance and original/published hashes](report-provenance.json) document this precise sanitization. Raw originals remain in the local temporary scanner workspace. Frontend/SCA JSON reports are unmodified scanner output.
+
+No native Terminal screenshot is claimed. Existing genuine browser screenshots in sessions 16/17 show the successful tests/static-checks workflow. The full GitHub security/CD run and its screenshots are tracked separately. Registry publication, cloud provisioning and persistent-cluster deployment have not been performed.
 
 ## Verified dependency pins
 

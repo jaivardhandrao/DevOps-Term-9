@@ -1,0 +1,5 @@
+ Container devops-oct7-capstone-backend-run-42ef0472a291 Creating 
+ Container devops-oct7-capstone-backend-run-42ef0472a291 Created 
+PostgreSQL connected via patched Alpine image
+migration=0001
+existing_demo_tasks=1

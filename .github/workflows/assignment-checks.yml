@@ -37,6 +37,8 @@ jobs:
         # Parses YAML and starts only a temporary localhost HTTP handler.
         # Never invokes kubectl or accesses a Kubernetes API.
         run: python scripts/validate-kubernetes.py
+      - name: Protect all 20 submitted README URLs and linked evidence
+        run: python scripts/check-submission-links.py
       - name: Backend unit tests (SQLite)
         working-directory: final-devops-project/application/backend
         run: python -m pytest -q --junitxml=../../../evidence/backend-tests.xml

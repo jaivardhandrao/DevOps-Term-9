@@ -1,6 +1,6 @@
 # Session 16 — CI/CD with GitHub Actions
 
-The demo uses the same working TaskBoard application as the final project: [FastAPI backend and React frontend](../final-devops-project/application/), [Dockerfiles](../final-devops-project/docker/), and [full executable workflow](../.github/workflows/final-project.yml). The full security/deployment workflow is **manual only**, awaiting execution approval. A separate [automatic PR workflow](../.github/workflows/assignment-checks.yml) runs unit tests, the frontend build and static Kubernetes/Helm checks; it does not run scans, build images, publish or deploy.
+The demo uses the same working TaskBoard application as the final project: [FastAPI backend and React frontend](../final-devops-project/application/), [Dockerfiles](../final-devops-project/docker/), and [full executable workflow](../.github/workflows/final-project.yml). The full security/deployment workflow is **manual only**; registry publication has an additional explicit confirmation. A separate [automatic PR workflow](../.github/workflows/assignment-checks.yml) runs unit tests, the frontend build and static Kubernetes/Helm checks; it does not run scans, build images, publish or deploy.
 
 ## Pipeline
 
@@ -39,13 +39,23 @@ When executed, the Helm deployment uses an explicitly created `taskboard-ci` clu
 
 ## Run and inspect
 
-1. Open or update the pull request. Read the [automatic tests/static checks](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/assignment-checks.yml). The [full pipeline](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/final-project.yml) remains pending approval and a manual dispatch.
+1. Open or update the pull request. Read the [automatic tests/static checks](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/assignment-checks.yml). The [full pipeline](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/final-project.yml) runs by manual dispatch after its current code and image fixes are pushed.
 2. Open each job to inspect its commands and exit codes. Download the named artifacts for test/scan/deployment output.
 3. A red test or security gate must block downstream images/deployment. `security/test-gates.sh` verifies intentional unsafe fixtures are rejected without committing them.
-4. Capture a screenshot of the actual successful run only after all required jobs pass. Automatic PR checks do not demonstrate security or CD; those require the separately approved full run.
+4. Capture a screenshot of the actual successful run only after all required jobs pass. Automatic PR checks do not demonstrate security or CD; those are verified by the separate full run.
 
 ## Evidence and remaining demonstration
 
 [Security evidence](../final-devops-project/security/evidence/README.md) records local validation. GitHub pipeline execution and screenshots must be read from the actual run linked by the PR. No successful workflow, registry publication or cloud deployment is claimed solely because these files exist.
 
 The publishing input requires `PUBLISH TO GHCR` and only runs on `main`; do not use it as part of PR validation. A registry demonstration and an external deployment remain separate authorized actions. AWS provisioning is not part of this workflow.
+
+## Successful automatic CI run
+
+The real [GitHub run 37609532257](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37609532257) completed successfully. This screenshot proves the automatic **tests and static checks** workflow; it does not show security scanning, image publication or a live deployment.
+
+![Successful GitHub Actions tests and static checks run](../evidence/october-7/screenshots/github-actions-success-37609532257.jpg)
+
+The job view lists the executed unit tests, frontend production build, Kubernetes reference checks, and offline Helm checks.
+
+![Actual completed checks job and its steps](../evidence/october-7/screenshots/github-actions-job-112753122569.jpg)

@@ -17,6 +17,11 @@ One startup problem was found and fixed: a frontend connected only to a Docker `
 
 The unit test run produced one Starlette deprecation warning concerning its current httpx test-client adapter. All 11 tests passed; this is documented rather than hidden. Database credentials are generated under ignored `.runtime/` and are absent from these artifacts. External security scanner, Kubernetes, cloud and CI execution evidence belongs to the corresponding project sections.
 
+The later [image remediation](image-remediation.md) includes fresh tests and PostgreSQL
+driver validation after changing the backend OS base and patching frontend OS packages.
+Original application evidence remains above; it has not been rewritten as if the newer
+images had been used in those earlier runs.
+
 ![Desktop application](taskboard-desktop.jpg)
 
 ![Mobile application](taskboard-mobile.jpg)

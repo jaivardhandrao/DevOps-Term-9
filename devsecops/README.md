@@ -2,7 +2,7 @@
 
 This session integrates the [TaskBoard application](../final-devops-project/application/), [Dockerfiles](../final-devops-project/docker/), [Kubernetes resources](../final-devops-project/kubernetes/), [Helm chart](../final-devops-project/helm/taskboard/) and [GitHub Actions workflow](../.github/workflows/final-project.yml).
 
-The full security/deployment workflow is manual only while execution approval remains unresolved. Automatic PR checks cover tests/build/static configuration and do not substitute for scan or deployment evidence.
+The full security/deployment workflow is manual only; registry publication requires separate explicit confirmation. Automatic PR checks cover tests/build/static configuration and do not substitute for scan or deployment evidence.
 
 ## Implemented controls
 
@@ -36,3 +36,9 @@ There is no permanent registry token, kubeconfig, cloud key or real database pas
 ## Evidence
 
 Read [dated local security checks](../final-devops-project/security/evidence/README.md), then inspect the actual [GitHub workflow runs](https://github.com/jaivardhandrao/DevOps-Term-9/actions/workflows/final-project.yml). Each run uploads tests, redacted scan reports, negative-control checks and disposable deployment results. Screenshots must come from a completed run, not a mock diagram. A scan failure or an unavailable vulnerability database remains a blocker until fixed and rerun.
+
+## Verified CI prerequisite
+
+This actual [checks job](https://github.com/jaivardhandrao/DevOps-Term-9/actions/runs/37609532257/job/112753122569) passed the unit-test/build/static-configuration prerequisites. It is **not** the DevSecOps scan/deployment run. Actual security outcomes are separately recorded in the linked scanner reports above.
+
+![Actual successful unit-test, build and static-check steps](../evidence/october-7/screenshots/github-actions-job-112753122569.jpg)

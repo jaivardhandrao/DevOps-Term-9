@@ -73,4 +73,11 @@ Metrics use `taskboard_http_requests_total{method,path,status}` and `taskboard_h
 
 See [evidence](evidence/) for observed test results. Authored code, local container validation and any later Kubernetes/cloud demonstrations are distinct; the presence of this application does not establish a registry push or cloud deployment.
 
+The later [image remediation check](evidence/image-remediation.md) records the move to a
+patched Alpine backend and upgraded frontend OS packages after real image scans found
+vulnerable packages. Runtime users remain `10001:10001` and `101:101`. Dependency versions
+are unchanged, and the rebuilt musllinux backend passed its tests and connected to the
+disposable PostgreSQL database. This does not claim that existing running containers were
+recreated with the new images.
+
 ![TaskBoard desktop browser verification](evidence/taskboard-desktop.jpg)

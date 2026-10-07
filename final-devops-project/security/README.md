@@ -4,7 +4,7 @@ This is a classroom application. The automated checks below reduce specific risk
 
 ## Four blocking gates
 
-The executable workflow is [`../../.github/workflows/final-project.yml`](../../.github/workflows/final-project.yml). It uses `needs` dependencies, with no `continue-on-error` on any gate. The full workflow is manual dispatch only pending accepted execution approval. The separate automatic `assignment-checks.yml` workflow runs only unit tests, frontend builds and static Kubernetes/Helm validation.
+The executable workflow is [`../../.github/workflows/final-project.yml`](../../.github/workflows/final-project.yml). It uses `needs` dependencies, with no `continue-on-error` on any gate. The full workflow is manual dispatch only, with separate explicit authorization required for registry publication. The separate automatic `assignment-checks.yml` workflow runs only unit tests, frontend builds and static Kubernetes/Helm validation.
 
 | Layer | Pinned tool | Scope | Blocking rule |
 |---|---|---|---|
@@ -25,7 +25,7 @@ From the repository root, install Bandit in an isolated Python environment and p
 
 ```bash
 bandit -r final-devops-project/application/backend/app --severity-level medium
-trivy fs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 final-devops-project/application
+trivy fs --include-dev-deps --file-patterns 'pip:requirements.*\.txt$' --scanners vuln --severity HIGH,CRITICAL --exit-code 1 final-devops-project/application
 gitleaks dir . --config final-devops-project/security/gitleaks.toml --redact=100
 docker build --pull -f final-devops-project/docker/backend.Dockerfile -t taskboard-backend:local final-devops-project
 docker build --pull -f final-devops-project/docker/frontend.Dockerfile -t taskboard-frontend:local final-devops-project
@@ -34,7 +34,7 @@ trivy image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 taskboard-fro
 bash final-devops-project/security/test-gates.sh
 ```
 
-`test-gates.sh` generates disposable weak-crypto, synthetic-secret and vulnerable dependency fixtures outside the repository. It requires each real scanner to reject its fixture with exit 1. It also re-evaluates the actual vulnerable Trivy report. The latter checks report severity handling and is explicitly **not** an image scan; both real images are configured for scanning in the full workflow. `bash final-devops-project/security/test-gates.sh local` runs only the offline SAST/secret controls and explicitly reports that Trivy controls were not executed.
+`test-gates.sh` generates disposable weak-crypto, synthetic-secret and vulnerable dependency fixtures outside the repository. It verifies the expected finding in each JSON report and requires the configured finding exit code: 1 for Bandit, 42 for Gitleaks and Trivy. The distinct exit 42 keeps operational errors from being mistaken for detections. It also re-evaluates the actual vulnerable Trivy report. The latter checks report severity handling and is explicitly **not** an image scan; both real images are configured for scanning in the full workflow. `bash final-devops-project/security/test-gates.sh local` runs only the offline SAST/secret controls and explicitly reports that Trivy controls were not executed.
 
 ## Secrets and publication
 

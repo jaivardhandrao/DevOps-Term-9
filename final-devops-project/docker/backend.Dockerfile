@@ -1,12 +1,13 @@
-FROM python:3.12-slim AS base
+FROM python:3.12-alpine AS base
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
 WORKDIR /app
+RUN apk upgrade --no-cache
 COPY application/backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY application/backend/app ./app
 COPY application/backend/alembic ./alembic
 COPY application/backend/alembic.ini ./
-RUN groupadd --gid 10001 taskboard && useradd --uid 10001 --gid taskboard --no-create-home taskboard
+RUN addgroup -g 10001 taskboard && adduser -D -H -u 10001 -G taskboard taskboard
 
 FROM base AS test
 COPY application/backend/requirements-dev.txt ./
