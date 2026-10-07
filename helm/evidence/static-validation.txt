@@ -1,0 +1,16 @@
+Agent-operated static validation at 2026-10-07T10:10:13.815211+00:00
+$ ../.runtime/bin/helm version --short
+v3.19.0+g3d8990f
+exit=0
+$ ../.runtime/bin/helm lint helm/notes-chart
+==> Linting helm/notes-chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+exit=0
+$ ../.runtime/bin/helm lint helm/notes-chart -f helm/notes-chart/values-prod.yaml
+==> Linting helm/notes-chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+exit=0

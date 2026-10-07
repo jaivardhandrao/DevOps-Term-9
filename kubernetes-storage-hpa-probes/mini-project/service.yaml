@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: advanced-web
+  namespace: devops-advanced
+spec:
+  selector: {app: advanced-web}
+  ports:
+    - {port: 80, targetPort: http}

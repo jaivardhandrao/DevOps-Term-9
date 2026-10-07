@@ -1,0 +1,83 @@
+{
+  "status": "success",
+  "data": {
+    "activeTargets": [
+      {
+        "discoveredLabels": {
+          "__address__": "localhost:9090",
+          "__metrics_path__": "/metrics",
+          "__scheme__": "http",
+          "__scrape_interval__": "5s",
+          "__scrape_timeout__": "5s",
+          "job": "prometheus"
+        },
+        "labels": {
+          "instance": "localhost:9090",
+          "job": "prometheus"
+        },
+        "scrapePool": "prometheus",
+        "scrapeUrl": "http://localhost:9090/metrics",
+        "globalUrl": "http://prometheus-5c559dcd5f-ftl9l:9090/metrics",
+        "lastError": "",
+        "lastScrape": "2026-10-07T10:19:57.544322176Z",
+        "lastScrapeDuration": 0.00631675,
+        "health": "up",
+        "scrapeInterval": "5s",
+        "scrapeTimeout": "5s"
+      },
+      {
+        "discoveredLabels": {
+          "__address__": "backend.capstone-oct7.svc.cluster.local:8000",
+          "__metrics_path__": "/metrics",
+          "__scheme__": "http",
+          "__scrape_interval__": "5s",
+          "__scrape_timeout__": "5s",
+          "job": "taskboard"
+        },
+        "labels": {
+          "instance": "backend.capstone-oct7.svc.cluster.local:8000",
+          "job": "taskboard"
+        },
+        "scrapePool": "taskboard",
+        "scrapeUrl": "http://backend.capstone-oct7.svc.cluster.local:8000/metrics",
+        "globalUrl": "http://backend.capstone-oct7.svc.cluster.local:8000/metrics",
+        "lastError": "Get \"http://backend.capstone-oct7.svc.cluster.local:8000/metrics\": dial tcp: lookup backend.capstone-oct7.svc.cluster.local on 10.96.0.10:53: no such host",
+        "lastScrape": "2026-10-07T10:19:54.501490218Z",
+        "lastScrapeDuration": 0.003276541,
+        "health": "down",
+        "scrapeInterval": "5s",
+        "scrapeTimeout": "5s"
+      },
+      {
+        "discoveredLabels": {
+          "__address__": "http://backend.capstone-oct7.svc.cluster.local:8000/ready",
+          "__metrics_path__": "/probe",
+          "__param_module": "http_2xx",
+          "__scheme__": "http",
+          "__scrape_interval__": "5s",
+          "__scrape_timeout__": "5s",
+          "job": "taskboard-readiness"
+        },
+        "labels": {
+          "instance": "http://backend.capstone-oct7.svc.cluster.local:8000/ready",
+          "job": "taskboard-readiness"
+        },
+        "scrapePool": "taskboard-readiness",
+        "scrapeUrl": "http://blackbox:9115/probe?module=http_2xx&target=http%3A%2F%2Fbackend.capstone-oct7.svc.cluster.local%3A8000%2Fready",
+        "globalUrl": "http://blackbox:9115/probe?module=http_2xx&target=http%3A%2F%2Fbackend.capstone-oct7.svc.cluster.local%3A8000%2Fready",
+        "lastError": "",
+        "lastScrape": "2026-10-07T10:19:53.122697634Z",
+        "lastScrapeDuration": 0.006922792,
+        "health": "up",
+        "scrapeInterval": "5s",
+        "scrapeTimeout": "5s"
+      }
+    ],
+    "droppedTargets": [],
+    "droppedTargetCounts": {
+      "prometheus": 0,
+      "taskboard": 0,
+      "taskboard-readiness": 0
+    }
+  }
+}

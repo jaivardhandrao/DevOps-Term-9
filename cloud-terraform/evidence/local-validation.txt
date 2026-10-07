@@ -1,0 +1,77 @@
+Local validation only; AWS provider mocked in terraform test. No AWS credentials or cloud resources used.
+
+$ terraform version
+Terraform v1.15.8
+on darwin_arm64
+
+[exit 0]
+
+$ terraform fmt -recursive
+main.tf
+
+[exit 0]
+
+$ terraform init -backend=false -input=false -no-color
+Initializing provider plugins...
+- Finding hashicorp/aws versions matching "6.58.0"...
+
+Error: Failed to query available provider packages
+
+Could not retrieve the list of available versions for provider hashicorp/aws:
+could not connect to registry.terraform.io: failed to request discovery
+document: GET https://registry.terraform.io/.well-known/terraform.json giving
+up after 4 attempt(s): Get
+"https://registry.terraform.io/.well-known/terraform.json": dial tcp: lookup
+registry.terraform.io: no such host
+
+To see which modules are currently depending on hashicorp/aws and what
+versions are specified, run the following command:
+    terraform providers
+
+[exit 1]
+
+Retry with network access for the public Terraform provider download.
+
+$ terraform init -backend=false -input=false -no-color
+Initializing provider plugins...
+- Finding hashicorp/aws versions matching "6.58.0"...
+- Installing hashicorp/aws v6.58.0...
+- Installed hashicorp/aws v6.58.0 (signed by HashiCorp)
+
+Terraform has created a lock file .terraform.lock.hcl to record the provider
+selections it made above. Include this file in your version control repository
+so that Terraform can guarantee to make the same selections by default when
+you run "terraform init" in the future.
+
+Terraform has been successfully initialized!
+
+[exit 0]
+
+$ terraform validate -no-color
+Success! The configuration is valid.
+
+
+[exit 0]
+
+$ terraform test -no-color
+tests/infrastructure.tftest.hcl... in progress
+  run "network_and_compute_contract"... pass
+  run "reject_public_ingress"... pass
+  run "reject_wrong_vpc_size"... pass
+  run "reject_incompatible_arm_instance"... pass
+tests/infrastructure.tftest.hcl... tearing down
+tests/infrastructure.tftest.hcl... pass
+
+Success! 4 passed, 0 failed.
+
+[exit 0]
+
+Final source verification: 2026-10-07T10:14:22.939651+00:00
+$ terraform fmt -recursive
+
+[exit 0]
+
+$ terraform fmt -check -recursive
+
+[exit 0]
+

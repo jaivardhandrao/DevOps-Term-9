@@ -1,0 +1,37 @@
+{
+  "status": "success",
+  "data": {
+    "alerts": [
+      {
+        "labels": {
+          "alertname": "TaskBoardUnavailable",
+          "instance": "backend.capstone-oct7.svc.cluster.local:8000",
+          "job": "taskboard",
+          "severity": "critical"
+        },
+        "annotations": {
+          "runbook": "Check backend Service endpoints, Pod state and logs.",
+          "summary": "TaskBoard metrics endpoint is unreachable"
+        },
+        "state": "firing",
+        "activeAt": "2026-10-07T10:13:32.119064603Z",
+        "value": "0e+00"
+      },
+      {
+        "labels": {
+          "alertname": "TaskBoardNotReady",
+          "instance": "http://backend.capstone-oct7.svc.cluster.local:8000/ready",
+          "job": "taskboard-readiness",
+          "severity": "critical"
+        },
+        "annotations": {
+          "runbook": "Check database readiness and migration Job; /health can pass while /ready fails.",
+          "summary": "TaskBoard cannot serve requests"
+        },
+        "state": "firing",
+        "activeAt": "2026-10-07T10:13:47.119064603Z",
+        "value": "0e+00"
+      }
+    ]
+  }
+}

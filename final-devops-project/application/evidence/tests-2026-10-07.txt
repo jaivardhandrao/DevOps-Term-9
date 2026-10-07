@@ -1,0 +1,22 @@
+Observed locally on 2026-10-07 in isolated Docker containers (Docker Engine 29.4.3).
+
+Command: docker run --rm --network none --read-only --tmpfs /tmp taskboard-backend-test:local
+Result: exit 0
+...........                                                              [100%]
+11 passed, 1 warning in 0.06s
+
+Warning: StarletteDeprecationWarning: Using httpx with starlette.testclient is
+deprecated; install httpx2 instead. Current pinned httpx test client still passes.
+
+Command: docker compose build backend frontend
+Result: exit 0; taskboard-backend:local and taskboard-frontend:local built.
+Frontend Docker build ran npm ci, npm test, npm run build:
+  npm audit result at install time: found 0 vulnerabilities
+  node --test src/api.test.js: tests 5, pass 5, fail 0
+  Vite v8.3.3: 16 modules transformed; built in 72ms
+  dist/index.html: 0.41 kB
+  dist/assets/index-DJ5XStxv.css: 10.78 kB
+  dist/assets/index-BolY2xL6.js: 230.07 kB
+
+These are application tests and build results. They do not establish cloud,
+registry, GitHub Actions, Kubernetes, or security-scanner execution.

@@ -1,0 +1,6 @@
+Agent-operated HTTP smoke check at 2026-10-07T10:08:17.643934+00:00
+Exact application handler tested with an ephemeral loopback binding.
+/ 200 Session 13: persistent, probed, autoscaled web app
+/health 200 Session 13: persistent, probed, autoscaled web app
+/ready 200 Session 13: persistent, probed, autoscaled web app
+/work 200 Session 13: persistent, probed, autoscaled web app

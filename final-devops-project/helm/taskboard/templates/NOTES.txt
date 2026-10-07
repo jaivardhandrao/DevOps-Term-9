@@ -1,0 +1,6 @@
+Access locally without a public endpoint:
+  kubectl -n {{ .Release.Namespace }} port-forward --address 127.0.0.1 svc/frontend 18080:8080
+
+The database password is read from the existing Secret {{ .Values.database.existingSecret }}.
+Postgres data remains in its PVC after Helm uninstall; delete the disposable namespace only after exporting evidence.
+The migration Job must complete before /ready succeeds. Metrics are at backend:8000/metrics.

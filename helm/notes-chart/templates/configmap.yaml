@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  APP_NAME: {{ .Values.app.name | quote }}
+  ENVIRONMENT: {{ .Values.app.environment | quote }}
+  index.html: |
+    <!doctype html><html lang="en"><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{{ .Values.app.name | html }}</title>
+    <style>body{font:20px system-ui;max-width:40rem;margin:12vh auto;padding:2rem;background:#f3efe5;color:#173329}h1{font-size:3rem}small{color:#527164}</style>
+    <main><small>{{ .Values.app.environment | html }}</small><h1>{{ .Values.app.name | html }}</h1><p>{{ .Values.app.message | html }}</p></main></html>

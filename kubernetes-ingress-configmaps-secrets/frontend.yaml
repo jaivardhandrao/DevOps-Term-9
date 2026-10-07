@@ -12,7 +12,7 @@ spec:
     metadata:
       labels:
         app: demo-frontend
-        version: DevOps session 12 frontend
+        version: session-12-frontend
     spec:
       containers:
       - name: web

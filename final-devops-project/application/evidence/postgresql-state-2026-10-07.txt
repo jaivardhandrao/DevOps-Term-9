@@ -1,0 +1,10 @@
+ version_num 
+-------------
+ 0001
+(1 row)
+
+ id |             title             |   status    | priority 
+----+-------------------------------+-------------+----------
+  2 | Prepare the release checklist | in_progress | high
+(1 row)
+
